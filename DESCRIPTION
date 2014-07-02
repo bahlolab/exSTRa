@@ -1,0 +1,9 @@
+Package: strexpansion
+Type: Package
+Title: Detecting short tandem repeat expansions in high-throughput sequencing data
+Version: 1.0
+Date: 2014-07-02
+Author: Rick Tankard
+Maintainer: Rick Tankard <tankard@wehi.edu.au>
+Description: More about what it does (maybe more than one line)
+License: GPL-2
