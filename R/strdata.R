@@ -6,12 +6,12 @@ library(testit)
 
 is.strdata <- function(x) inherits(x, "strdata")
 
-read.strs <- function(data, database) {
+strs_read <- function(file, database) {
   # Load the STR counts
   # read.strs(data = "read_counts.txt", database = strdatabase)
   assert("read.strs requires database to be a strdb", inherits(database, "strdb"))
   # Read in data
-  counts <- read.delim(data.in.file)
+  counts <- read.delim(data)
   return(strdata_new(counts, database))
 }
 
