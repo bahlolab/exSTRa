@@ -5,6 +5,24 @@ library(data.table)
 library(stringr)
 library(xlsx)
 
+strdb <- function(dt) {
+  # Transforms a data.frame or data.table into a strdb object
+  if (!is.data.frame(dt)) stop("dt must be data.frame")
+  dt <- data.table(dt)
+  class(dt) <- c("strdb", class(dt))
+  dt
+  #structure(list(db = dt), class = c("strdb"))
+}
+
+strdb_new <- function() {
+  # Creates an empty strdb object (may not have any use)
+  x <- data.table()
+  class(x) <- "strdb"
+  x
+}
+
+is.strdb <- function(x) inherits(x, "strdb")
+
 strdb_read <- function(file) {
   # Open up a file to load a STR database object
   if (!is.character(file)) stop("file must be character")
@@ -32,21 +50,7 @@ strdb_text <- function(file) {
   stop("Text strdb reading not yet implemented")
 }
 
-strdb_new <- function() {
-  x <- data.table()
-  class(x) <- "strdb"
-  x
-}
 
-strdb <- function(dt) {
-  if (!is.data.frame(dt)) stop("dt must be data.frame")
-  dt <- data.table(dt)
-  class(dt) <- c("strdb", class(dt))
-  dt
-  #structure(list(db = dt), class = c("strdb"))
-}
-
-is.strdb <- function(x) inherits(x, "strdb")
 
 
 Y <- strdb_read("/Users/tankard/Documents/Research/repeats/disease_repeats/repeat_disorders.xlsx")
