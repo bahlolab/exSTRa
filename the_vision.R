@@ -2,11 +2,11 @@
 
 library(strexpansion)
 
-strdatabase = read.strs.xlsx("repeat_disorders.xlsx") # class strdb
+strdatabase = strdb_read("/Users/tankard/Documents/Research/repeats/disease_repeats/repeat_disorders.xlsx") # class strdb
 # or 
 # strdatabase = read.strs.ucsc("simpleRepeat.txt.gz")
 
-strcounts <- read.strs(data = "read_counts.txt", database = strdatabase) # class strdata
+strcounts <- strs_read(file = "/Users/tankard/Documents/Research/repeats/read_simulation/str_simulations/summarising_simulations/simulation_summary_03.txt", database = strdatabase) # class strdata
 
 strcount.perm <- str_permutation_testing(strcounts) # class strdataperm (maybe a subclass of strcount???)
 
