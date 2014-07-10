@@ -1,3 +1,6 @@
+# The strdb class
+# Includes information on STRs, whether they are disease-causing or of a general nature
+
 library(data.table)
 library(stringr)
 library(xlsx)
