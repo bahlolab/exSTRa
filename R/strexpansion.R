@@ -266,6 +266,8 @@ qqplot.pvalue <- function(pvalues = NULL, p.trans = -log10(pvalues),
                           pvalues.alt = NA, p.trans.alt = -log10(pvalues.alt), 
                           main = "QQ plot of p-values", xlab = "Null", ylab = "Observed") {
   # Create a QQ plot of p-values with confidence intervals
+  # http://gettinggeneticsdone.blogspot.com.au/2009/11/qq-plots-of-p-values-in-r-using-ggplot2.html
+  # 17th July 2014
   N <- length(p.trans) ## number of p-values
   assert("Require at least one observation", N > 0)
   
