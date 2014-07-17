@@ -2,7 +2,8 @@
 
 library(strexpansion)
 
-strdatabase = strdb_read("/Users/tankard/Documents/Research/repeats/disease_repeats/repeat_disorders.xlsx") # class strdb
+strdatabase <- strdb_read("/Users/tankard/Documents/Research/repeats/disease_repeats/repeat_disorders.xlsx") # class strdb
+strdatabase
 # or 
 # strdatabase = read.strs.ucsc("simpleRepeat.txt.gz")
 

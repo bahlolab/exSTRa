@@ -5,13 +5,13 @@ library(data.table)
 library(stringr)
 library(xlsx)
 
-strdb <- function(dt) {
+strdb <- function(dt, input_type = NULL) {
   # Transforms a data.frame or data.table into a strdb object
   if (!is.data.frame(dt)) stop("dt must be data.frame")
   dt <- data.table(dt)
-  class(dt) <- c("strdb", class(dt))
-  dt
-  #structure(list(db = dt), class = c("strdb"))
+  #class(dt) <- c("strdb", class(dt))
+  #dt
+  structure(list(db = dt, input_type = input_type), class = c("strdb"))
 }
 
 strdb_new <- function() {
@@ -37,7 +37,7 @@ strdb_read <- function(file) {
 
 strdb_xlsx <- function(file) {
   if (!is.character(file)) stop("file must be character")
-  strdb(read.xlsx(file, 1))
+  strdb(read.xlsx(file, 1), "named")
 }
 
 strdb_ucsc <- function(file) {
@@ -49,7 +49,6 @@ strdb_text <- function(file) {
   if (!is.character(file)) stop("file must be character")
   stop("Text strdb reading not yet implemented")
 }
-
 
 
 
