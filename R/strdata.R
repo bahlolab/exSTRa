@@ -16,11 +16,14 @@ strs_read <- function(file, database) {
 }
 
 strdata_new <- function(data, db) {
-  structure(list(data = data, db = db), class = c("strdata"))
+  assert("data", inherits(data, "data.frame"))
+  assert("db must be of class strdb", inherits(db, "strdb"))
+  structure(list(data = data.table(data), db = db), class = c("strdata"))
 }
 
 print.strdata <- function(x, ...) {
-  cat("strdata object with", dim(x$data)[1], "observations of type",  x$db$input_type )
+  cat("strdata object with ", dim(x$data)[1], " observations of type ",  x$db$input_type, ".\n",
+      "Includes associated STR database of ", dim(x$db$db)[1], " loci.", sep = "")
 }
 
 
