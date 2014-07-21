@@ -26,4 +26,8 @@ print.strdata <- function(x, ...) {
       "Includes associated STR database of ", dim(x$db$db)[1], " loci.", sep = "")
 }
 
+strloci.strdata <- function(data) {  
+  strloci(data$db)
+}
+
 

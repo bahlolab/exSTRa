@@ -4,6 +4,7 @@
 library(data.table)
 library(stringr)
 library(xlsx)
+library(testit)
 
 strdb <- function(dt, input_type = NULL) {
   # Transforms a data.frame or data.table into a strdb object
@@ -37,7 +38,10 @@ strdb_read <- function(file) {
 
 strdb_xlsx <- function(file) {
   if (!is.character(file)) stop("file must be character")
-  strdb(read.xlsx(file, 1), "named")
+  data <- read.xlsx(file, 1)
+  assert("xlsx requires Disease column", ! is.null(data$Disease))
+  data$disease.symbol <- sub(".*\\((.*)\\).*", "\\1", data$Disease, perl = T)
+  strdb(data, "named")
 }
 
 strdb_ucsc <- function(file) {
@@ -48,6 +52,12 @@ strdb_ucsc <- function(file) {
 strdb_text <- function(file) {
   if (!is.character(file)) stop("file must be character")
   stop("Text strdb reading not yet implemented")
+}
+
+strloci <- function(x) UseMethod("strloci", x)
+
+strloci.strdb <- function(strdb) {  
+  strdatabase$db$disease.symbol
 }
 
 
