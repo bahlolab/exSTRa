@@ -6,7 +6,7 @@ library(testit)
 
 is.strdata <- function(x) inherits(x, "strdata")
 
-strs_read <- function(file, database) {
+strs_read <- function(file, database, groups = NULL, groups.regex = c("control", "case")) {
   # Load the STR counts
   # read.strs(data = "read_counts.txt", database = strdatabase)
   assert("read.strs requires database to be a strdb", inherits(database, "strdb"))

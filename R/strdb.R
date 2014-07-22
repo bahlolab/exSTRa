@@ -54,7 +54,7 @@ strdb_text <- function(file) {
   stop("Text strdb reading not yet implemented")
 }
 
-strloci <- function(x) UseMethod("strloci", x)
+strloci <- function(...) UseMethod("strloci")
 
 strloci.strdb <- function(strdb) {  
   strdatabase$db$disease.symbol

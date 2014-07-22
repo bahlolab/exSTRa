@@ -10,7 +10,14 @@ strdatabase
 strcounts <- strs_read(file = "/Users/tankard/Documents/Research/repeats/read_simulation/str_simulations/summarising_simulations/simulation_summary_03.txt", database = strdatabase) # class strdata
 strcounts
 
-strcount.perm <- str_chisq_permutation_test(strcounts) # class strdataperm (maybe a subclass of strcount???)
+strcount.perm <- str_chisq_permutation_test(strcounts,
+                                            cols = c("up_00", "up_01", "up_11", "up_02", "up_12", "up_22"), 
+                                            keep.rows = c("up_01", "up_11", "up_02", "up_12"),
+                                            #groups = NA, # instead of states
+                                            groups.regex = c("normal", "expanded"), # alternative way
+                                            #loci = strloci(data),
+                                            B = 100000, 
+                                            require.nozero = TRUE) # class strdataperm (maybe a subclass of strcount???)
 
 plot(strcount.perm) # plot all the disease p-values with confidence intervals in one plot
 
