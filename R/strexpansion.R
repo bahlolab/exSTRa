@@ -9,23 +9,6 @@ library(testit)
 library(car)
 
 ## functions ##
-finding.property.of.features <- function(features, states, disease.name, cols, FUN) {
-  feature.count.fun <- data.frame()
-  for (stay in states) {
-    one.sample.one.disease <- subset(features, disease == disease.name & state == stay, select = cols)
-    column.fun <- c(apply(one.sample.one.disease, 2, FUN))
-    feature.count.fun <- rbind(feature.count.fun, column.fun) 
-  }
-  names( feature.count.fun ) <- cols
-  
-  feature.count.fun.for.plot <- data.frame()
-  for(i in 1:dim(feature.count.fun)[2]) {
-    a <- data.frame( feat = rep(names(feature.count.fun)[i], 2), result = feature.count.fun[,i], state = states)
-    feature.count.fun.for.plot <- rbind(feature.count.fun.for.plot, a)
-  }
-  return(feature.count.fun.for.plot)
-}
-
 collapse.contigency.table.2 <- function(c.table, rows, names = c("provided", "other")) {
   # collapse out a table so there are only two rows
   # The given row/s are one group, with all the others the other group

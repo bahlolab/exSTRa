@@ -19,8 +19,6 @@ strloci.str_chisq_perm_test <- function(X) {
 str_chisq_permutation_test <- function(data,
                                        cols, 
                                        keep.rows,
-                                       groups = NULL, # instead of states
-                                       groups.regex = NULL, # alternative way, may be named to indicate group names
                                        loci = strloci(data),
                                        B = 100000, 
                                        require.nozero = TRUE) {
@@ -34,26 +32,14 @@ str_chisq_permutation_test <- function(data,
   assert("data is required to be of the class strdata", inherits(data, "strdata"))
   assert("loci should be an atomic vector", is.atomic(loci))
   assert("B should be a single numeric", is.numeric(B), is.atomic(B), length(B) == 1)
-  assert("Need groups or groups.regex to be defined", !is.null(groups) || !is.null(groups.regex))
-  assert("Only one of groups or groups.regex to be defined", xor(is.null(groups), is.null(groups.regex)))
   
   # Pull the input data apart
   features <- data$data
+  groups <- data$data$group
   # replace states by groups
   
   # Prepare inputs
   loci <- as.character(loci)
-  groups <- NULL
-  if(is.null(groups)) {
-    # using regex for groups
-    if(is.null(names(groups.regex))) {
-      names(groups.regex) <- groups.regex
-    }
-    groups <- factor(rep(NA, dim(features)[1]), levels = names(groups.regex))
-    for(group.name in names(groups.regex)) {
-      groups[grepl(groups.regex[group.name], features$sample)] <- group.name
-    }
-  }
   
   # Storing results
   disease.chisq.statistics <- data.table()
@@ -69,8 +55,8 @@ str_chisq_permutation_test <- function(data,
     feature.count <- finding.property.of.features(features, groups, locus, cols, sum) 
     feature.count$sums <- feature.count$result
     
-    cont.table <- matrix(feature.count[order(feature.count$state), ]$sums, ncol = 2)
-    colnames(cont.table) <- unique(sort(feature.count$state))
+    cont.table <- matrix(feature.count[order(feature.count$group), ]$sums, ncol = nlevels(groups))
+    colnames(cont.table) <- unique(sort(feature.count$group))
     rownames(cont.table) <- unique(feature.count$feat)
     
     if(!is.null(features$disease)) {
@@ -82,14 +68,14 @@ str_chisq_permutation_test <- function(data,
     }
     for(sample.name in levels(features$sample)) {
       sample.data <- subset(features, sample == sample.name & str.names == locus)
-      if(sample.data$state[1] == "expanded") {
+      if(sample.data$group[1] == "expanded") {
         # expanded sample, compare to normals
         cont.table.1.sample <- cont.table
       } else {
         # normal sample, compare to other normals with leave one out
         leave.one.out.counts <- finding.property.of.features(subset(features, sample != sample.name), groups, locus, cols, sum)
-        cont.table.1.sample <- matrix(leave.one.out.counts[order(leave.one.out.counts$state), ]$result, ncol = 2)
-        colnames(cont.table.1.sample) <- unique(sort(leave.one.out.counts$state))
+        cont.table.1.sample <- matrix(leave.one.out.counts[order(leave.one.out.counts$group), ]$result, ncol = 2)
+        colnames(cont.table.1.sample) <- unique(sort(leave.one.out.counts$group))
         rownames(cont.table.1.sample) <- unique(leave.one.out.counts$feat)
       }		
       colnames(cont.table.1.sample)[1] <- "subject"
@@ -133,10 +119,10 @@ str_chisq_permutation_test <- function(data,
   )
 }
 
-finding.property.of.features <- function(features, states, disease.name, cols, FUN) {
+finding.property.of.features <- function(features, groups, disease.name, cols, FUN) {
   feature.count.fun <- data.frame()
-  for (stay in states) {
-    one.sample.one.disease <- subset(features, disease == disease.name & state == stay, select = cols)
+  for (g in levels(groups)) {
+    one.sample.one.disease <- subset(features, disease == disease.name & group == g, select = cols)
     column.fun <- c(apply(one.sample.one.disease, 2, FUN))
     feature.count.fun <- rbind(feature.count.fun, column.fun) 
   }
@@ -144,7 +130,7 @@ finding.property.of.features <- function(features, states, disease.name, cols, F
   
   feature.count.fun.for.plot <- data.frame()
   for(i in 1:dim(feature.count.fun)[2]) {
-    a <- data.frame( feat = rep(names(feature.count.fun)[i], 2), result = feature.count.fun[,i], state = states)
+    a <- data.frame( feat = rep(names(feature.count.fun)[i], nlevels(groups)), result = feature.count.fun[,i], group = levels(groups))
     feature.count.fun.for.plot <- rbind(feature.count.fun.for.plot, a)
   }
   return(feature.count.fun.for.plot)
