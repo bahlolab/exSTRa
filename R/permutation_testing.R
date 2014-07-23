@@ -19,6 +19,7 @@ strloci.str_chisq_perm_test <- function(X) {
 str_chisq_permutation_test <- function(data,
                                        cols, 
                                        keep.rows,
+                                       collapsing.guide = NULL, 
                                        loci = strloci(data),
                                        B = 100000, 
                                        require.nozero = TRUE,
@@ -46,10 +47,10 @@ str_chisq_permutation_test <- function(data,
   loci <- as.character(loci)
   
   # Storing results
-  disease.chisq.statistics <- data.table()
-  disease.chisq.df <- data.table()
-  disease.chisq.p.value <- data.table()
-  disease.read.total <- data.table()
+  disease.chisq.statistics <- data.frame() #TODO: make data.table
+  disease.chisq.df <- data.frame()
+  disease.chisq.p.value <- data.frame()
+  disease.read.total <- data.frame()
   for(locus in loci) {
     # Need to first sum the data over the normal samples and the 
     # expanded samples
@@ -65,7 +66,10 @@ str_chisq_permutation_test <- function(data,
     
     for(sample.name in levels(features$sample)) {
       #TODO: delete me #sample.data <- subset(features, sample == sample.name & loci == locus) 
-      sample.data <- features[.(locus, sample.name)]
+      sample.data <- features[.(locus, sample.name), nomatch = 0]
+      if(dim(sample.data)[1] == 0) {
+        next
+      }
       assert("Sample appears to be in multiple groups", length(unique(sample.data$group)) == 1)
       if(is.null(group_null)) {
         # No samples given for null distribution, so use the leave-one-out procedure for the null distribution
@@ -89,7 +93,7 @@ str_chisq_permutation_test <- function(data,
       colnames(cont.table.1.sample) <- c("subject", "null")
       rownames(cont.table.1.sample) <- rownames(cont.table)
 
-      if(!is.na(collapsing.guide[1])) {
+      if(!is.null(collapsing.guide)) {
         for(simple_feature in names(collapsing.guide)) {
           cont.table.1.sample <- collapse.contigency.table.single(cont.table.1.sample, 
                                                                   grep(collapsing.guide[simple_feature], rownames(cont.table.1.sample), value = T), name = simple_feature)
@@ -112,7 +116,7 @@ str_chisq_permutation_test <- function(data,
       }
       
       disease.chisq.statistics[locus, sample.name] <- test$statistic 
-      disease.chisq.df[locus, sample.name]  <- test$parameter
+      disease.chisq.df[locus, sample.name]  <- test$parameter # TODO: Probably entirely useless??? Maybe replace with remaining categories?
       disease.chisq.p.value[locus, sample.name]  <- test$p.value
       disease.read.total[locus, sample.name] <- sum(cont.table.1.sample[, "subject"])
     }
