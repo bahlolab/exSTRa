@@ -29,10 +29,12 @@ strs_read <- function(file, database, groups = "control", groups.regex = NULL) {
   return(strdata_new(counts, database))
 }
 
-strdata_new <- function(data, db) {
+strdata_new <- function(data, db, samples = NULL) {
   assert("data", inherits(data, "data.frame"))
   assert("db must be of class strdb", inherits(db, "strdb"))
-  structure(list(data = data.table(data), db = db), class = c("strdata"))
+  data <- data.table(data)
+  setkey(data, disease, sample)
+  structure(list(data = data.table(data), db = db, samples = samples), class = c("strdata"))
 }
 
 print.strdata <- function(x, ...) {

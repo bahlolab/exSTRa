@@ -21,7 +21,11 @@ str_chisq_permutation_test <- function(data,
                                        keep.rows,
                                        loci = strloci(data),
                                        B = 100000, 
-                                       require.nozero = TRUE) {
+                                       require.nozero = TRUE,
+                                       group_null = NULL,
+                                       group_control = "control",
+                                       group_case = "case"
+                                       ) {
   # Runs a permutation test
   # Old giving.statistics function inputs:
   # function(cols, keep.rows, diseases, features, states, collapsing.guide = NA, require.nozero = FALSE, B = 100000)
@@ -59,27 +63,32 @@ str_chisq_permutation_test <- function(data,
     colnames(cont.table) <- unique(sort(feature.count$group))
     rownames(cont.table) <- unique(feature.count$feat)
     
-    if(!is.null(features$disease)) {
-      str.names <- features$disease
-    } else if(!is.null(features$STR)) {
-      str.names <- features$STR
-    } else {
-      stop("Could not find the str column in the features of the giving.statistics function.")
-    }
     for(sample.name in levels(features$sample)) {
-      sample.data <- subset(features, sample == sample.name & str.names == locus)
-      if(sample.data$group[1] == "expanded") {
-        # expanded sample, compare to normals
-        cont.table.1.sample <- cont.table
+      #TODO: delete me #sample.data <- subset(features, sample == sample.name & loci == locus) 
+      sample.data <- features[.(locus, sample.name)]
+      assert("Sample appears to be in multiple groups", length(unique(sample.data$group)) == 1)
+      if(is.null(group_null)) {
+        # No samples given for null distribution, so use the leave-one-out procedure for the null distribution
+        if(sample.data$group[1] == group_case) {
+          # expanded sample, compare to normals
+          cont.table.1.sample.v <- cont.table[, group_control]
+        } else if (sample.data$group[1] == group_control) {
+          # normal sample, compare to other normals with leave one out
+          leave.one.out.counts <- finding.property.of.features(subset(features, sample != sample.name), as.factor(group_control), locus, cols, sum)
+          cont.table.1.sample.v <- leave.one.out.counts[order(leave.one.out.counts$group), ]$result
+
+        } else {
+          stop("Unknown group ", sample.data$group[1])
+        }
       } else {
-        # normal sample, compare to other normals with leave one out
-        leave.one.out.counts <- finding.property.of.features(subset(features, sample != sample.name), groups, locus, cols, sum)
-        cont.table.1.sample <- matrix(leave.one.out.counts[order(leave.one.out.counts$group), ]$result, ncol = 2)
-        colnames(cont.table.1.sample) <- unique(sort(leave.one.out.counts$group))
-        rownames(cont.table.1.sample) <- unique(leave.one.out.counts$feat)
-      }		
-      colnames(cont.table.1.sample)[1] <- "subject"
-      cont.table.1.sample[, "subject"] <- unlist(sample.data[rownames(cont.table.1.sample)])
+        # Have samples for null distribution, so compare controls to the null and cases to the null
+        stop("This feature not yet implemented for nulls, controls and cases")
+      }
+            
+      cont.table.1.sample <- matrix(c(unlist(sample.data[, rownames(cont.table), with = F]), cont.table.1.sample.v), ncol = 2)
+      colnames(cont.table.1.sample) <- c("subject", "null")
+      rownames(cont.table.1.sample) <- rownames(cont.table)
+
       if(!is.na(collapsing.guide[1])) {
         for(simple_feature in names(collapsing.guide)) {
           cont.table.1.sample <- collapse.contigency.table.single(cont.table.1.sample, 
