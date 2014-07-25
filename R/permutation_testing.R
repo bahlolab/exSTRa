@@ -2,14 +2,20 @@
 
 is.str_chisq_perm_test <- function(x) inherits(x, "str_chisq_perm_test")
 
-str_chisq_perm_test_new <- function(data, loci, statistic, df, p.value, reads.total, B)
+str_chisq_perm_test_new <- function(data, loci, statistic, df, p.value, reads.total, B, 
+                                    group_case,
+                                    group_control,
+                                    group_null)
 {
   assert("Input should be data.frames", is.data.frame(statistic), is.data.frame(df), is.data.frame(p.value), is.data.frame(reads.total))
   assert("B should be a single positive numeric", is.numeric(B), is.atomic(B), length(B) == 1, B >= 1)
   assert("data should be of class strdata", is.strdata(data))
   assert("loci should be a character vector", is.character(loci))
   structure(
-    list(data = data, loci = loci, statistic = statistic, df = df, p.value = p.value, reads.total = reads.total), 
+    list(data = data, loci = loci, statistic = statistic, df = df, p.value = p.value, reads.total = reads.total, B = B, 
+         group_case = group_case,
+         group_control = group_control,
+         group_null = group_null), 
     class = c("str_chisq_perm_test")
   )
 }
@@ -48,7 +54,7 @@ str_chisq_permutation_test <- function(data,
   
   # Prepare inputs
   loci <- as.character(loci)
-  B <- as.interger(B)
+  B <- as.integer(B)
   
   # Storing results
   disease.chisq.statistics <- data.frame() #TODO: make data.table
@@ -69,7 +75,6 @@ str_chisq_permutation_test <- function(data,
     rownames(cont.table) <- unique(feature.count$feat)
     
     for(sample.name in levels(features$sample)) {
-      #TODO: delete me #sample.data <- subset(features, sample == sample.name & loci == locus) 
       sample.data <- features[.(locus, sample.name), nomatch = 0]
       if(dim(sample.data)[1] == 0) {
         next
@@ -133,7 +138,10 @@ str_chisq_permutation_test <- function(data,
     df = disease.chisq.df,
     p.value = disease.chisq.p.value,
     reads.total = disease.read.total, 
-    B = B
+    B = B, 
+    group_case = group_case,
+    group_control = group_control,
+    group_null = group_null
   )
 }
 
@@ -209,10 +217,10 @@ plot.str_chisq_perm_test <- function(x, multi = FALSE, auto.layout = FALSE,
                              statistics = x$p.value, 
                              diseases = disease.order.by.coverage(x$reads.total), 
                              read.counts = x$reads.total, 
-                             #width = 15, height = 9, 
-                             #mfrow=c(3, 7), 
-                             #mar = c(2.5, 2, 1.5, 1) + 0.1, 
-                             #log = "", 
+                             width = 15, height = 9, 
+                             mfrow=c(3, 7), 
+                             mar = c(2.5, 2, 1.5, 1) + 0.1, 
+                             log = "", 
                              plot.blanks = TRUE, 
                              xlim = NULL, 
                              ylim = NULL,
@@ -228,11 +236,9 @@ plot.str_chisq_perm_test <- function(x, multi = FALSE, auto.layout = FALSE,
   par(mfrow = mfrow, mar = mar)
   plot.count <- 0
   for(disease.name in diseases) {
-    #if(disease.name == "FRDA") {
-    #  plot(NA, NA, main = "FRDA")
-    #	next	
-    #}
-    #cat("working on", disease.name, "\n")
+    
+    y <- group_control
+    yy <- group_case
     if(sum(grepl("expanded|normal", colnames(statistics))) == dim(statistics)[2]) {
       d <- data.frame(
         expanded = unlist(statistics[disease.name, grepl("expanded", colnames(statistics))]), 
@@ -261,21 +267,12 @@ plot.str_chisq_perm_test <- function(x, multi = FALSE, auto.layout = FALSE,
       if((plot.count <- plot.count + 1) > prod(mfrow)) {
         stop("Error, too many plots attempted")
       }
-      #qqplot(-log10(q.fun(ppoints(length(y)))), 
-      #       -log10(y),
-      #       main = paste(disease.name, "Q-Q")
-      #       , xlim = xlim
-      #       , ylim = ylim
-      #)
-      #curve(x * 1, 0, -log10(low.p), add = TRUE, col = "red")
+
       qqplot.pvalue(y, pvalues.alt = yy, main = paste(disease.name, "Q-Q"))
       if(!is.null(read.counts)) {
         text(.154, 4, paste(sum(read.counts[disease.name, ]), "reads", sep="\n"), cex = 2)
       }
     }
-    #if(sum(is.na(yy)) < length(yy)) {
-    #  points(-log10(q.fun(ppoints(length(yy)))), -log10(sort(yy)), col = "blue", pch = 2)
-    #}
   }
   if(!is.na(file)) {
     dev.off()
