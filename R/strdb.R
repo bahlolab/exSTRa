@@ -27,7 +27,7 @@ is.strdb <- function(x) inherits(x, "strdb")
 strdb_read <- function(file) {
   # Open up a file to load a STR database object
   if (!is.character(file)) stop("file must be character")
-  strdatabase <- switch(str_extract(file, "[^.]*$"), 
+  strdatabase <- switch(str_extract(file, "[^.]*$"), # note str_extract is a stringr function, can be very confusing
     xlsx = strdb_xlsx(file),
     strdb_text(file))
   if(is.null(strdatabase)) {
