@@ -2,9 +2,12 @@
 
 is.str_chisq_perm_test <- function(x) inherits(x, "str_chisq_perm_test")
 
-str_chisq_perm_test_new <- function(data, loci, statistic, df, p.value, reads.total)
+str_chisq_perm_test_new <- function(data, loci, statistic, df, p.value, reads.total, B)
 {
   assert("Input should be data.frames", is.data.frame(statistic), is.data.frame(df), is.data.frame(p.value), is.data.frame(reads.total))
+  assert("B should be a single positive numeric", is.numeric(B), is.atomic(B), length(B) == 1, B >= 1)
+  assert("data should be of class strdata", is.strdata(data))
+  assert("loci should be a character vector", is.character(loci))
   structure(
     list(data = data, loci = loci, statistic = statistic, df = df, p.value = p.value, reads.total = reads.total), 
     class = c("str_chisq_perm_test")
@@ -36,7 +39,7 @@ str_chisq_permutation_test <- function(data,
 
   assert("data is required to be of the class strdata", inherits(data, "strdata"))
   assert("loci should be an atomic vector", is.atomic(loci))
-  assert("B should be a single numeric", is.numeric(B), is.atomic(B), length(B) == 1)
+  assert("B should be a single positive numeric", is.numeric(B), is.atomic(B), length(B) == 1, B >= 1)
   
   # Pull the input data apart
   features <- data$data
@@ -45,6 +48,7 @@ str_chisq_permutation_test <- function(data,
   
   # Prepare inputs
   loci <- as.character(loci)
+  B <- as.interger(B)
   
   # Storing results
   disease.chisq.statistics <- data.frame() #TODO: make data.table
@@ -128,7 +132,8 @@ str_chisq_permutation_test <- function(data,
     statistic = disease.chisq.statistics,
     df = disease.chisq.df,
     p.value = disease.chisq.p.value,
-    reads.total = disease.read.total
+    reads.total = disease.read.total, 
+    B = B
   )
 }
 
@@ -147,4 +152,132 @@ finding.property.of.features <- function(features, groups, disease.name, cols, F
     feature.count.fun.for.plot <- rbind(feature.count.fun.for.plot, a)
   }
   return(feature.count.fun.for.plot)
+}
+
+
+
+qqplot.pvalue <- function(pvalues = NULL, p.trans = -log10(pvalues), 
+                          pvalues.alt = NA, p.trans.alt = -log10(pvalues.alt), 
+                          main = "QQ plot of p-values", xlab = "Null", ylab = "Observed") {
+  # Create a QQ plot of p-values with confidence intervals
+  # http://gettinggeneticsdone.blogspot.com.au/2009/11/qq-plots-of-p-values-in-r-using-ggplot2.html
+  # 17th July 2014
+  N <- length(p.trans) ## number of p-values
+  assert("Require at least one observation", N > 0)
+  
+  ## create the null distribution 
+  ## (-log10 of the uniform)
+  null <- -log10(ppoints(N))
+  MAX.x <- max(null)
+  MAX.y <- max(MAX.x, p.trans, p.trans.alt, na.rm = T)
+  
+  ## create the confidence intervals
+  c95 <- rep(0,N)
+  c05 <- rep(0,N)
+  
+  ## the jth order statistic from a 
+  ## uniform(0,1) sample 
+  ## has a beta(j,n-j+1) distribution 
+  ## (Casella & Berger, 2002, 
+  ## 2nd edition, pg 230, Duxbury)
+  
+  for(i in 1:N){
+    c95[i] <- qbeta(0.95,i,N-i+1)
+    c05[i] <- qbeta(0.05,i,N-i+1)
+  }
+  
+  ## plot the two confidence lines
+  plot(NULL, ylim=c(0, MAX.y), xlim=c(0, MAX.x), axes=FALSE, xlab="", ylab="")
+  grid()
+  lines(null, -log10(c95), col = "red", lty = 2)
+  lines(null, -log10(c05), col = "red", lty = 2)
+  
+  ## add the diagonal
+  abline(0,1,col="red")
+  par(new=T)
+  
+  ## add the qqplot
+  qqplot(null, p.trans, ylim=c(0, MAX.y), xlim=c(0, MAX.x), main=main, xlab = xlab, ylab = ylab)
+  
+  # Add the alternative QQ plot if given
+  if(sum(is.na(p.trans.alt)) < length(p.trans.alt)) {
+    points(-log10(qunif(ppoints(length(p.trans.alt)))), sort(p.trans.alt, decreasing = TRUE), col = "blue", pch = 2)
+  }
+}
+
+plot.str_chisq_perm_test <- function(x, multi = FALSE, auto.layout = FALSE, 
+                             statistics = x$p.value, 
+                             diseases = disease.order.by.coverage(x$reads.total), 
+                             read.counts = x$reads.total, 
+                             #width = 15, height = 9, 
+                             #mfrow=c(3, 7), 
+                             #mar = c(2.5, 2, 1.5, 1) + 0.1, 
+                             #log = "", 
+                             plot.blanks = TRUE, 
+                             xlim = NULL, 
+                             ylim = NULL,
+                             file = NA, 
+                             ...
+) {
+  assert("statistics input is NULL. This may be due to $p.value not being defined in data input?", !is.null(statistics))
+  assert("diseases input is NULL. This may be due to $reads.total not being defined in data input?", !is.null(diseases))
+  if(!is.na(file)) {
+    pdf(file, width = width, height = height)
+  }
+  low.p <- 1 / x$B
+  par(mfrow = mfrow, mar = mar)
+  plot.count <- 0
+  for(disease.name in diseases) {
+    #if(disease.name == "FRDA") {
+    #  plot(NA, NA, main = "FRDA")
+    #	next	
+    #}
+    #cat("working on", disease.name, "\n")
+    if(sum(grepl("expanded|normal", colnames(statistics))) == dim(statistics)[2]) {
+      d <- data.frame(
+        expanded = unlist(statistics[disease.name, grepl("expanded", colnames(statistics))]), 
+        normal = unlist(statistics[disease.name, grepl("normal", colnames(statistics))])
+      )
+      y <- d$normal
+      yy <- d$expanded
+    } else {
+      d <- data.frame(
+        samples = unlist(statistics[disease.name, colnames(statistics)])
+      )
+      y <- d$samples
+      yy <- numeric()
+    }
+    
+    ## Q-Q plot for Chi^2 data against true theoretical distribution:
+    axis.limits <- c(0, -log10(low.p))
+    if(is.null(xlim)) { xlim <- axis.limits }
+    if(is.null(ylim)) { ylim <- axis.limits }
+    if(sum(is.na(y)) >= length(y)) {
+      if(plot.blanks) {
+        plot(NA, xlim = xlim, ylim = ylim, main = paste(disease.name, "Q-Q"), log = log)
+        rect(par("usr")[1],par("usr")[3],par("usr")[2],par("usr")[4], col = "black")
+      }
+    } else {
+      if((plot.count <- plot.count + 1) > prod(mfrow)) {
+        stop("Error, too many plots attempted")
+      }
+      #qqplot(-log10(q.fun(ppoints(length(y)))), 
+      #       -log10(y),
+      #       main = paste(disease.name, "Q-Q")
+      #       , xlim = xlim
+      #       , ylim = ylim
+      #)
+      #curve(x * 1, 0, -log10(low.p), add = TRUE, col = "red")
+      qqplot.pvalue(y, pvalues.alt = yy, main = paste(disease.name, "Q-Q"))
+      if(!is.null(read.counts)) {
+        text(.154, 4, paste(sum(read.counts[disease.name, ]), "reads", sep="\n"), cex = 2)
+      }
+    }
+    #if(sum(is.na(yy)) < length(yy)) {
+    #  points(-log10(q.fun(ppoints(length(yy)))), -log10(sort(yy)), col = "blue", pch = 2)
+    #}
+  }
+  if(!is.na(file)) {
+    dev.off()
+  }
 }
