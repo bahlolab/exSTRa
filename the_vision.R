@@ -22,5 +22,6 @@ strcount.perm <- str_chisq_permutation_test(strcounts,
 
 plot(strcount.perm) # plot all the disease p-values with confidence intervals in one plot
 
-plot(strcount.perm, multi = TRUE, auto.layout = TRUE) # plot each disease in a separate plot, with the layout made automatically
+plot(strcount.perm, multi = TRUE, auto.layout = TRUE, cex = 1.3) # plot each disease in a separate plot, with the layout made automatically
 
+plot(strcount.perm, multi = TRUE, auto.layout = TRUE, cex = 1.3, read.counts = NULL) 

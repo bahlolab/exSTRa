@@ -166,7 +166,8 @@ finding.property.of.features <- function(features, groups, disease.name, cols, F
 
 qqplot.pvalue <- function(pvalues = NULL, p.trans = -log10(pvalues), 
                           pvalues.alt = NA, p.trans.alt = -log10(pvalues.alt), 
-                          main = "QQ plot of p-values", xlab = "Null", ylab = "Observed", ...) {
+                          main = "QQ plot of p-values", xlab = "Null", ylab = "Observed", 
+                          plot.blanks = FALSE, ...) {
   # Create a QQ plot of p-values with confidence intervals
   # http://gettinggeneticsdone.blogspot.com.au/2009/11/qq-plots-of-p-values-in-r-using-ggplot2.html
   # 17th July 2014
@@ -218,10 +219,12 @@ plot.str_chisq_perm_test <- function(x, multi = FALSE, auto.layout = FALSE,
                              diseases = disease.order.by.coverage(x$reads.total), 
                              read.counts = x$reads.total, 
                              width = 15, height = 9, 
-                             mfrow = c(3, 7), #TODO: destroy this
-                             mar = c(2.5, 2, 1.5, 1) + 0.1, #TODO: and this
+                             mfrow = NULL,
+                             mar = c(2.5, 2, 1.5, 1) + 0.1,
                              plot.blanks = TRUE, 
                              file = NA, 
+                             read.count.x.weights = c(1, 4),
+                             read.count.y.weights = c(10, 1),
                              ...
 ) {
   assert("x is not of class str_chisq_perm_test", inherits(strcount.perm, "str_chisq_perm_test"))
@@ -242,48 +245,42 @@ plot.str_chisq_perm_test <- function(x, multi = FALSE, auto.layout = FALSE,
       yy <- c()
     }
     qqplot.pvalue(as.vector(as.matrix(y)), pvalues.alt = as.vector(as.matrix(yy)), main = paste("Q-Q all loci"), ...)
-    return(yy)
+    return()
   }
 
-  par(mfrow = mfrow, mar = mar)
+  if(auto.layout == TRUE && is.null(mfrow)) {
+    success <- F
+    for(i in 1:10) {
+      if(length(diseases) <= i * (2*i + 1)) {
+        success <- T
+        break
+      }
+    }
+    assert(paste("Too many diseases,", length(diseases), "diseases when the max is 210."), success)
+    par(mfrow = c(i, 2 * i + 1))
+  }
+  if(!is.null(mar)) {
+    par(mar = mar)
+  }
+  max.plots <- prod(par("mfrow"))
+  
   plot.count <- 0
   for(disease.name in diseases) {
     
-    y <- group_control #?
-    yy <- group_case #??
-    if(sum(grepl("expanded|normal", colnames(statistics))) == dim(statistics)[2]) {
-      d <- data.frame(
-        expanded = unlist(statistics[disease.name, grepl("expanded", colnames(statistics))]), 
-        normal = unlist(statistics[disease.name, grepl("normal", colnames(statistics))])
-      )
-      y <- d$normal
-      yy <- d$expanded
+    y <- as.vector(as.matrix(statistics[disease.name, x$data$samples[group == x$group_control, sample]]))
+    if(!is.na(x$group_case)) {
+      yy <- as.vector(as.matrix(statistics[disease.name, x$data$samples[group == x$group_case, sample]]))
     } else {
-      d <- data.frame(
-        samples = unlist(statistics[disease.name, colnames(statistics)])
-      )
-      y <- d$samples
-      yy <- numeric()
+      yy <- c()
     }
     
     ## Q-Q plot for Chi^2 data against true theoretical distribution:
-    axis.limits <- c(0, -log10(low.p))
-    if(is.null(xlim)) { xlim <- axis.limits }
-    if(is.null(ylim)) { ylim <- axis.limits }
-    if(sum(is.na(y)) >= length(y)) {
-      if(plot.blanks) {
-        plot(NA, xlim = xlim, ylim = ylim, main = paste(disease.name, "Q-Q"), log = log)
-        rect(par("usr")[1],par("usr")[3],par("usr")[2],par("usr")[4], col = "black")
-      }
-    } else {
-      if((plot.count <- plot.count + 1) > prod(mfrow)) {
+    if((plot.count <- plot.count + 1) > max.plots) {
         stop("Error, too many plots attempted")
-      }
-
-      qqplot.pvalue(y, pvalues.alt = yy, main = paste(disease.name, "Q-Q"))
-      if(!is.null(read.counts)) {
-        text(.154, 4, paste(sum(read.counts[disease.name, ]), "reads", sep="\n"), cex = 2)
-      }
+    }
+    qqplot.pvalue(y, pvalues.alt = yy, main = paste(disease.name, "Q-Q"), plot.blanks = plot.blanks)
+    if(!is.null(read.counts)) {
+       text(weighted.mean(par("usr")[1:2], w = read.count.x.weights), weighted.mean(par("usr")[3:4], w = read.count.y.weights), paste(sum(read.counts[disease.name, ]), "reads", sep="\n"), ...)
     }
   }
   if(!is.na(file)) {
