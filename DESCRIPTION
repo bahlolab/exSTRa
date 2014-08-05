@@ -7,4 +7,4 @@ Author: Rick Tankard
 Maintainer: Rick Tankard <tankard@wehi.edu.au>
 Description: More about what it does (maybe more than one line)
 License: GPL-2
-Imports:  testit, data.table, xlsx, stringr
+Imports: testit, data.table, xlsx, stringr
