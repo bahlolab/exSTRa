@@ -166,7 +166,7 @@ finding.property.of.features <- function(features, groups, disease.name, cols, F
 
 qqplot.pvalue <- function(pvalues = NULL, p.trans = -log10(pvalues), 
                           pvalues.alt = NA, p.trans.alt = -log10(pvalues.alt), 
-                          main = "QQ plot of p-values", xlab = "Null", ylab = "Observed") {
+                          main = "QQ plot of p-values", xlab = "Null", ylab = "Observed", ...) {
   # Create a QQ plot of p-values with confidence intervals
   # http://gettinggeneticsdone.blogspot.com.au/2009/11/qq-plots-of-p-values-in-r-using-ggplot2.html
   # 17th July 2014
@@ -195,7 +195,7 @@ qqplot.pvalue <- function(pvalues = NULL, p.trans = -log10(pvalues),
   }
   
   ## plot the two confidence lines
-  plot(NULL, ylim=c(0, MAX.y), xlim=c(0, MAX.x), axes=FALSE, xlab="", ylab="")
+  plot(NULL, ylim=c(0, MAX.y), xlim=c(0, MAX.x), axes=FALSE, xlab="", ylab="", ...)
   grid()
   lines(null, -log10(c95), col = "red", lty = 2)
   lines(null, -log10(c05), col = "red", lty = 2)
@@ -205,7 +205,7 @@ qqplot.pvalue <- function(pvalues = NULL, p.trans = -log10(pvalues),
   par(new=T)
   
   ## add the qqplot
-  qqplot(null, p.trans, ylim=c(0, MAX.y), xlim=c(0, MAX.x), main=main, xlab = xlab, ylab = ylab)
+  qqplot(null, p.trans, ylim=c(0, MAX.y), xlim=c(0, MAX.x), main=main, xlab = xlab, ylab = ylab, ...)
   
   # Add the alternative QQ plot if given
   if(sum(is.na(p.trans.alt)) < length(p.trans.alt)) {
@@ -218,27 +218,39 @@ plot.str_chisq_perm_test <- function(x, multi = FALSE, auto.layout = FALSE,
                              diseases = disease.order.by.coverage(x$reads.total), 
                              read.counts = x$reads.total, 
                              width = 15, height = 9, 
-                             mfrow=c(3, 7), 
-                             mar = c(2.5, 2, 1.5, 1) + 0.1, 
-                             log = "", 
+                             mfrow = c(3, 7), #TODO: destroy this
+                             mar = c(2.5, 2, 1.5, 1) + 0.1, #TODO: and this
                              plot.blanks = TRUE, 
-                             xlim = NULL, 
-                             ylim = NULL,
                              file = NA, 
                              ...
 ) {
+  assert("x is not of class str_chisq_perm_test", inherits(strcount.perm, "str_chisq_perm_test"))
   assert("statistics input is NULL. This may be due to $p.value not being defined in data input?", !is.null(statistics))
   assert("diseases input is NULL. This may be due to $reads.total not being defined in data input?", !is.null(diseases))
   if(!is.na(file)) {
     pdf(file, width = width, height = height)
   }
   low.p <- 1 / x$B
+
+  if(multi == FALSE) {
+    # get all the values together! yo!
+    #strcount.perm$data$data[group == "control", c("sample", "disease", "group"), with = F]
+    y <- statistics[, x$data$samples[group == x$group_control, sample]]
+    if(!is.na(x$group_case)) {
+      yy <- statistics[, x$data$samples[group == x$group_case, sample]]
+    } else {
+      yy <- c()
+    }
+    qqplot.pvalue(as.vector(as.matrix(y)), pvalues.alt = as.vector(as.matrix(yy)), main = paste("Q-Q all loci"), ...)
+    return(yy)
+  }
+
   par(mfrow = mfrow, mar = mar)
   plot.count <- 0
   for(disease.name in diseases) {
     
-    y <- group_control
-    yy <- group_case
+    y <- group_control #?
+    yy <- group_case #??
     if(sum(grepl("expanded|normal", colnames(statistics))) == dim(statistics)[2]) {
       d <- data.frame(
         expanded = unlist(statistics[disease.name, grepl("expanded", colnames(statistics))]), 

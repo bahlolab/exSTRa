@@ -7,7 +7,10 @@ strdatabase
 # or 
 # strdatabase = read.strs.ucsc("simpleRepeat.txt.gz")
 
-strcounts <- strs_read(file = "/Users/tankard/Documents/Research/repeats/read_simulation/str_simulations/summarising_simulations/simulation_summary_03.txt", database = strdatabase) # class strdata
+strcounts <- strs_read(file = "/Users/tankard/Documents/Research/repeats/read_simulation/str_simulations/summarising_simulations/simulation_summary_03.txt", 
+                       database = strdatabase, 
+                       groups.regex = c(control = "normal", case = "expanded")
+                       ) # class strdata
 strcounts
 
 strcount.perm <- str_chisq_permutation_test(strcounts,
