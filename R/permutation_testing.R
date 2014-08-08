@@ -1,5 +1,7 @@
 # Functions to perform the chisq.test permutation testing on strdata objects
 
+#TODO: use locus instead of disease for location name (maybe change all instances of disease to locus?)
+
 is.str_chisq_perm_test <- function(x) inherits(x, "str_chisq_perm_test")
 
 str_chisq_perm_test_new <- function(data, loci, statistic, df, p.value, reads.total, B, 

@@ -33,7 +33,16 @@ strdata_new <- function(data, db) {
   assert("data", inherits(data, "data.frame"))
   assert("db must be of class strdb", inherits(db, "strdb"))
   data <- data.table(data)
-  setkey(data, disease, sample)
+  if(!is.element("locus", colnames(data))) {
+    if(is.element("disease", colnames(data))) {
+      setnames(data, "disease", "locus")
+    } else if(is.element("STR", colnames(data))) {
+      setnames(data, "STR", "locus")
+    } else {
+      stop("Can't find the column with locus name")
+    }
+  }
+  setkey(data, locus, sample) 
   samples <- unique(data[, c("sample", "group"), with = F])
   setkey(samples, sample)
   structure(list(data = data.table(data), db = db, samples = samples), class = c("strdata"))
