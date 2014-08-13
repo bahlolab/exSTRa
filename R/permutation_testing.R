@@ -31,12 +31,13 @@ str_chisq_permutation_test <- function(data,
                                        cols, 
                                        keep.rows,
                                        collapsing.guide = NULL, 
-                                       loci = strloci(data),
+                                       loci = strloci(data), 
                                        B = 100000, 
                                        require.nozero = TRUE,
                                        group_null = NULL,
                                        group_control = "control",
-                                       group_case = "case"
+                                       group_case = "case",
+                                       allow_uncounted_loci = FALSE
                                        ) {
   # Runs a permutation test
   # Old giving.statistics function inputs:
@@ -48,6 +49,7 @@ str_chisq_permutation_test <- function(data,
   assert("data is required to be of the class strdata", inherits(data, "strdata"))
   assert("loci should be an atomic vector", is.atomic(loci))
   assert("B should be a single positive numeric", is.numeric(B), is.atomic(B), length(B) == 1, B >= 1)
+
   
   # Pull the input data apart
   features <- data$data
@@ -58,18 +60,28 @@ str_chisq_permutation_test <- function(data,
   loci <- as.character(loci)
   B <- as.integer(B)
   
+  # Warnings
+  if(length(setdiff(loci, levels(features$locus))) > 0) {
+    mess <- "loci are given that are not in the data"
+    if(allow_uncounted_loci) {
+      warning(mess)      
+    } else {
+      stop(mess)
+    }
+  }
+  
   # Storing results
   disease.chisq.statistics <- data.frame() #TODO: make data.table
   disease.chisq.df <- data.frame()
   disease.chisq.p.value <- data.frame()
   disease.read.total <- data.frame()
-  for(locus in loci) {
+  for(locus.name in loci) {
     # Need to first sum the data over the normal samples and the 
     # expanded samples
     
     # Contingency tables
-    cat("STR: ", locus, "\n")
-    feature.count <- finding.property.of.features(features, groups, locus, cols, sum) 
+    cat("STR: ", locus.name, "\n")
+    feature.count <- finding.property.of.features(features, groups, locus.name, cols, sum) 
     feature.count$sums <- feature.count$result
     
     cont.table <- matrix(feature.count[order(feature.count$group), ]$sums, ncol = nlevels(groups))
@@ -77,7 +89,7 @@ str_chisq_permutation_test <- function(data,
     rownames(cont.table) <- unique(feature.count$feat)
     
     for(sample.name in levels(features$sample)) {
-      sample.data <- features[.(locus, sample.name), nomatch = 0]
+      sample.data <- features[.(locus.name, sample.name), nomatch = 0] # TODO: this is our problemo
       if(dim(sample.data)[1] == 0) {
         next
       }
@@ -89,7 +101,7 @@ str_chisq_permutation_test <- function(data,
           cont.table.1.sample.v <- cont.table[, group_control]
         } else if (sample.data$group[1] == group_control) {
           # normal sample, compare to other normals with leave one out
-          leave.one.out.counts <- finding.property.of.features(subset(features, sample != sample.name), as.factor(group_control), locus, cols, sum)
+          leave.one.out.counts <- finding.property.of.features(subset(features, sample != sample.name), as.factor(group_control), locus.name, cols, sum)
           cont.table.1.sample.v <- leave.one.out.counts[order(leave.one.out.counts$group), ]$result
 
         } else {
@@ -97,10 +109,13 @@ str_chisq_permutation_test <- function(data,
         }
       } else {
         # Have samples for null distribution, so compare controls to the null and cases to the null
+        # set: cont.table.1.sample.v
         stop("This feature not yet implemented for nulls, controls and cases")
       }
             
-      cont.table.1.sample <- matrix(c(unlist(sample.data[, rownames(cont.table), with = F]), cont.table.1.sample.v), ncol = 2)
+      #cont.table.1.sample <- matrix(c(unlist(sample.data[, rownames(cont.table), with = F]), cont.table.1.sample.v), ncol = 2)
+      cont.table.1.sample <- matrix(c(sapply(sample.data[, rownames(cont.table), with = F], sum), cont.table.1.sample.v), ncol = 2)
+      
       colnames(cont.table.1.sample) <- c("subject", "null")
       rownames(cont.table.1.sample) <- rownames(cont.table)
 
@@ -126,10 +141,10 @@ str_chisq_permutation_test <- function(data,
         test <- chisq.test(cont.table.1.sample, simulate.p.value = T, B = B)
       }
       
-      disease.chisq.statistics[locus, sample.name] <- test$statistic 
-      disease.chisq.df[locus, sample.name]  <- test$parameter # TODO: Probably entirely useless??? Maybe replace with remaining categories?
-      disease.chisq.p.value[locus, sample.name]  <- test$p.value
-      disease.read.total[locus, sample.name] <- sum(cont.table.1.sample[, "subject"])
+      disease.chisq.statistics[locus.name, sample.name] <- test$statistic 
+      disease.chisq.df[locus.name, sample.name]  <- test$parameter # TODO: Probably entirely useless??? Maybe replace with remaining categories?
+      disease.chisq.p.value[locus.name, sample.name]  <- test$p.value
+      disease.read.total[locus.name, sample.name] <- sum(cont.table.1.sample[, "subject"])
     }
     
   }
@@ -147,11 +162,11 @@ str_chisq_permutation_test <- function(data,
   )
 }
 
-finding.property.of.features <- function(features, groups, disease.name, cols, FUN) {
+finding.property.of.features <- function(features, groups, locus.name, cols, FUN) {
   feature.count.fun <- data.frame()
   for (g in levels(groups)) {
-    one.sample.one.disease <- subset(features, disease == disease.name & group == g, select = cols)
-    column.fun <- c(apply(one.sample.one.disease, 2, FUN))
+    one.sample.one.locus <- subset(features, locus == locus.name & group == g, select = cols)
+    column.fun <- c(apply(one.sample.one.locus, 2, FUN))
     feature.count.fun <- rbind(feature.count.fun, column.fun) 
   }
   names( feature.count.fun ) <- cols

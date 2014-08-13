@@ -12,6 +12,8 @@ strdb <- function(dt, input_type = NULL) {
   dt <- data.table(dt)
   #class(dt) <- c("strdb", class(dt))
   #dt
+  #dt <- dt[!is.na(hg19.chrom) hg19.start.0 hg19.end, ]
+  dt <- dt[!(is.na(hg19.chrom) | is.na(hg19.start.0) | is.na(hg19.end))]
   structure(list(db = dt, input_type = input_type), class = c("strdb"))
 }
 
@@ -40,6 +42,7 @@ strdb_xlsx <- function(file) {
   if (!is.character(file)) stop("file must be character")
   data <- read.xlsx(file, 1)
   assert("xlsx requires Disease column", ! is.null(data$Disease))
+  data <- replace(data, data == "NA", NA)
   data$disease.symbol <- sub(".*\\((.*)\\).*", "\\1", data$Disease, perl = T)
   strdb(data, "named")
 }
