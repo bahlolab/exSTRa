@@ -77,7 +77,12 @@ strdb_text <- function(file) {
 strloci <- function(...) UseMethod("strloci")
 
 strloci.strdb <- function(strdb) {  
-  strdatabase$db$disease.symbol
+  loci <- strdb$db$disease.symbol
+  if(is.null(loci)) {
+    loci <- strdb$db$locus
+  }
+  assert("Could not identify the str loci", !is.null(loci))
+  loci
 }
 
 
