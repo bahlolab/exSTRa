@@ -232,6 +232,7 @@ qqplot.pvalue <- function(pvalues = NULL, p.trans = -log10(pvalues),
 }
 
 plot.str_chisq_perm_test <- function(x, multi = FALSE, auto.layout = FALSE, 
+                             single.plot = TRUE, # TODO: make this work
                              statistics = x$p.value, 
                              diseases = disease.order.by.coverage(x$reads.total), 
                              read.counts = x$reads.total, 

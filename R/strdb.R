@@ -38,12 +38,16 @@ strdb_read <- function(file, ...) {
 strdb_xlsx <- function(file, ...) {
   if (!is.character(file)) stop("file must be character")
   data <- read.xlsx(file, 1, ...)
-  assert("xlsx requires Disease column", ! is.null(data$Disease))
+  assert("xlsx requires Disease or locus column", ! is.null(data$Disease) || ! is.null(data$locus))
+  if(is.null(data$Disease)) {
+    assert("xlsx requires Disease or locus column", ! is.null(data$locus))
+    data$Disease <- data$locus
+  }
   data <- replace(data, data == "NA", NA)
   data$disease.symbol <- sub(".*\\((.*)\\).*", "\\1", data$Disease, perl = T)
-  names(data)[which(names(data) == "hg19.chrom")] <- "chrom"
-  names(data)[which(names(data) == "hg19.start.0")] <- "chromStart"
-  names(data)[which(names(data) == "hg19.end")] <- "chromEnd"
+  names(data)[which(names(data) == "hg19.chrom" | names(data) == "hg19_chr")] <- "chrom"
+  names(data)[which(names(data) == "hg19.start.0" | names(data) == "repeat.start")] <- "chromStart"
+  names(data)[which(names(data) == "hg19.end" | names(data) == "repeat.end")] <- "chromEnd"
   strdb(data, "named")
 }
 
