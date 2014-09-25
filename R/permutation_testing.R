@@ -243,6 +243,7 @@ plot.str_chisq_perm_test <- function(x, multi = FALSE, auto.layout = FALSE,
                              file = NA, 
                              read.count.x.weights = c(1, 4),
                              read.count.y.weights = c(10, 1),
+                             main = paste("Q-Q all loci"),
                              ...
 ) {
   assert("x is not of class str_chisq_perm_test", inherits(strcount.perm, "str_chisq_perm_test"))
@@ -262,10 +263,10 @@ plot.str_chisq_perm_test <- function(x, multi = FALSE, auto.layout = FALSE,
     } else {
       yy <- c()
     }
-    qqplot.pvalue(as.vector(as.matrix(y)), pvalues.alt = as.vector(as.matrix(yy)), main = paste("Q-Q all loci"), ...)
+    qqplot.pvalue(as.vector(as.matrix(y)), pvalues.alt = as.vector(as.matrix(yy)), main = main, ...)
     return()
   }
-
+  pre.par <- par("mfrow")
   if(auto.layout == TRUE && is.null(mfrow)) {
     success <- F
     for(i in 1:10) {
@@ -301,6 +302,7 @@ plot.str_chisq_perm_test <- function(x, multi = FALSE, auto.layout = FALSE,
        text(weighted.mean(par("usr")[1:2], w = read.count.x.weights), weighted.mean(par("usr")[3:4], w = read.count.y.weights), paste(sum(read.counts[disease.name, ]), "reads", sep="\n"), ...)
     }
   }
+  par(mfrow = pre.par)
   if(!is.na(file)) {
     dev.off()
   }

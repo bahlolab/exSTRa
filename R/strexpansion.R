@@ -63,6 +63,7 @@ plot.different.test.p.values <- function(data.1, data.2, file = NA, width = 15, 
   }
   values.1 <- data.1$p.value
   values.2 <- data.2$p.value
+  pre.par <- par("mfrow", "mar")
   par(mfrow=c(3, 7), mar = c(5, 4, 4, 2) + 0.1)
   lims <- function(X) {
     if(sum(!is.na(X)) == 0) {
@@ -77,6 +78,7 @@ plot.different.test.p.values <- function(data.1, data.2, file = NA, width = 15, 
     correla <- cor(x.1, x.2, use = "na.or.complete")
     plot(x.1, x.2, log = "xy", main = paste0(disease, "\nR=", sprintf("%0.4f", correla)), xlab = "", ylab = "", xlim = lims(x.1), ylim = lims(x.2))
   }
+  par(pre.par)
   if(!is.na(file)) {
     dev.off()
   }
