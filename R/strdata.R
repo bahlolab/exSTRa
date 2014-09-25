@@ -71,6 +71,7 @@ strdata_new <- function(data, db) {
   }
   setkey(data, locus, sample) 
   samples <- unique(data[, c("sample", "group"), with = F])
+  samples$sample <- as.character(samples$sample)
   setkey(samples, sample)
   structure(list(data = data.table(data), db = db, samples = samples), class = c("strdata"))
 }

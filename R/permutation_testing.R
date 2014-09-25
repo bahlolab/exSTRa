@@ -29,7 +29,7 @@ strloci.str_chisq_perm_test <- function(X) {
 
 str_chisq_permutation_test <- function(data,
                                        cols, 
-                                       keep.rows,
+                                       keep.cols = cols, # TODO: change to keep.cols
                                        collapsing.guide = NULL, 
                                        loci = strloci(data), 
                                        B = 100000, 
@@ -125,7 +125,7 @@ str_chisq_permutation_test <- function(data,
                                                                   grep(collapsing.guide[simple_feature], rownames(cont.table.1.sample), value = T), name = simple_feature)
         }
       }
-      cont.table.1.sample <- cont.table.1.sample[keep.rows, , drop = F]
+      cont.table.1.sample <- cont.table.1.sample[keep.cols, , drop = F]
       if(require.nozero) {
         cont.table.1.sample <- cont.table.1.sample[apply(cont.table.1.sample, 1, sum) != 0, , drop = F] # Remove zero rows
       }

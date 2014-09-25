@@ -83,4 +83,3 @@ plot.different.test.p.values <- function(data.1, data.2, file = NA, width = 15, 
     dev.off()
   }
 }
-

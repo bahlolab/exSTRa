@@ -25,3 +25,10 @@ plot(strcount.perm) # plot all the disease p-values with confidence intervals in
 plot(strcount.perm, multi = TRUE, auto.layout = TRUE, cex = 1.3) # plot each disease in a separate plot, with the layout made automatically
 
 plot(strcount.perm, multi = TRUE, auto.layout = TRUE, cex = 1.3, read.counts = NULL) 
+
+# A different kind of test
+strcounts.ll <- str_loglin_test(strcounts, 
+                                cols = c("up_00", "up_01", "up_11", "up_02", "up_12", "up_22"), 
+                                keep.cols = c("up_01", "up_11", "up_02", "up_12"),
+                                require.nozero = TRUE # Do I need this here?
+                                )
