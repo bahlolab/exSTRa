@@ -9,11 +9,10 @@ str_loglin_test_new <- function(data, loci, statistic, df, p.value, reads.total,
                                     group_null)
 {
   assert("Input should be data.frames", is.data.frame(statistic), is.data.frame(df), is.data.frame(p.value), is.data.frame(reads.total))
-  assert("B should be a single positive numeric", is.numeric(B), is.atomic(B), length(B) == 1, B >= 1)
   assert("data should be of class strdata", is.strdata(data))
   assert("loci should be a character vector", is.character(loci))
   structure(
-    list(data = data, loci = loci, statistic = statistic, df = df, p.value = p.value, reads.total = reads.total, B = B, 
+    list(data = data, loci = loci, statistic = statistic, df = df, p.value = p.value, reads.total = reads.total, 
          group_case = group_case,
          group_control = group_control,
          group_null = group_null), 
@@ -118,34 +117,25 @@ str_loglin_test <- function(data,
         stop("This feature not yet implemented for nulls, controls and cases")
       }
 
-      if(dim(cont.table.1.sample)[1] == 0 || sum(cont.table.1.sample[, 1]) == 0) {
-        # No rows left
-        test <- 
-          list(  statistic = NA
-                 , parameter = NA
-                 , p.value = NA
-          )
-      } else {
-        # Do the chi-sq test
-        test <- chisq.test(cont.table.1.sample, simulate.p.value = T, B = B)
-      }
+      # I don't think we will eliminate all categories here, so are safe (maybe)
+      # Do the chi-sq test
       m2 <- glm(reads ~ bin + id, data = locus.counts.long[!is.na(affected)], family = "quasipoisson")
       m3 <- glm(reads ~ bin + id + bin * id, data = locus.counts.long[!is.na(affected)], family = "quasipoisson")
-      res <- anova(m2, m3, test="Chisq")
+      test <- anova(m2, m3, test="Chisq")
       
-      disease.chisq.statistics[locus.name, sample.name] <- test$statistic 
-      disease.chisq.df[locus.name, sample.name]  <- test$parameter # TODO: Probably entirely useless??? Maybe replace with remaining categories?
-      disease.chisq.p.value[locus.name, sample.name]  <- test$p.value
-      disease.read.total[locus.name, sample.name] <- sum(cont.table.1.sample[, "subject"])
+      disease.anova.chisq.statistics[locus.name, sample.name] <- as.numeric(test$Deviance[2])
+      disease.anova.chisq.df[locus.name, sample.name]  <- test$Df[2]
+      disease.anova.chisq.p.value[locus.name, sample.name]  <- test$Pr[2]
+      disease.read.total[locus.name, sample.name] <- locus.counts.long[affected == TRUE, sum(reads)]
     }
     
   }
   str_loglin_test_new(
     data = data,
     loci = loci,
-    statistic = disease.chisq.statistics,
-    df = disease.chisq.df,
-    p.value = disease.chisq.p.value,
+    statistic = disease.anova.chisq.statistics,
+    df = disease.anova.chisq.df,
+    p.value = disease.anova.chisq.p.value,
     reads.total = disease.read.total, 
     group_case = group_case,
     group_control = group_control,
