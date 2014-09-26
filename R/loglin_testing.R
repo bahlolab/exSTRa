@@ -30,7 +30,7 @@ str_loglin_test <- function(data,
                                        keep.cols = cols,
                                        collapsing.guide = NULL, 
                                        loci = strloci(data), 
-                                       require.nozero = TRUE,
+                                       require.nozero = FALSE,
                                        group_null = NULL,
                                        group_control = "control",
                                        group_case = "case",
@@ -71,49 +71,53 @@ str_loglin_test <- function(data,
     
     # data
     locus.counts <- features[locus.name, c("sample", "group", keep.cols), with = F]
+    setkey(locus.counts, sample)
+        
+    if(!is.null(collapsing.guide)) {
+      stop("Collapsing not yet implemented") # TODO
+      for(simple_feature in names(collapsing.guide)) {
+        cont.table.1.sample <- collapse.contigency.table.single(cont.table.1.sample, 
+                                                                grep(collapsing.guide[simple_feature], rownames(cont.table.1.sample), value = T), name = simple_feature)
+      }
+    }
     
+    if(require.nozero) {
+      #cont.table.1.sample <- cont.table.1.sample[apply(cont.table.1.sample, 1, sum) != 0, , drop = F] # Remove zero rows
+      delete <- c()
+      for(bin.i in seq(3, dim(locus.counts)[2], 1)) {
+        if(is.null(group_null)) {
+          total <- sum(locus.counts[group == group_control, bin.i, with = F])
+        } else {
+          total <- sum(locus.counts[group == group_null, bin.i, with = F])
+        }
+        if(total == 0) {
+          delete <- c(delete, bin,i)
+        }
+      }
+      locus.counts <- locus.counts[, -delete, with = F]
+    }
     
-    for(sample.name in levels(features$sample)) {
-      sample.data <- features[.(locus.name, sample.name), nomatch = 0] # TODO: this is our problemo
+    locus.counts.long <- reshape(locus.counts, direction = "long", varying = names(locus.counts)[-c(1,2)], v.names = "reads", times = names(locus.counts)[-c(1,2)], timevar = "bin")
+    locus.counts.long$affected <- as.logical(NA)
+    setkey(locus.counts.long, sample, bin)
+    
+    for(sample.name in data$samples$sample) {
+      sample.data <- locus.counts[sample.name, nomatch = 0] # TODO: this is our problemo
       if(dim(sample.data)[1] == 0) {
         next
       }
       assert("Sample appears to be in multiple groups", length(unique(sample.data$group)) == 1)
+      locus.counts.long$affected <- as.logical(NA)
       if(is.null(group_null)) {
         # No samples given for null distribution, so use the leave-one-out procedure for the null distribution
-        if(sample.data$group[1] == group_case) {
-          # expanded sample, compare to normals
-          cont.table.1.sample.v <- cont.table[, group_control]
-        } else if (sample.data$group[1] == group_control) {
-          # normal sample, compare to other normals with leave one out
-          leave.one.out.counts <- finding.property.of.features(subset(features, sample != sample.name), as.factor(group_control), locus.name, cols, sum)
-          cont.table.1.sample.v <- leave.one.out.counts[order(leave.one.out.counts$group), ]$result
-          
-        } else {
-          stop("Unknown group ", sample.data$group[1])
-        }
+        locus.counts.long[group == group_control]$affected <- FALSE
+        locus.counts.long[sample.name]$affected <- TRUE # turns out we do the same regardless of group
       } else {
         # Have samples for null distribution, so compare controls to the null and cases to the null
         # set: cont.table.1.sample.v
         stop("This feature not yet implemented for nulls, controls and cases")
       }
-      
-      #cont.table.1.sample <- matrix(c(unlist(sample.data[, rownames(cont.table), with = F]), cont.table.1.sample.v), ncol = 2)
-      cont.table.1.sample <- matrix(c(sapply(sample.data[, rownames(cont.table), with = F], sum), cont.table.1.sample.v), ncol = 2)
-      
-      colnames(cont.table.1.sample) <- c("subject", "null")
-      rownames(cont.table.1.sample) <- rownames(cont.table)
-      
-      if(!is.null(collapsing.guide)) {
-        for(simple_feature in names(collapsing.guide)) {
-          cont.table.1.sample <- collapse.contigency.table.single(cont.table.1.sample, 
-                                                                  grep(collapsing.guide[simple_feature], rownames(cont.table.1.sample), value = T), name = simple_feature)
-        }
-      }
-      cont.table.1.sample <- cont.table.1.sample[keep.rows, , drop = F]
-      if(require.nozero) {
-        cont.table.1.sample <- cont.table.1.sample[apply(cont.table.1.sample, 1, sum) != 0, , drop = F] # Remove zero rows
-      }
+
       if(dim(cont.table.1.sample)[1] == 0 || sum(cont.table.1.sample[, 1]) == 0) {
         # No rows left
         test <- 
@@ -125,6 +129,9 @@ str_loglin_test <- function(data,
         # Do the chi-sq test
         test <- chisq.test(cont.table.1.sample, simulate.p.value = T, B = B)
       }
+      m2 <- glm(reads ~ bin + id, data = locus.counts.long[!is.na(affected)], family = "quasipoisson")
+      m3 <- glm(reads ~ bin + id + bin * id, data = locus.counts.long[!is.na(affected)], family = "quasipoisson")
+      res <- anova(m2, m3, test="Chisq")
       
       disease.chisq.statistics[locus.name, sample.name] <- test$statistic 
       disease.chisq.df[locus.name, sample.name]  <- test$parameter # TODO: Probably entirely useless??? Maybe replace with remaining categories?
@@ -144,3 +151,4 @@ str_loglin_test <- function(data,
     group_control = group_control,
     group_null = group_null
   )
+}

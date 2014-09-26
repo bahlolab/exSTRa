@@ -2,11 +2,12 @@
 
 # Analysing features
 # 
-require(graphics)
+library(graphics)
 library(ggplot2)
 library(xlsx)
 library(testit)
 library(car)
+library(data.table)
 
 ## functions ##
 collapse.contigency.table.2 <- function(c.table, rows, names = c("provided", "other")) {
@@ -83,3 +84,5 @@ plot.different.test.p.values <- function(data.1, data.2, file = NA, width = 15, 
     dev.off()
   }
 }
+
+# THis is a test line
