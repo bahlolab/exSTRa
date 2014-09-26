@@ -119,8 +119,8 @@ str_loglin_test <- function(data,
 
       # I don't think we will eliminate all categories here, so are safe (maybe)
       # Do the chi-sq test
-      m2 <- glm(reads ~ bin + id, data = locus.counts.long[!is.na(affected)], family = "quasipoisson")
-      m3 <- glm(reads ~ bin + id + bin * id, data = locus.counts.long[!is.na(affected)], family = "quasipoisson")
+      m2 <- glm(reads ~ bin + affected, data = locus.counts.long[!is.na(affected)], family = "quasipoisson")
+      m3 <- glm(reads ~ bin + affected + bin * affected, data = locus.counts.long[!is.na(affected)], family = "quasipoisson")
       test <- anova(m2, m3, test="Chisq")
       
       disease.anova.chisq.statistics[locus.name, sample.name] <- as.numeric(test$Deviance[2])
