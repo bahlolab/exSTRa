@@ -246,7 +246,7 @@ plot.str_chisq_perm_test <- function(x, multi = FALSE, auto.layout = FALSE,
                              main = paste("Q-Q all loci"),
                              ...
 ) {
-  assert("x is not of class str_chisq_perm_test", inherits(strcount.perm, "str_chisq_perm_test"))
+  assert("x is not of class str_chisq_perm_test", inherits(x, "str_chisq_perm_test"))
   assert("statistics input is NULL. This may be due to $p.value not being defined in data input?", !is.null(statistics))
   assert("diseases input is NULL. This may be due to $reads.total not being defined in data input?", !is.null(diseases))
   if(!is.na(file)) {

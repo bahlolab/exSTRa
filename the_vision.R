@@ -32,4 +32,6 @@ strcounts.ll <- str_loglin_test(strcounts,
                                 )
 
 strcounts.ll$df
+class(strcounts.ll)
 
+plot(strcounts.ll)

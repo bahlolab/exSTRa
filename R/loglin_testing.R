@@ -16,7 +16,7 @@ str_loglin_test_new <- function(data, loci, statistic, df, p.value, reads.total,
          group_case = group_case,
          group_control = group_control,
          group_null = group_null), 
-    class = c("str_chisq_perm_test")
+    class = c("str_loglin_test")
   )
 }
 
@@ -142,3 +142,80 @@ str_loglin_test <- function(data,
     group_null = group_null
   )
 }
+
+plot.str_loglin_test <- function(x, multi = FALSE, auto.layout = FALSE, 
+                                     single.plot = TRUE, # TODO: make this work
+                                     statistics = x$p.value, 
+                                     diseases = disease.order.by.coverage(x$reads.total), 
+                                     read.counts = x$reads.total, 
+                                     width = 15, height = 9, 
+                                     mfrow = NULL,
+                                     mar = c(2.5, 2, 1.5, 1) + 0.1,
+                                     plot.blanks = TRUE, 
+                                     file = NA, 
+                                     read.count.x.weights = c(1, 4),
+                                     read.count.y.weights = c(10, 1),
+                                     main = paste("Q-Q all loci"),
+                                     ...
+) {
+  assert("x is not of class str_chisq_perm_test", inherits(x, "str_loglin_test"))
+  assert("statistics input is NULL. This may be due to $p.value not being defined in data input?", !is.null(statistics))
+  assert("diseases input is NULL. This may be due to $reads.total not being defined in data input?", !is.null(diseases))
+  if(!is.na(file)) {
+    pdf(file, width = width, height = height)
+  }
+  low.p <- 1 / x$B
+  
+  if(multi == FALSE) {
+    # get all the values together! yo!
+    y <- statistics[, x$data$samples[group == x$group_control, sample]]
+    if(!is.na(x$group_case)) {
+      yy <- statistics[, x$data$samples[group == x$group_case, sample]]
+    } else {
+      yy <- c()
+    }
+    qqplot.pvalue(as.vector(as.matrix(y)), pvalues.alt = as.vector(as.matrix(yy)), main = main, ...)
+    return()
+  }
+  pre.par <- par("mfrow")
+  if(auto.layout == TRUE && is.null(mfrow)) {
+    success <- F
+    for(i in 1:10) {
+      if(length(diseases) <= i * (2*i + 1)) {
+        success <- T
+        break
+      }
+    }
+    assert(paste("Too many diseases,", length(diseases), "diseases when the max is 210."), success)
+    par(mfrow = c(i, 2 * i + 1))
+  }
+  if(!is.null(mar)) {
+    par(mar = mar)
+  }
+  max.plots <- prod(par("mfrow"))
+  
+  plot.count <- 0
+  for(disease.name in diseases) {
+    
+    y <- as.vector(as.matrix(statistics[disease.name, x$data$samples[group == x$group_control, sample]]))
+    if(!is.na(x$group_case)) {
+      yy <- as.vector(as.matrix(statistics[disease.name, x$data$samples[group == x$group_case, sample]]))
+    } else {
+      yy <- c()
+    }
+    
+    ## Q-Q plot for Chi^2 data against true theoretical distribution:
+    if((plot.count <- plot.count + 1) > max.plots) {
+      stop("Error, too many plots attempted")
+    }
+    qqplot.pvalue(y, pvalues.alt = yy, main = paste(disease.name, "Q-Q"), plot.blanks = plot.blanks)
+    if(!is.null(read.counts)) {
+      text(weighted.mean(par("usr")[1:2], w = read.count.x.weights), weighted.mean(par("usr")[3:4], w = read.count.y.weights), paste(sum(read.counts[disease.name, ]), "reads", sep="\n"), ...)
+    }
+  }
+  par(mfrow = pre.par)
+  if(!is.na(file)) {
+    dev.off()
+  }
+}
+
