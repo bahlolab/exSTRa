@@ -15,7 +15,7 @@ strcounts
 
 strcount.perm <- str_chisq_permutation_test(strcounts,
                                             cols = c("up_00", "up_01", "up_11", "up_02", "up_12", "up_22"), 
-                                            keep.rows = c("up_01", "up_11", "up_02", "up_12"),
+                                            keep.cols = c("up_01", "up_11", "up_02", "up_12"),
                                             #loci = strloci(data),
                                             B = 100000, 
                                             require.nozero = TRUE) # class strdataperm (maybe a subclass of strcount???)
@@ -35,3 +35,5 @@ strcounts.ll$df
 class(strcounts.ll)
 
 plot(strcounts.ll)
+
+plot(strcounts.ll, multi = TRUE, auto.layout = TRUE, cex = 1.3)
