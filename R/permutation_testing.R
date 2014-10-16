@@ -183,8 +183,8 @@ finding.property.of.features <- function(features, groups, locus.name, cols, FUN
 
 qqplot.pvalue <- function(pvalues = NULL, p.trans = -log10(pvalues), 
                           pvalues.alt = NA, p.trans.alt = -log10(pvalues.alt), 
-                          main = "QQ plot of p-values", xlab = "Null", ylab = "Observed", 
-                          plot.blanks = FALSE, ...) {
+                          main = "QQ plot of p-values", xlab = "-log10 expected", ylab = "-log10 observed", 
+                          plot.blanks = FALSE, alt.params = list(), ...) {
   # Create a QQ plot of p-values with confidence intervals
   # http://gettinggeneticsdone.blogspot.com.au/2009/11/qq-plots-of-p-values-in-r-using-ggplot2.html
   # 17th July 2014
@@ -227,7 +227,8 @@ qqplot.pvalue <- function(pvalues = NULL, p.trans = -log10(pvalues),
   
   # Add the alternative QQ plot if given
   if(sum(is.na(p.trans.alt)) < length(p.trans.alt)) {
-    points(-log10(qunif(ppoints(length(p.trans.alt)))), sort(p.trans.alt, decreasing = TRUE), col = "blue", pch = 2)
+    #points(-log10(qunif(ppoints(length(p.trans.alt)))), sort(p.trans.alt, decreasing = TRUE), col = "blue", pch = 2)
+    do.call(points, c(list(-log10(qunif(ppoints(length(p.trans.alt)))), sort(p.trans.alt, decreasing = TRUE), col = "blue", pch = 2), alt.params)) 
   }
 }
 

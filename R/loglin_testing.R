@@ -33,7 +33,8 @@ str_loglin_test <- function(data,
                                        group_null = NULL,
                                        group_control = "control",
                                        group_case = "case",
-                                       allow_uncounted_loci = FALSE
+                                       allow_uncounted_loci = FALSE,
+                                       include.test.case = FALSE
 ) {
   # Runs a log-linear test on strcounts
   
@@ -101,7 +102,7 @@ str_loglin_test <- function(data,
     setkey(locus.counts.long, sample, bin)
     
     for(sample.name in data$samples$sample) {
-      sample.data <- locus.counts[sample.name, nomatch = 0] # TODO: this is our problemo
+      sample.data <- locus.counts[sample.name, nomatch = 0] # TODO: This was a problem, but I don't think it is anymore
       if(dim(sample.data)[1] == 0) {
         next
       }
@@ -116,7 +117,14 @@ str_loglin_test <- function(data,
         # set: cont.table.1.sample.v
         stop("This feature not yet implemented for nulls, controls and cases")
       }
-
+      if(include.test.case) {
+        the.keys <- key(locus.counts.long)
+        lc.case.pop <- locus.counts.long[sample.name]
+        lc.case.pop$affected <- FALSE
+        locus.counts.long <- rbind(locus.counts.long, lc.case.pop)
+        setkeyv(locus.counts.long, cols = the.keys)
+        # cbind other samples in, maybe this is very inefficient? maybe cbind whole lot in and exclude the bad rows?
+      }
       # I don't think we will eliminate all categories here, so are safe (maybe)
       # Do the chi-sq test
       m2 <- glm(reads ~ bin + affected, data = locus.counts.long[!is.na(affected)], family = "quasipoisson")
