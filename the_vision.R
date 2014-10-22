@@ -1,9 +1,10 @@
 # example of how the package could be used
 
+## ---- strexpansion_prepare
 library(strexpansion)
 
 strdatabase <- strdb_read("/Users/tankard/Documents/Research/repeats/disease_repeats/repeat_disorders.xlsx") # class strdb
-strdatabase
+#strdatabase
 # or 
 # strdatabase = read.strs.ucsc("simpleRepeat.txt.gz")
 
@@ -11,8 +12,10 @@ strcounts <- strs_read(file = "/Users/tankard/Documents/Research/repeats/read_si
                        database = strdatabase, 
                        groups.regex = c(control = "normal", case = "expanded")
                        ) # class strdata
-strcounts
+#strcounts
 
+
+## ---- permutation_testing
 strcounts.perm <- str_chisq_permutation_test(strcounts,
                                             cols = c("up_00", "up_01", "up_11", "up_02", "up_12", "up_22"), 
                                             keep.cols = c("up_01", "up_11", "up_02", "up_12"),
@@ -26,19 +29,22 @@ plot(strcounts.perm, multi = TRUE, auto.layout = TRUE, cex = 1.3) # plot each di
 
 plot(strcounts.perm, multi = TRUE, auto.layout = TRUE, cex = 1.3, read.counts = NULL) 
 
+## ---- loglinear_testing
 # A different kind of test
 strcounts.ll <- str_loglin_test(strcounts, 
                                 cols = c("up_00", "up_01", "up_11", "up_02", "up_12", "up_22"), 
                                 )
+plot(strcounts.ll)
 
+## ---- loglinear_testing_other exploration
 strcounts.ll$df
 class(strcounts.ll)
 
-plot(strcounts.ll)
+
 
 plot(strcounts.ll, multi = TRUE, auto.layout = TRUE, cex = 1.3)
 
-
+## ---- compare_tests
 image.dir <- "../strexpansion_testing/images/"
 height <- 8
 width = 13
@@ -95,10 +101,18 @@ for(sample.type in c("expanded", "normal")) {
 }
 
 
+## ---- loglinear_testing_inccase
 
 # log-linear test including cases in control pop
-strcounts.ll <- str_loglin_test(strcounts, 
+strcounts.ll.inccase <- str_loglin_test(strcounts, 
                                 cols = c("up_00", "up_01", "up_11", "up_02", "up_12", "up_22"), 
                                 include.test.case = TRUE
 )
 
+## ---- loglinear_testing_inccase_plot_command
+
+pdf(paste0(image.dir, "inccase_loglin_test_QQ_repeat_expansion_loci_single.pdf"))
+## ---- loglinear_includingcase_plot
+plot(strcounts.ll.inccase, main = "Q-Q all loci including case in nulls")
+## ---- end
+dev.off()

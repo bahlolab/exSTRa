@@ -1,0 +1,29 @@
+\documentclass{article}
+
+\begin{document}
+
+
+<<set-options, echo=FALSE, cache=FALSE>>=
+read_chunk('../the_vision.R')
+@
+
+Load STR database and counts:
+<<strexpansion_prepare>>=
+@
+
+Perform log-linear testing the case is not included in the controls:
+
+TODO: insert model here 
+<<loglinear_testing>>=
+@
+
+
+Run the test including 
+<<loglinear_testing_inccase>>=
+@
+
+Plot it: 
+<<loglinear_includingcase_plot>>=
+@
+
+\end{document}

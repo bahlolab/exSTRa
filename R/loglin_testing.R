@@ -6,7 +6,9 @@ is.str_loglin_test <- function(x) inherits(x, "str_loglin_test")
 str_loglin_test_new <- function(data, loci, statistic, df, p.value, reads.total,  
                                     group_case,
                                     group_control,
-                                    group_null)
+                                    group_null,
+                                    include.test.case, 
+                                    cols)
 {
   assert("Input should be data.frames", is.data.frame(statistic), is.data.frame(df), is.data.frame(p.value), is.data.frame(reads.total))
   assert("data should be of class strdata", is.strdata(data))
@@ -15,7 +17,10 @@ str_loglin_test_new <- function(data, loci, statistic, df, p.value, reads.total,
     list(data = data, loci = loci, statistic = statistic, df = df, p.value = p.value, reads.total = reads.total, 
          group_case = group_case,
          group_control = group_control,
-         group_null = group_null), 
+         group_null = group_null,
+         include.test.case = include.test.case, 
+         cols = cols
+        ), 
     class = c("str_loglin_test")
   )
 }
@@ -147,7 +152,9 @@ str_loglin_test <- function(data,
     reads.total = disease.read.total, 
     group_case = group_case,
     group_control = group_control,
-    group_null = group_null
+    group_null = group_null, 
+    include.test.case = include.test.case, 
+    cols = cols
   )
 }
 
