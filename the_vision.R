@@ -51,7 +51,7 @@ width = 13
 dir.create(image.dir)
 
 pdf(paste0(image.dir, "perm_test_QQ_repeat_expansion_loci.pdf"), width = width, height = height)
-plot(strcount.perm, multi = TRUE, auto.layout = TRUE, cex = 1.3, diseases = strloci(strcounts.perm))
+plot(strcounts.perm, multi = TRUE, auto.layout = TRUE, cex = 1.3, diseases = strloci(strcounts.perm))
 dev.off()
 
 pdf(paste0(image.dir, "loglin_test_QQ_repeat_expansion_loci.pdf"), width = width, height = height)

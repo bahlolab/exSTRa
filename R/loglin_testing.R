@@ -168,6 +168,7 @@ plot.str_loglin_test <- function(x, multi = FALSE, auto.layout = FALSE,
                                      mar = c(2.5, 2, 1.5, 1) + 0.1,
                                      plot.blanks = TRUE, 
                                      file = NA, 
+                                     plot.controls.only = FALSE,  
                                      read.count.x.weights = c(1, 4),
                                      read.count.y.weights = c(10, 1),
                                      main = paste("Q-Q all loci"),
@@ -213,7 +214,7 @@ plot.str_loglin_test <- function(x, multi = FALSE, auto.layout = FALSE,
   for(disease.name in diseases) {
     
     y <- as.vector(as.matrix(statistics[disease.name, x$data$samples[group == x$group_control, sample]]))
-    if(!is.na(x$group_case)) {
+    if(!plot.controls.only && !is.na(x$group_case)) {
       yy <- as.vector(as.matrix(statistics[disease.name, x$data$samples[group == x$group_case, sample]]))
     } else {
       yy <- c()
