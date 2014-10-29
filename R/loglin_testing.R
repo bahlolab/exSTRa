@@ -48,6 +48,7 @@ str_loglin_test <- function(data,
   
   # Pull the input data apart
   features <- data$data
+  setkey(features, locus, sample)
   groups <- data$data$group
   # replace states by groups
   
@@ -185,10 +186,10 @@ plot.str_loglin_test <- function(x, multi = FALSE, auto.layout = FALSE,
   if(multi == FALSE) {
     # get all the values together! yo!
     y <- statistics[, x$data$samples[group == x$group_control, sample]]
-    if(!is.na(x$group_case)) {
+    if(!plot.controls.only && !is.na(x$group_case)) {
       yy <- statistics[, x$data$samples[group == x$group_case, sample]]
     } else {
-      yy <- c()
+      yy <- numeric()
     }
     qqplot.pvalue(as.vector(as.matrix(y)), pvalues.alt = as.vector(as.matrix(yy)), main = main, ...)
     return()
@@ -217,7 +218,7 @@ plot.str_loglin_test <- function(x, multi = FALSE, auto.layout = FALSE,
     if(!plot.controls.only && !is.na(x$group_case)) {
       yy <- as.vector(as.matrix(statistics[disease.name, x$data$samples[group == x$group_case, sample]]))
     } else {
-      yy <- c()
+      yy <- numeric()
     }
     
     ## Q-Q plot for Chi^2 data against true theoretical distribution:
