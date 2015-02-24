@@ -132,7 +132,7 @@ str_loglin_test <- function(data,
         # cbind other samples in, maybe this is very inefficient? maybe cbind whole lot in and exclude the bad rows?
       }
       # I don't think we will eliminate all categories here, so are safe (maybe)
-      # Do the chi-sq test
+      # Do the log-linear test
       m2 <- glm(reads ~ bin + affected, data = locus.counts.long[!is.na(affected)], family = "quasipoisson")
       m3 <- glm(reads ~ bin + affected + bin * affected, data = locus.counts.long[!is.na(affected)], family = "quasipoisson")
       test <- anova(m2, m3, test="Chisq")
