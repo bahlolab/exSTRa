@@ -48,6 +48,26 @@ strdb_xlsx <- function(file, ...) {
   names(data)[which(names(data) == "hg19.chrom" | names(data) == "hg19_chr")] <- "chrom"
   names(data)[which(names(data) == "hg19.start.0" | names(data) == "repeat.start")] <- "chromStart"
   names(data)[which(names(data) == "hg19.end" | names(data) == "repeat.end")] <- "chromEnd"
+  
+  # give more verbose repeat number information
+  data$rn.stab.low <- as.numeric(NA)
+  data$rn.stab.hig <- as.numeric(NA)
+  data$rn.unst.low <- as.numeric(NA) 
+  data$rn.unst.hig <- as.numeric(NA) 
+  data$rn.unst.nonmax <- F
+  
+  for(i in 1:dim(data)[1]) {
+    data[i, c("rn.stab.low", "rn.stab.hig")] <- as.numeric(strsplit(as.character(data[i, "Stable.repeat.number"]), "-")[[1]])
+    if(grepl("\\+", as.character(data[i, "Unstable.repeat.number"]))) {
+      data[i, "rn.unst.nonmax"] <- T
+    }
+    if(grepl("-", as.character(data[i, "Unstable.repeat.number"]))) {
+      data[i, c("rn.unst.low", "rn.unst.hig")] <- as.numeric(strsplit(sub("\\+", "", as.character(data[i, "Unstable.repeat.number"])), "-")[[1]])
+    } else {
+      data[i, c("rn.unst.low", "rn.unst.hig")] <- rep(as.numeric(sub("\\+", "", as.character(data[i, "Unstable.repeat.number"]))), 2)
+    }
+  }
+  
   strdb(data, "named")
 }
 
