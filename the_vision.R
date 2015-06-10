@@ -8,10 +8,15 @@ strdatabase <- strdb_read("/Users/tankard/Documents/Research/repeats/disease_rep
 # or 
 # strdatabase = read.strs.ucsc("simpleRepeat.txt.gz")
 
-strcounts <- strs_read(file = "/Users/tankard/Documents/Research/repeats/read_simulation/str_simulations/summarising_simulations/simulation_summary_03.txt", 
+strcounts <- strs_read(file = "/Users/tankard/Documents/Research/repeats/read_simulation/str_simulations/summarising_simulations/simulation_summary_09.txt", 
                        database = strdatabase, 
                        groups.regex = c(control = "normal", case = "expanded")
                        ) # class strdata
+
+strcounts.byalignment <- strs_read(file = "/Users/tankard/Documents/Research/repeats/read_simulation/str_simulations/summarising_simulations/simulation_summary_03.txt", 
+  database = strdatabase, 
+  groups.regex = c(control = "normal", case = "expanded")
+) # class strdata
 #strcounts
 
 
@@ -115,4 +120,23 @@ pdf(paste0(image.dir, "inccase_loglin_test_QQ_repeat_expansion_loci_single.pdf")
 ## ---- loglinear_includingcase_plot
 plot(strcounts.ll.inccase, main = "Q-Q all loci including case in nulls")
 ## ---- end
+dev.off()
+
+## ---- boxplot_strdata
+pdf(paste0(image.dir, "boxplots_with_expected.pdf"))
+for(locus in strloci(strcounts)) {
+  boxplot(strcounts, locus, coverage = 50 * 129/149, read.length = 129, cases.known = TRUE)
+}
+dev.off()
+
+pdf(paste0(image.dir, "boxplots_with_expected_by_alignment.pdf"))
+for(locus in strloci(strcounts.byalignment)) {
+  boxplot(strcounts.byalignment, locus, coverage = 50, read.length = 149, cases.known = TRUE)
+}
+dev.off()
+
+pdf(paste0(image.dir, "boxplots_example_of_variation.pdf"))
+x <- data.frame( group = rep(1:20, each = 20), 
+  counts = rpois(20 * 20, 20))
+boxplot(counts ~ group, x)
 dev.off()

@@ -3,6 +3,7 @@
 
 library(data.table)
 library(testit)
+library(reshape2)
 
 is.strdata <- function(x) inherits(x, "strdata")
 
@@ -112,18 +113,26 @@ boxplot.strdata <- function(strdata, locus, ...,
   ylimits <- NULL
   if(!is.null(coverage)) {
     A1 <- with(disease.info, floor(copyNum * rs.len))
-    A2 <- ifelse(cases.known, with(disease.info, floor(rn.unst.low * rs.len)), A1)
-    R <- read.length # for convienience 
-    ex_up_11 <- coverage / 2 / R * ( (R <= A1) * (A1 - R + 1) + (R <= A2) * (A2 - R + 1) )
-    ex_up_02 <- coverage / 2 / R * ( (R >= A1 + 2) * (R - A1 - 1) + (R >= A2 + 2) * (R - A2 - 1) )
-    ex_up_01 <- coverage / 2 * ( ( (R > A1 + 1) * A1 + (R > A2 + 1) * A2) / R + (R <= A1 + 1) + (R <= A2 + 1))
-    ylimits = c(0, max(ex_up_11, ex_up_02, ex_up_01, features$count))
+    A2 <- with(disease.info, floor(rn.unst.low * rs.len))
+    R <- read.length # for convienience
+    exp_case <- numeric()
+    if(cases.known) {
+      exp_case["up_11"] <- coverage / 2 / R * ( (R <= A1) * (A1 - R + 1) + (R <= A2) * (A2 - R + 1) )
+      exp_case["up_02"] <- coverage / 2 / R * ( (R >= A1 + 2) * (R - A1 - 1) + (R >= A2 + 2) * (R - A2 - 1) )
+      exp_case["up_01"] <- coverage / 2 / R * ( ((R > A1 + 1) * A1 + (R > A2 + 1) * A2) + ((R <= A1 + 1) + (R <= A2 + 1) * (R - 1)) ) 
+    }
+    exp_control <- numeric()
+    exp_control["up_11"] <- coverage / R * ( (R <= A1) * (A1 - R + 1) )
+    exp_control["up_02"] <- coverage / R * ( (R >= A1 + 2) * (R - A1 - 1) )
+    exp_control["up_01"] <- coverage / R * ( ( (R > A1 + 1) * A1 ) + (R <= A1 + 1) * (R - 1) )
+    ylimits = c(0, max(exp_case, exp_control, features$count))
   }
   
-  boxplot(count ~ bin, features[group == "control"], boxwex = 0.5, xaxt='n', 
-    xlim = c(.7, 4.4), ylim = ylimits)
+  boxplot(count ~ bin, features[group == "control"], boxwex = 0.4, xaxt='n', 
+    xlim = c(.7, 4.4), ylim = ylimits) # , border = "blue")
   axis(1, at = 1:4 + 0.15, labels = levels(features$bin), xlab = "Read location")
-  with(features[group == "case"], points(as.numeric(bin) + 0.34, count, col = "red"))
+  with(features[group == "case"], points(as.numeric(bin) + 0.4, count, col = "red"))
+  with(features[group == "case"], text(as.numeric(bin) + 0.5, count, col = "red", labels = as.integer(sample)))
   title(with(disease.info, 
     paste0(locus.in, " (", 
       Location.of.repeat.within.gene, " ", Repeat.sequence, ") norm: ", floor(copyNum), 
@@ -131,14 +140,16 @@ boxplot.strdata <- function(strdata, locus, ...,
       floor(rn.unst.low * rs.len), "bp)")),
     xlab = "Read Location")
   if(!is.null(coverage)) {
-    lines(c(0.7, 1.5), rep(ex_up_01, 2), col = "blue")
-    lines(c(1.7, 2.5), rep(ex_up_11, 2), col = "blue")
-    lines(c(2.7, 3.5), rep(ex_up_02, 2), col = "blue")
-    lines(c(3.7, 4.5), rep(ex_up_01, 2), col = "blue")
-    #TODO: adjust graph so we can see higher values
+    if(cases.known) {
+      lines(c(1.3, 1.5), rep(exp_case["up_01"], 2), col = "red")
+      lines(c(2.3, 2.5), rep(exp_case["up_11"], 2), col = "red")
+      lines(c(3.3, 3.5), rep(exp_case["up_02"], 2), col = "red")
+      lines(c(4.3, 4.5), rep(exp_case["up_01"], 2), col = "red")
+    }
+    lines(c(0.75, 1.25), rep(exp_control["up_01"], 2), col = "blue")
+    lines(c(1.75, 2.25), rep(exp_control["up_11"], 2), col = "blue")
+    lines(c(2.75, 3.25), rep(exp_control["up_02"], 2), col = "blue")
+    lines(c(3.75, 4.25), rep(exp_control["up_01"], 2), col = "blue")
   }
-  
 }
-
-
 

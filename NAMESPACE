@@ -1,2 +1,2 @@
-import(testit, data.table, xlsx, stringr)
+import(testit, data.table, xlsx, stringr, reshape2)
 exportPattern("^[[:alpha:]]+")
