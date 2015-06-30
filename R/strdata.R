@@ -96,7 +96,6 @@ boxplot.strdata <- function(strdata, locus, ...,
   coverage = NULL,
   read.length = NULL,
   cases.known = FALSE,
-  labels = NULL, 
   up.cols = c("up_00", "up_01", "up_11", "up_02", "up_12", "up_22"),
   plot.cols = c("up_01", "up_11", "up_02", "up_12")
 ) {
@@ -135,17 +134,13 @@ boxplot.strdata <- function(strdata, locus, ...,
     ylimits = c(0, max(exp_case, exp_control, features$count))
   }
   
-  if(is.null(labels)) { 
-    labels.plot <- as.integer(features[group == "case"]$sample)
-  } else {
-    labels.plot <- labels[as.character(x)]
-  }
-  
   boxplot(count ~ bin, features[group == "control"], boxwex = 0.4, xaxt='n', 
     xlim = c(.7, 4.4), ylim = ylimits) # , border = "blue")
   axis(1, at = 1:4 + 0.15, labels = levels(features$bin), xlab = "Read location")
   with(features[group == "case"], points(as.numeric(bin) + 0.4, count, col = "red"))
-  with(features[group == "case"], text(as.numeric(bin) + 0.5, count, col = "red", labels = labels.plot))
+  samplenames <- features[group == "case"]$sample
+  with(features[group == "case"], text(as.numeric(bin) + 0.5, count, col = "red", 
+    labels = strdata$samples[as.character(samplenames), plotname]))
   title(with(disease.info, 
     paste0(locus.in, " (", 
       Location.of.repeat.within.gene, " ", Repeat.sequence, ") norm: ", floor(copyNum), 
