@@ -58,7 +58,7 @@ strs_read <- function(file, database, groups.regex = NULL, groups.samples = NULL
 }
 
 strdata_new <- function(data, db) {
-  assert("data", inherits(data, "data.frame"))
+  assert("data must be of classs data.frame", inherits(data, "data.frame"))
   assert("db must be of class strdb", inherits(db, "strdb"))
   data <- data.table(data)
   if(!is.element("locus", colnames(data))) {
@@ -73,6 +73,7 @@ strdata_new <- function(data, db) {
   setkey(data, locus, sample) 
   samples <- unique(data[, c("sample", "group"), with = F])
   samples$sample <- as.character(samples$sample)
+  samples$plotname <- NA_character_
   setkey(samples, sample)
   structure(list(data = data.table(data), db = db, samples = samples), class = c("strdata"))
 }
@@ -86,10 +87,16 @@ strloci.strdata <- function(data) {
   strloci(data$db)
 }
 
+set_plotnames <- function(data, labels) {
+  assert("data must be of class strdata", inherits(data, "strdata"))
+  data$samples[names(labels), plotname := labels]
+}
+
 boxplot.strdata <- function(strdata, locus, ..., 
   coverage = NULL,
   read.length = NULL,
-  cases.known = FALSE, 
+  cases.known = FALSE,
+  labels = NULL, 
   up.cols = c("up_00", "up_01", "up_11", "up_02", "up_12", "up_22"),
   plot.cols = c("up_01", "up_11", "up_02", "up_12")
 ) {
@@ -128,11 +135,17 @@ boxplot.strdata <- function(strdata, locus, ...,
     ylimits = c(0, max(exp_case, exp_control, features$count))
   }
   
+  if(is.null(labels)) { 
+    labels.plot <- as.integer(features[group == "case"]$sample)
+  } else {
+    labels.plot <- labels[as.character(x)]
+  }
+  
   boxplot(count ~ bin, features[group == "control"], boxwex = 0.4, xaxt='n', 
     xlim = c(.7, 4.4), ylim = ylimits) # , border = "blue")
   axis(1, at = 1:4 + 0.15, labels = levels(features$bin), xlab = "Read location")
   with(features[group == "case"], points(as.numeric(bin) + 0.4, count, col = "red"))
-  with(features[group == "case"], text(as.numeric(bin) + 0.5, count, col = "red", labels = as.integer(sample)))
+  with(features[group == "case"], text(as.numeric(bin) + 0.5, count, col = "red", labels = labels.plot))
   title(with(disease.info, 
     paste0(locus.in, " (", 
       Location.of.repeat.within.gene, " ", Repeat.sequence, ") norm: ", floor(copyNum), 

@@ -19,6 +19,9 @@ strcounts.byalignment <- strs_read(file = "/Users/tankard/Documents/Research/rep
 ) # class strdata
 #strcounts
 
+shortplotlabels <- c("initial_normal_11" = "n11", "initial_expanded_03" = "e03")
+set_plotnames(strcounts, shortplotlabels)
+set_plotnames(strcounts.byalignment, shortplotlabels)
 
 ## ---- permutation_testing
 strcounts.perm <- str_chisq_permutation_test(strcounts,
