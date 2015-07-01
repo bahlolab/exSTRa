@@ -139,7 +139,7 @@ boxplot.strdata <- function(strdata, locus, ...,
   axis(1, at = 1:4 + 0.15, labels = levels(features$bin), xlab = "Read location")
   with(features[group == "case"], points(as.numeric(bin) + 0.4, count, col = "red"))
   samplenames <- features[group == "case"]$sample
-  with(features[group == "case"], text(as.numeric(bin) + 0.5, count, col = "red", 
+  with(features[group == "case"], text(as.numeric(bin) + 0.37, count, pos = 4, col = "red", 
     labels = strdata$samples[as.character(samplenames), plotname]))
   title(with(disease.info, 
     paste0(locus.in, " (", 
