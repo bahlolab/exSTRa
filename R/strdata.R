@@ -97,7 +97,8 @@ boxplot.strdata <- function(strdata, locus, ...,
   read.length = NULL,
   cases.known = FALSE,
   up.cols = c("up_00", "up_01", "up_11", "up_02", "up_12", "up_22"),
-  plot.cols = c("up_01", "up_11", "up_02", "up_12")
+  plot.cols = c("up_01", "up_11", "up_02", "up_12"),
+  case.x.offset = 0.32
 ) {
   # A boxplot for the strdata class
   
@@ -137,10 +138,11 @@ boxplot.strdata <- function(strdata, locus, ...,
   boxplot(count ~ bin, features[group == "control"], boxwex = 0.4, xaxt='n', 
     xlim = c(.7, 4.4), ylim = ylimits) # , border = "blue")
   axis(1, at = 1:4 + 0.15, labels = levels(features$bin), xlab = "Read location")
-  with(features[group == "case"], points(as.numeric(bin) + 0.4, count, col = "red"))
+  with(features[group == "case"], points(as.numeric(bin) + case.x.offset, count, col = "red"))
   samplenames <- features[group == "case"]$sample
-  with(features[group == "case"], text(as.numeric(bin) + 0.37, count, pos = 4, col = "red", 
-    labels = strdata$samples[as.character(samplenames), plotname]))
+  with(features[group == "case"], text(as.numeric(bin) + case.x.offset - 0.03, count, pos = 4, col = "red", 
+    #labels = strdata$samples[as.character(samplenames), plotname]))
+    labels = plotnames(strdata, sample)))
   title(with(disease.info, 
     paste0(locus.in, " (", 
       Location.of.repeat.within.gene, " ", Repeat.sequence, ") norm: ", floor(copyNum), 
@@ -161,3 +163,8 @@ boxplot.strdata <- function(strdata, locus, ...,
   }
 }
 
+
+plotnames <- function(strdata, names) {
+  # gives the plot names for given sample names
+  strdata$samples[as.character(names), plotname]
+}

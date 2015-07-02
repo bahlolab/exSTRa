@@ -109,6 +109,10 @@ strloci.strdb <- function(strdb) {
   loci
 }
 
+strloci_text_info <- function(strdata, locus) {
+  # gives text info for the locus, usually used in plot titles
+  
+}
 
 
 Y <- strdb_read("/Users/tankard/Documents/Research/repeats/disease_repeats/repeat_disorders.xlsx")
