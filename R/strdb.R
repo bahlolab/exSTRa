@@ -6,12 +6,19 @@ library(stringr)
 library(xlsx)
 library(testit)
 
-strdb <- function(dt, input_type = NULL) {
+strdb <- function(strd, input_type = NULL) {
   # Transforms a data.frame or data.table into a strdb object
-  if (!is.data.frame(dt)) stop("dt must be data.frame")
-  dt <- data.table(dt)
-  dt <- dt[!(is.na(chrom) | is.na(chromStart) | is.na(chromEnd))]
-  structure(list(db = dt, input_type = input_type), class = c("strdb"))
+  if (!is.data.frame(strd)) stop("strd must be data.frame")
+  strd <- data.table(strd)
+  strd <- strd[!(is.na(chrom) | is.na(chromStart) | is.na(chromEnd))]
+  if(!is.null(strd$disease.symbol)) {
+    setkey(strd, "disease.symbol")
+  } else if(!is.null(strd$Disease)) {
+    setkey(strd, "Disease")
+  } else {
+    setkey(strd, "locus")
+  }
+  structure(list(db = strd, input_type = input_type), class = c("strdb"))
 }
 
 strdb_new <- function() {
@@ -109,12 +116,30 @@ strloci.strdb <- function(strdb) {
   loci
 }
 
-strloci_text_info <- function(strdata, locus) {
+strloci_text_info <- function(x, locus) {
   # gives text info for the locus, usually used in plot titles
-  
+  # TODO: modify this:
+  # x may be from the class strdb or strdata
+  if(class(x) == "strdata") {
+    x <- strdata$db
+  }
+  assert("The class of x must be strdb or strdata", class(x) == "strdb")
+  locus.in <- locus
+  x.info <- x$db[locus.in == disease.symbol]
+  #TODO: this is wrong
+  assert(paste("The locus", locus, "was not found"), dim(x.info)[1] >= 1)
+  assert(paste("There were multiple entries for locus", locusß), dim(x.info)[1] <= 1)
+  rs.len <- with(x.info, nchar(as.character(Repeat.sequence)))
+  normal.copyNum <- with(x.info, ifelse(is.null(read_detect_size), floor(copyNum), floor(read_detect_size / rs.len)))
+  normal.size.bp <- with(x.info, ifelse(is.null(read_detect_size), floor(copyNum * rs.len), read_detect_size))
+  with(x.info,  
+    paste0(locus, " (", 
+      Location.of.repeat.within.gene, " ", Repeat.sequence, ") norm: ", normal.copyNum, 
+      " (", normal.size.bp, "bp) , exp: ", rn.unst.low, " (", 
+      floor(rn.unst.low * rs.len), "bp)"))
 }
 
 
-Y <- strdb_read("/Users/tankard/Documents/Research/repeats/disease_repeats/repeat_disorders.xlsx")
-
-class(Y)
+# I think the following was code that was left over from another time
+#Y <- strdb_read("/Users/tankard/Documents/Research/repeats/disease_repeats/repeat_disorders.xlsx")
+#class(Y)

@@ -23,6 +23,9 @@ shortplotlabels <- c("initial_normal_11" = "n11", "initial_expanded_03" = "e03")
 set_plotnames(strcounts, shortplotlabels)
 set_plotnames(strcounts.byalignment, shortplotlabels)
 
+## ---- testing_title_text
+strloci_text_info(strdatabase, "SCA1")
+
 ## ---- permutation_testing
 strcounts.perm <- str_chisq_permutation_test(strcounts,
                                             cols = c("up_00", "up_01", "up_11", "up_02", "up_12", "up_22"), 
