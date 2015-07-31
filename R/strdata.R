@@ -141,13 +141,8 @@ boxplot.strdata <- function(strdata, locus, ...,
   with(features[group == "case"], points(as.numeric(bin) + case.x.offset, count, col = "red"))
   samplenames <- features[group == "case"]$sample
   with(features[group == "case"], text(as.numeric(bin) + case.x.offset - 0.03, count, pos = 4, col = "red", 
-    #labels = strdata$samples[as.character(samplenames), plotname]))
     labels = plotnames(strdata, sample)))
-  title(with(disease.info, 
-    paste0(locus.in, " (", 
-      Location.of.repeat.within.gene, " ", Repeat.sequence, ") norm: ", floor(copyNum), 
-      " (", floor(copyNum * rs.len),"bp) , exp: ", rn.unst.low, " (", 
-      floor(rn.unst.low * rs.len), "bp)")),
+  title(strloci_text_info(strdata, locus.in),
     xlab = "Read Location")
   if(!is.null(coverage)) {
     if(cases.known) {
