@@ -11,6 +11,7 @@ strdb <- function(strd, input_type = NULL) {
   if (!is.data.frame(strd)) stop("strd must be data.frame")
   strd <- data.table(strd)
   strd <- strd[!(is.na(chrom) | is.na(chromStart) | is.na(chromEnd))]
+  strd$input_order <- seq(1, dim(strd)[1], 1)
   if(!is.null(strd$disease.symbol)) {
     setkey(strd, "disease.symbol")
   } else if(!is.null(strd$Disease)) {
@@ -108,7 +109,7 @@ strdb_text <- function(file) {
 strloci <- function(...) UseMethod("strloci")
 
 strloci.strdb <- function(strdb) {  
-  loci <- strdb$db$disease.symbol
+  loci <- strdb$db[order(input_order), disease.symbol]
   if(is.null(loci)) {
     loci <- strdb$db$locus
   }
@@ -121,14 +122,14 @@ strloci_text_info <- function(x, locus) {
   # TODO: modify this:
   # x may be from the class strdb or strdata
   if(class(x) == "strdata") {
-    x <- strdata$db
+    x <- x$db
   }
   assert("The class of x must be strdb or strdata", class(x) == "strdb")
   locus.in <- locus
   x.info <- x$db[locus.in == disease.symbol]
   #TODO: this is wrong
   assert(paste("The locus", locus, "was not found"), dim(x.info)[1] >= 1)
-  assert(paste("There were multiple entries for locus", locusß), dim(x.info)[1] <= 1)
+  assert(paste("There were multiple entries for locus", locus), dim(x.info)[1] <= 1)
   rs.len <- with(x.info, nchar(as.character(Repeat.sequence)))
   normal.copyNum <- with(x.info, ifelse(is.null(read_detect_size), floor(copyNum), floor(read_detect_size / rs.len)))
   normal.size.bp <- with(x.info, ifelse(is.null(read_detect_size), floor(copyNum * rs.len), read_detect_size))
