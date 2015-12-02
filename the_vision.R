@@ -152,3 +152,27 @@ x <- data.frame( group = rep(1:20, each = 20),
   counts = rpois(20 * 20, 20))
 boxplot(counts ~ group, x)
 dev.off()
+
+## ---- Crazy trimming of rep_in_read plots
+sample.name <- 'SCA2-1'
+locus.name <- 'SCA2'
+for(trimming in 0:60) {
+  strrir.trim <- trim.rep_in_read_data(strrir, trimming)
+  pdf(sprintf("vision_docs/images/trimming_abc_%02d.pdf", trimming))
+  with(strrir.trim$data[locus.name ], 
+    plot(a + .5 * c, sqrt(3/2) * c, 
+      col = "white", #ifelse(sample == sample.name, "red", "black"),
+      xlim = c(0, 131 - 2 * trimming),
+      ylim = c(0, sqrt(3/2) * (131 - 2 * trimming)),
+      main = paste("Trim", trimming)
+    )
+  ) 
+  with(strrir.trim$data[locus.name ], 
+    text(a + .5 * c, sqrt(3/2) * c, 
+      col = ifelse(sample == sample.name, "red", "black"),
+      labels = sample, 
+      cex = 0.5
+    )
+  )
+  dev.off()
+}
