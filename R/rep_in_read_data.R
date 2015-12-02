@@ -88,7 +88,26 @@ strloci.rep_in_read_data <- function(data) {
   strloci(data$db)
 }
 
-
+trim.rep_in_read_data <- function(data, trim = NULL, trim_a = trim, trim_b = trim) {
+  # perform effective trimming of all read data
+  assert("Requires input to be rep_in_read_data", is.rep_in_read_data(data))
+  assert("Trim must be a non-negative integer.", is.numeric(trim_a), trim_a >= 0, round(trim_a) == trim_a)
+  assert("Trim must be a non-negative integer.", is.numeric(trim_b), trim_b >= 0, round(trim_b) == trim_b)
+  output <- data # don't want to modify input
+  # do the initial trim
+  output$data$a <- output$data$a - trim_a
+  output$data$c <- output$data$c - trim_b
+  # trim into repeat if nessersary, and set 0 for that trimming
+  output$data$b <- output$data$b + pmin(output$data$a, 0) + pmin(output$data$c, 0)
+  output$data$a <- pmax(output$data$a, 0)
+  output$data$c <- pmax(output$data$c, 0)
+  # filter reads that no longer contain any repeat
+  # Note that if this filter is removed then the trimming will have to take special care
+  # as after the algorithm we may have b < 0
+  output$data <- output$data[b >= 0]
+  message("Trimming removed read data for ", (dim(data$data)[1] - dim(output$data)[1]), " reads of ", dim(data$data)[1])
+  return(output)
+}
 
 # set_plotnames <- function(data, labels) {
 #   assert("data must be of class strdata", inherits(data, "strdata"))
