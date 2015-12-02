@@ -23,6 +23,12 @@ shortplotlabels <- c("initial_normal_11" = "n11", "initial_expanded_03" = "e03")
 set_plotnames(strcounts, shortplotlabels)
 set_plotnames(strcounts.byalignment, shortplotlabels)
 
+strrir <- rep_in_read_data_read(
+  file = "/Volumes/tankard/projects/research/STRs/repeat_expansion_rediscovery/wgs_garvan/repeat_rediscovery_wgs_10bp_trim_rep_in_read_02.txt", 
+  database = strdatabase, 
+  groups.regex = c(control = "", case = "^(SCA[26]|HD)")
+) # class strdata
+
 ## ---- testing_title_text
 strloci_text_info(strdatabase, "SCA1")
 
