@@ -114,7 +114,8 @@ boxplot.strdata <- function(strdata, locus, ...,
   features <- features[is.element(bin, plot.cols)]
   features$bin <- factor(features$bin, levels = plot.cols)
   
-  disease.info <- strdata$db$db[disease.symbol == locus.in]
+  disease.info <- tryCatch(strdata$db$db[disease.symbol == locus.in],
+    error = function (e) { strdata$db$db[locus == locus.in] } )
   rs.len <- with(disease.info, nchar(as.character(Repeat.sequence)))
   
   ylimits <- NULL

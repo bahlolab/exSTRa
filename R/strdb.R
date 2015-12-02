@@ -96,6 +96,7 @@ strdb_ucsc <- function(file, header = F, ...) {
   }
   assert("The column classes of the UCSC file are not as expected. Are you sure you are supplying a UCSCS file and that the header setting is correct?", prod(sapply(data, class) == col.classes) == 1)
   data$locus <- with(data, paste0(chrom, ":", chromStart + 1, "-", chromEnd, ":", sequence))
+  data$Repeat.sequence <- data$sequence
   data <- data.table(data)
   data <- data[nchar(sequence) >= 2 & nchar(sequence) <= 6]
   strdb(data, "ucsc")
@@ -108,11 +109,11 @@ strdb_text <- function(file) {
 
 strloci <- function(...) UseMethod("strloci")
 
-strloci.strdb <- function(strdb) {  
-  loci <- strdb$db[order(input_order), disease.symbol]
-  if(is.null(loci)) {
-    loci <- strdb$db$locus
-  }
+strloci.strdb <- function(strdb) {
+  loci <- tryCatch(
+    { strdb$db[order(input_order), disease.symbol] },
+    error = function(e) { strdb$db[order(input_order), locus] }
+  )
   assert("Could not identify the str loci", !is.null(loci))
   loci
 }
@@ -126,18 +127,36 @@ strloci_text_info <- function(x, locus) {
   }
   assert("The class of x must be strdb or strdata", class(x) == "strdb")
   locus.in <- locus
-  x.info <- x$db[locus.in == disease.symbol]
-  #TODO: this is wrong
-  assert(paste("The locus", locus, "was not found"), dim(x.info)[1] >= 1)
-  assert(paste("There were multiple entries for locus", locus), dim(x.info)[1] <= 1)
-  rs.len <- with(x.info, nchar(as.character(Repeat.sequence)))
-  normal.copyNum <- with(x.info, ifelse(is.null(read_detect_size), floor(copyNum), floor(read_detect_size / rs.len)))
-  normal.size.bp <- with(x.info, ifelse(is.null(read_detect_size), floor(copyNum * rs.len), read_detect_size))
-  with(x.info,  
-    paste0(locus, " (", 
-      Location.of.repeat.within.gene, " ", Repeat.sequence, ") norm: ", normal.copyNum, 
-      " (", normal.size.bp, "bp) , exp: ", rn.unst.low, " (", 
-      floor(rn.unst.low * rs.len), "bp)"))
+  if(x$input_type == "named") {
+    x.info <- tryCatch(x$db[locus.in == disease.symbol], 
+      error = function(e) { x$db[locus.in == locus] }
+    )
+    #TODO: this is wrong
+    assert(paste("The locus", locus, "was not found"), dim(x.info)[1] >= 1)
+    assert(paste("There were multiple entries for locus", locus), dim(x.info)[1] <= 1)
+    rs.len <- with(x.info, nchar(as.character(Repeat.sequence)))
+    normal.copyNum <- with(x.info, ifelse(is.null(read_detect_size), floor(copyNum), floor(read_detect_size / rs.len)))
+    normal.size.bp <- with(x.info, ifelse(is.null(read_detect_size), floor(copyNum * rs.len), read_detect_size))
+    return(with(x.info,  
+      paste0(locus, " (", 
+        Location.of.repeat.within.gene, " ", Repeat.sequence, ") norm: ", normal.copyNum, 
+        " (", normal.size.bp, "bp) , exp: ", rn.unst.low, " (", 
+        floor(rn.unst.low * rs.len), "bp)"))
+    )
+  } else if (x$input_type == "ucsc") {
+    x.info <- x$db[locus.in == locus] 
+    #TODO: this is wrong
+    assert(paste("The locus", locus, "was not found"), dim(x.info)[1] >= 1)
+    assert(paste("There were multiple entries for locus", locus), dim(x.info)[1] <= 1)
+    rs.len <- with(x.info, nchar(as.character(Repeat.sequence)))
+    #normal.copyNum <- with(x.info, ifelse(is.null(read_detect_size), floor(copyNum), floor(read_detect_size / rs.len)))
+    #normal.size.bp <- with(x.info, ifelse(is.null(read_detect_size), floor(copyNum * rs.len), read_detect_size))
+    return(with(x.info,  
+      paste0(locus))
+    )
+  } else {
+    stop("Unrecognised input_type in strdb. Got ", x$input_type)
+  }
 }
 
 
