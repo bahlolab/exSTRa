@@ -27,7 +27,7 @@ strrir <- rep_in_read_data_read(
   file = "/Volumes/tankard/projects/research/STRs/repeat_expansion_rediscovery/wgs_garvan/repeat_rediscovery_wgs_10bp_trim_rep_in_read_02.txt", 
   database = strdatabase, 
   groups.regex = c(control = "", case = "^(SCA[26]|HD)")
-) # class strdata
+) # class rep_in_read_data
 
 ## ---- testing_title_text
 strloci_text_info(strdatabase, "SCA1")
