@@ -109,6 +109,54 @@ trim.rep_in_read_data <- function(data, trim = NULL, trim_a = trim, trim_b = tri
   return(output)
 }
 
+
+plot.rep_in_read_data <- function(rird, read_length, locus = NULL, sample_col = NULL, inc_text = FALSE, inc_points = TRUE, ...) {
+  #
+  # sample_col should be a named vector, sample names as the name and color as the value
+  strlocis <- ifelse(is.null(locus), strloci(rird), locus)
+  for(locus.name in strlocis) {
+    #strrir.trim <- trim.rep_in_read_data(strrir, trimming)
+    plot(c(0, 1, 1/2, 0) * read_length / sqrt(3/2), c(0, 0, 1, 0) * read_length, xlim = c(0, read_length / sqrt(3/2)),
+      ylim = c(0, read_length),
+      main = paste(locus.name),
+      type = "l",
+      col = "grey60", 
+      ...)
+    grid(col = "grey80")
+    plot_data <- rird$data[locus.name]
+    if(is.null(sample_col)) {
+      dot_col <- ifelse(rird$samples[as.character(plot_data$sample)]$group == 'case', "red", "black")
+    } else {
+      dot_col <- rep("black", dim(plot_data)[1])
+      for(sname in names(sample_col)) {
+        dot_col[which(plot_data$sample == sname)] <- sample_col[sname]
+      }
+    }
+    if(inc_points) {
+      with(plot_data, 
+        points(jitter((a + .5 * b) / sqrt(3/2), 1.5), jitter(b, 1.5), 
+          #col = ifelse(rird$samples[get('sample', 2)] == 'case', "red", 
+          col = dot_col,
+          ...
+        )
+      ) 
+    }
+    if(inc_text) {
+      with(plot_data, 
+        text((a + .5 * b) / sqrt(3/2), b, 
+          #col = ifelse(str_rep_in_read$samples[sample.name]$group == "case", "red", "black"),
+          labels = sample, 
+          cex = 0.5, 
+          col = dot_col,
+          ...
+        )
+      )
+    }
+  }
+}
+
+
+
 # set_plotnames <- function(data, labels) {
 #   assert("data must be of class strdata", inherits(data, "strdata"))
 #   data$samples[names(labels), plotname := labels]
