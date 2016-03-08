@@ -29,6 +29,14 @@ strrir <- rep_in_read_data_read(
   groups.regex = c(control = "", case = "^(SCA[26]|HD)")
 ) # class rep_in_read_data
 
+
+str_score <- rep_score_data_read(
+  file = "~/Documents/Research/repeats/repeat_expansion_rediscovery/data_wgs/repeat_rediscovery_wgs_score_02.txt",
+  database = strdatabase, 
+  groups.regex = c(control = "", case = "^(SCA[26]|HD)")
+)
+  
+  
 ## ---- testing_title_text
 strloci_text_info(strdatabase, "SCA1")
 
@@ -176,3 +184,6 @@ for(trimming in 0:60) {
   )
   dev.off()
 }
+
+#### ---- STR score ----
+plot(str_score)

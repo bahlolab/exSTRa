@@ -7,12 +7,12 @@ library(reshape2)
 
 is.strdata <- function(x) inherits(x, "strdata")
 
-strs_read <- function(file, database, groups.regex = NULL, groups.samples = NULL) {
-  # Load the STR counts
-  # Groups should be named null, control and case
+strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NULL, this.class = NULL) {
+  # Load the STR data, and give it the right class
   assert("read.strs requires database to be a strdb", inherits(database, "strdb"))
   assert("Need groups.samples or groups.regex to be defined", !is.null(groups.samples) || !is.null(groups.regex))
   assert("Require exactly one of groups.samples or groups.regex to be defined", xor(is.null(groups.samples), is.null(groups.regex)))
+  assert("This function must have a class to return", !is.null(this.class))
   # Read in data
   counts <- read.delim(file)
   # Add some info to the data
@@ -30,13 +30,13 @@ strs_read <- function(file, database, groups.regex = NULL, groups.samples = NULL
   if(!is.null(groups.samples)) {
     # using regex for groups
     assert("groups.samples must be a list if used, with vectors with names of at least one of 'case', 'control' or 'null'.", 
-           is.list(groups.samples), 
-           length(groups.samples) > 0,
-           !is.null(names(groups.samples)),
-           is.element(names(groups.samples), c("case", "control", "null"))
-      )
+      is.list(groups.samples), 
+      length(groups.samples) > 0,
+      !is.null(names(groups.samples)),
+      is.element(names(groups.samples), c("case", "control", "null"))
+    )
     assert("groups.samples does not currently accept multiple of the same names for groups, please put all sample names in the one vector under that name", 
-           length(unique(names(groups.samples))) == length(names(groups.samples)) )
+      length(unique(names(groups.samples))) == length(names(groups.samples)) )
     if(length(groups.samples) == 1 && names(groups.samples) == "case") {
       # only cases described, so make other samples controls
       groups_all <- factor(rep("control", dim(counts)[1]), levels = c("case", "control"))
@@ -52,9 +52,16 @@ strs_read <- function(file, database, groups.regex = NULL, groups.samples = NULL
       }     
     }
   }
-
+  
   counts$group <- as.factor(groups_all)
-  return(strdata_new(counts, database))
+  return(list(data = counts, db = database))
+}
+
+strs_read <- function(file, database, groups.regex = NULL, groups.samples = NULL) {
+  # Load the STR counts
+  # Groups should be named null, control and case
+  out <- strs_read_(file, database, groups.regex, groups.samples, this.class = "strdata")
+  return(strdata_new(out$data, out$db))
 }
 
 strdata_new <- function(data, db) {
@@ -79,8 +86,8 @@ strdata_new <- function(data, db) {
 }
 
 print.strdata <- function(x, ...) {
-  cat("strdata object with ", dim(x$data)[1], " observations of type ",  x$db$input_type, ".\n",
-      "Includes associated STR database of ", dim(x$db$db)[1], " loci.", sep = "")
+  cat(class(x)[1], " object with ", dim(x$data)[1], " observations of type ",  x$db$input_type, ". ($data)\n",
+      "Includes associated STR database of ", dim(x$db$db)[1], " loci. ($db)", sep = "")
 }
 
 strloci.strdata <- function(data) {  
