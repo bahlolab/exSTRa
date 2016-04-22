@@ -187,3 +187,21 @@ for(trimming in 0:60) {
 
 #### ---- STR score ----
 plot(str_score)
+
+loc_scores <- str_score$data[locus == "SCA6"]
+KS <- ks.test(loc_scores[group == "control"]$rep, loc_scores[sample == "SCA2-1"]$rep, 
+  alternative = "greater", exact = NULL)
+
+ks_tests <- data.table(rep_score_data_ks_tests(str_score))
+setkey(ks_tests, p.value)
+head(ks_tests)
+# Lots of SCA3 locus results, but the samples are similar visually to the normals
+
+loc_scores <- str_score$data[locus == "SCA3"]
+KS <- ks.test(loc_scores[group == "control"]$rep, loc_scores[sample == "SCA6-1"]$rep, 
+  alternative = "greater", exact = NULL)
+
+plot(str_score, "SCA3", sample_col = c("SCA6-1" = "red"))
+
+
+
