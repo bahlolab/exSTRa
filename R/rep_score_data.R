@@ -51,9 +51,10 @@ plot.rep_score_data <- function(rsc, locus = NULL, sample_col = NULL, ...) {
     plot(NA,
       xlim = c(0, 1),
       ylim = c(0, 1),
-      main = paste(locus.name, "score ECDF"),
-      #xlab = "",
-      #ylab = "",
+      main = paste(strloci_text_info(rsc$db, locus.name), "score ECDF"),
+      xlab = "Proportion repeated (x)",
+      ylab = "Fn(x)",
+      cex.main = 1,
       ...)
     grid(col = "grey80")
     plot_data <- rsc$data[locus.name]
