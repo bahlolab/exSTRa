@@ -48,22 +48,22 @@ plot.rep_score_data <- function(rsc, locus = NULL, sample_col = NULL, ...) {
   }
   for(locus.name in strlocis) {
     #strrir.trim <- trim.rep_in_read_data(strrir, trimming)
+    plot_data <- rsc$data[locus.name]
     plot(NA,
-      xlim = c(0, 1),
+      xlim = c(0, max(plot_data$mlength)),
       ylim = c(0, 1),
       main = paste(strloci_text_info(rsc$db, locus.name), "score ECDF"),
-      xlab = "Proportion repeated (x)",
+      xlab = "Repeated bases (x)",
       ylab = "Fn(x)",
       cex.main = 1,
       ...)
     grid(col = "grey80")
-    plot_data <- rsc$data[locus.name]
     if(is.null(sample_col)) {
       sample_col = ifelse(rsc$samples$group == 'case', "red", "black")
       names(sample_col) <- rsc$samples$sample
     } 
     for(samp in unique(plot_data$sample)) {
-      plot(ecdf(plot_data[sample == samp, prop]), add = T, col = replace(sample_col[samp], is.na(sample_col[samp]), "black"))
+      plot(ecdf(plot_data[sample == samp, rep]), add = T, col = replace(sample_col[samp], is.na(sample_col[samp]), "black"))
     }
   }
 }
