@@ -38,9 +38,10 @@ rep_score_data_new <- function(data, db) {
 }
 
 
-plot.rep_score_data <- function(rsc, locus = NULL, sample_col = NULL, ...) {
+plot.rep_score_data <- function(rsc, locus = NULL, sample_col = NULL, refline = TRUE, ...) {
   # Plot ECDFs of rep score data
   # sample_col should be a named vector, sample names as the name and color as the value
+  # refline: if TRUE, include reference
   if(is.null(locus)) {
     strlocis <- strloci(rsc)
   } else {
@@ -58,6 +59,9 @@ plot.rep_score_data <- function(rsc, locus = NULL, sample_col = NULL, ...) {
       cex.main = 1,
       ...)
     grid(col = "grey80")
+    if(refline) {
+      abline(v = strloci_normal_exp(rsc$db, locus.name), col = c("blue", "red"), lty = 3:4)
+    }
     if(is.null(sample_col)) {
       sample_col = ifelse(rsc$samples$group == 'case', "red", "black")
       names(sample_col) <- rsc$samples$sample
