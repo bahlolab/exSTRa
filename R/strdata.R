@@ -178,12 +178,11 @@ plotnames <- function(strdata, names) {
     assert("sample is not the key of x$samples", key(x$samples)[1] == "sample")
     assert("disease.symbol not the key of x$db$db (not written for UCSC yet (TODO)", key(x$db$db)[1] == "disease.symbol")
     if(!is.null(loc)) {
-        x$data <- x$data[loc]
         x$db$db <- x$db$db[loc]
     }
     if(!is.null(samp)) {
-        x$data <- x$data[sample %in% samp]
         x$samples <- x$samples[samp]
     }
+    x$data <- x$data[x$db$db$disease.symbol][sample %in% x$samples$sample]
     x
 }
