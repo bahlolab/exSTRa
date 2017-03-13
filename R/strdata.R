@@ -171,3 +171,19 @@ plotnames <- function(strdata, names) {
   # gives the plot names for given sample names
   strdata$samples[as.character(names), plotname]
 }
+
+# This function allows square brackets to be used to select out the locus and sample
+`[.strdata` <- function(x, loc = NULL, samp = NULL) {
+    assert("locus is not the key of x$data", key(x$data)[1] == "locus")
+    assert("sample is not the key of x$samples", key(x$samples)[1] == "sample")
+    assert("disease.symbol not the key of x$db$db (not written for UCSC yet (TODO)", key(x$db$db)[1] == "disease.symbol")
+    if(!is.null(loc)) {
+        x$data <- x$data[loc]
+        x$db$db <- x$db$db[loc]
+    }
+    if(!is.null(samp)) {
+        x$data <- x$data[sample %in% samp]
+        x$samples <- x$samples[samp]
+    }
+    x
+}
