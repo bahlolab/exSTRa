@@ -86,8 +86,10 @@ strdata_new <- function(data, db) {
 }
 
 print.strdata <- function(x, ...) {
-  cat(class(x)[1], " object with ", dim(x$data)[1], " observations of type ",  x$db$input_type, ". ($data)\n",
-      "Includes associated STR database of ", dim(x$db$db)[1], " loci. ($db)", sep = "")
+  cat(class(x)[1], " object with ", dim(x$data)[1], " observations of type ",  x$db$input_type, "($data),\n",
+      "  for ", dim(x$samples)[1], " samples. ($samples)\n",
+      "  Includes associated STR database of ", dim(x$db$db)[1], " loci. ($db)\n", 
+      sep = "")
 }
 
 strloci.strdata <- function(data) {  
@@ -173,15 +175,15 @@ plotnames <- function(strdata, names) {
 }
 
 # This function allows square brackets to be used to select out the locus and sample
-`[.strdata` <- function(x, loc = NULL, samp = NULL) {
+`[.strdata` <- function(x, loc, samp) {
     assert("locus is not the key of x$data", key(x$data)[1] == "locus")
     assert("sample is not the key of x$samples", key(x$samples)[1] == "sample")
     assert("disease.symbol not the key of x$db$db (not written for UCSC yet (TODO)", key(x$db$db)[1] == "disease.symbol")
-    if(!is.null(loc)) {
-        x$db$db <- x$db$db[loc]
+    if(!missing(loc)) {
+        x$db$db <- x$db$db[eval(substitute(loc))]
     }
-    if(!is.null(samp)) {
-        x$samples <- x$samples[samp]
+    if(!missing(samp)) {
+        x$samples <- x$samples[eval(substitute(samp))]
     }
     x$data <- x$data[x$db$db$disease.symbol][sample %in% x$samples$sample]
     x
