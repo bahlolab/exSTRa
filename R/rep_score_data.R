@@ -38,7 +38,8 @@ rep_score_data_new <- function(data, db) {
 }
 
 
-plot.rep_score_data <- function(rsc, locus = NULL, sample_col = NULL, refline = TRUE, ...) {
+plot.rep_score_data <- function(rsc, locus = NULL, sample_col = NULL, refline = TRUE, ylab="Fn(x)", verticals = FALSE,
+     pch = 19, ...) {
   # Plot ECDFs of rep score data
   # sample_col should be a named vector, sample names as the name and color as the value
   # refline: if TRUE, include reference
@@ -55,7 +56,7 @@ plot.rep_score_data <- function(rsc, locus = NULL, sample_col = NULL, refline = 
       ylim = c(0, 1),
       main = paste(strloci_text_info(rsc$db, locus.name), "score ECDF"),
       xlab = "Repeated bases (x)",
-      ylab = "Fn(x)",
+      ylab = ylab,
       cex.main = 1,
       ...)
     grid(col = "grey80")
@@ -67,7 +68,8 @@ plot.rep_score_data <- function(rsc, locus = NULL, sample_col = NULL, refline = 
       names(sample_col) <- rsc$samples$sample
     } 
     for(samp in unique(plot_data$sample)) {
-      plot(ecdf(plot_data[sample == samp, rep]), add = T, col = replace(sample_col[samp], is.na(sample_col[samp]), "black"))
+      plot(ecdf(plot_data[sample == samp, rep]), add = T, col = replace(sample_col[samp], is.na(sample_col[samp]), "black"), verticals = verticals,
+        pch = pch, ...)
     }
   }
 }
