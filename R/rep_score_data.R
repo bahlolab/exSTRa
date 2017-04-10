@@ -39,7 +39,7 @@ rep_score_data_new <- function(data, db) {
 
 
 plot.rep_score_data <- function(rsc, locus = NULL, sample_col = NULL, refline = TRUE, ylab="Fn(x)", verticals = FALSE,
-     pch = 19, xlim, ylim = c(0,1), ...) {
+     pch = 19, xlim, ylim = c(0,1), alpha_control = 0.5, alpha_case = NULL, ...) {
   # Plot ECDFs of rep score data
   # sample_col should be a named vector, sample names as the name and color as the value
   # refline: if TRUE, include reference
@@ -69,12 +69,16 @@ plot.rep_score_data <- function(rsc, locus = NULL, sample_col = NULL, refline = 
     if(refline) {
       abline(v = strloci_normal_exp(rsc$db, locus.name), col = c("blue", "red"), lty = 3:4)
     }
+    black_trans <- rgb(0, 0, 0, alpha = alpha_control)
     if(is.null(sample_col)) {
-      sample_col = ifelse(rsc$samples$group == 'case', "red", "black")
+      sample_col = ifelse(rsc$samples$group == 'case', rgb(1, 0, 0, alpha_case), black_trans)
       names(sample_col) <- rsc$samples$sample
     } 
+    if(!is.null(alpha_case)) {
+      sample_col <- add.alpha(sample_col, alpha_case)
+    }
     for(samp in unique(plot_data$sample)) {
-      plot(ecdf(plot_data[sample == samp, rep]), add = T, col = replace(sample_col[samp], is.na(sample_col[samp]), "black"), verticals = verticals,
+      plot(ecdf(plot_data[sample == samp, rep]), add = T, col = replace(sample_col[samp], is.na(sample_col[samp]), black_trans), verticals = verticals,
         pch = pch, ...)
     }
   }
@@ -122,4 +126,15 @@ rsd_filter_lower_than_expected <- function(strscore) {
   strscore$db$db[, min_score := unit_length / 4 ^ unit_length]
   strscore$data <- strscore$data[prop > strscore$db$db[as.character(locus), min_score]]
   strscore
+}
+
+# TODO:
+#this function is from http://www.magesblog.com/2013/04/how-to-change-alpha-value-of-colours-in.html
+#so will need a rewrite
+add.alpha <- function(col, alpha=1){
+  if(missing(col))
+    stop("Please provide a vector of colours.")
+  apply(sapply(col, col2rgb)/255, 2, 
+                     function(x) 
+                       rgb(x[1], x[2], x[3], alpha=alpha))  
 }
