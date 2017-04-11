@@ -26,3 +26,9 @@ estrip: expanding str in progress
 die: does it expand?
 
 selfie: str expansions lost and found inside experiments
+
+Ozzie ozzie ozzie:
+STRaya 
+STRalia
+Oi Oi Oi! 
+
