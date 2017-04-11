@@ -77,7 +77,7 @@ plot.rep_score_data <- function(rsc, locus = NULL, sample_col = NULL, refline = 
     if(!is.null(alpha_case)) {
       sample_col <- add.alpha(sample_col, alpha_case)
     }
-    for(samp in unique(plot_data$sample)) {
+    for(samp in c(setdiff(unique(plot_data$sample), names(sample_col)), intersect(unique(plot_data$sample), names(sample_col)))) {
       plot(ecdf(plot_data[sample == samp, rep]), add = T, col = replace(sample_col[samp], is.na(sample_col[samp]), black_trans), verticals = verticals,
         pch = pch, ...)
     }
