@@ -40,10 +40,12 @@ rep_score_data_new <- function(data, db) {
 
 
 plot.rep_score_data <- function(rsc, locus = NULL, sample_col = NULL, refline = TRUE, ylab="Fn(x)", verticals = TRUE,
-     pch = 19, xlim, ylim = c(0,1), alpha_control = 0.5, alpha_case = NULL, ...) {
+     pch = 19, xlim, ylim = c(0,1), alpha_control = 0.5, alpha_case = NULL, 
+     xlinked = "all", xlinked.safe = TRUE, ...) {
   # Plot ECDFs of rep score data
   # sample_col should be a named vector, sample names as the name and color as the value
   # refline: if TRUE, include reference
+  # xlinked: For loci on X chromosome, "all" for all samples, "male" and "female" for only that sex
   if(is.null(locus)) {
     strlocis <- strloci(rsc)
   } else {
@@ -52,9 +54,15 @@ plot.rep_score_data <- function(rsc, locus = NULL, sample_col = NULL, refline = 
   if(!missing(xlim)) {
       xlim_1 <- xlim
   }
+  assert('In plot.rep_score_data(), must have xlinked one of "all", "male", "female"', xlinked %in% c("all", "male", "female"))
   for(locus.name in strlocis) {
     #strrir.trim <- trim.rep_in_read_data(strrir, trimming)
-    plot_data <- rsc$data[locus.name]
+    #if(xlinked == "both")
+    if(xlinked != "all" && grepl("X", str_score_fil$db$db[locus.name]$Gene.location)) {
+      plot_data <- str_filter_sex(rsc, xlinked, xlinked.safe)$data[locus == locus.name]
+    } else {
+      plot_data <- rsc$data[locus.name]
+    }
     if(missing(xlim)) {
       xlim_1 <- c(0, max(plot_data$mlength))
     }
@@ -128,6 +136,7 @@ rsd_filter_lower_than_expected <- function(strscore) {
   strscore$data <- strscore$data[prop > strscore$db$db[as.character(locus), min_score]]
   strscore
 }
+
 
 # TODO:
 #this function is from http://www.magesblog.com/2013/04/how-to-change-alpha-value-of-colours-in.html
