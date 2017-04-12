@@ -40,8 +40,8 @@ rep_score_data_new <- function(data, db) {
 
 
 plot.rep_score_data <- function(rsc, locus = NULL, sample_col = NULL, refline = TRUE, ylab="Fn(x)", verticals = TRUE,
-     pch = 19, xlim, ylim = c(0,1), alpha_control = 0.5, alpha_case = NULL, 
-     xlinked = "all", xlinked.safe = TRUE, ...) {
+  pch = 19, xlim, ylim = c(0,1), alpha_control = 0.5, alpha_case = NULL, 
+  xlinked = "all", xlinked.safe = TRUE, ...) {
   # Plot ECDFs of rep score data
   # sample_col should be a named vector, sample names as the name and color as the value
   # refline: if TRUE, include reference
@@ -52,43 +52,51 @@ plot.rep_score_data <- function(rsc, locus = NULL, sample_col = NULL, refline = 
     strlocis <- locus
   }
   if(!missing(xlim)) {
-      xlim_1 <- xlim
+    xlim_1 <- xlim
   }
-  assert('In plot.rep_score_data(), must have xlinked one of "all", "male", "female"', xlinked %in% c("all", "male", "female"))
+  assert('In plot.rep_score_data(), must have xlinked one of "all", "male", "female" or "both"', xlinked %in% c("all", "male", "female", "both"))
+  if(xlinked == "both") {
+    xlinked_loop <- c("male", "female")
+  } else {
+    xlinked_loop <- xlinked
+  }
   for(locus.name in strlocis) {
     #strrir.trim <- trim.rep_in_read_data(strrir, trimming)
-    #if(xlinked == "both")
-    if(xlinked != "all" && grepl("X", str_score_fil$db$db[locus.name]$Gene.location)) {
-      plot_data <- str_filter_sex(rsc, xlinked, xlinked.safe)$data[locus == locus.name]
-    } else {
-      plot_data <- rsc$data[locus.name]
-    }
-    if(missing(xlim)) {
-      xlim_1 <- c(0, max(plot_data$mlength))
-    }
-    plot(NA,
-      xlim = xlim_1,
-      ylim = ylim,
-      main = paste(strloci_text_info(rsc$db, locus.name), "score ECDF"),
-      xlab = "Repeated bases (x)",
-      ylab = ylab,
-      cex.main = 1,
-      ...)
-    grid(col = "grey80")
-    if(refline) {
-      abline(v = strloci_normal_exp(rsc$db, locus.name), col = c("blue", "red"), lty = 3:4)
-    }
-    black_trans <- rgb(0, 0, 0, alpha = alpha_control)
-    if(is.null(sample_col)) {
-      sample_col = ifelse(rsc$samples$group == 'case', rgb(1, 0, 0, alpha_case), black_trans)
-      names(sample_col) <- rsc$samples$sample
-    } 
-    if(!is.null(alpha_case)) {
-      sample_col <- add.alpha(sample_col, alpha_case)
-    }
-    for(samp in c(setdiff(unique(plot_data$sample), names(sample_col)), intersect(unique(plot_data$sample), names(sample_col)))) {
-      plot(ecdf(plot_data[sample == samp, rep]), add = T, col = replace(sample_col[samp], is.na(sample_col[samp]), black_trans), verticals = verticals,
-        pch = pch, ...)
+    for(xlinked in xlinked_loop) {
+      main.title <- paste(strloci_text_info(rsc$db, locus.name), "score ECDF")
+      if(xlinked != "all" && grepl("X", str_score_fil$db$db[locus.name]$Gene.location)) {
+        plot_data <- str_filter_sex(rsc, xlinked, xlinked.safe)$data[locus == locus.name]
+        main.title <- paste(main.title, paste0(xlinked, 's'))
+      } else {
+        plot_data <- rsc$data[locus.name]
+      }
+      if(missing(xlim)) {
+        xlim_1 <- c(0, max(plot_data$mlength))
+      }
+      plot(NA,
+        xlim = xlim_1,
+        ylim = ylim,
+        main = main.title,
+        xlab = "Repeated bases (x)",
+        ylab = ylab,
+        cex.main = 1,
+        ...)
+      grid(col = "grey80")
+      if(refline) {
+        abline(v = strloci_normal_exp(rsc$db, locus.name), col = c("blue", "red"), lty = 3:4)
+      }
+      black_trans <- rgb(0, 0, 0, alpha = alpha_control)
+      if(is.null(sample_col)) {
+        sample_col = ifelse(rsc$samples$group == 'case', rgb(1, 0, 0, alpha_case), black_trans)
+        names(sample_col) <- rsc$samples$sample
+      } 
+      if(!is.null(alpha_case)) {
+        sample_col <- add.alpha(sample_col, alpha_case)
+      }
+      for(samp in c(setdiff(unique(plot_data$sample), names(sample_col)), intersect(unique(plot_data$sample), names(sample_col)))) {
+        plot(ecdf(plot_data[sample == samp, rep]), add = T, col = replace(sample_col[samp], is.na(sample_col[samp]), black_trans), verticals = verticals,
+          pch = pch, ...)
+      }
     }
   }
 }
