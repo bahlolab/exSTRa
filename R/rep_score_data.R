@@ -33,12 +33,13 @@ rep_score_data_new <- function(data, db) {
   samples <- unique(data[, c("sample", "group"), with = F])
   samples$sample <- as.character(samples$sample)
   samples$plotname <- NA_character_
+  samples$sex <- factor(NA, c("male", "female"))
   setkey(samples, sample)
   structure(list(data = data.table(data), db = db, samples = samples), class = c("rep_score_data", "strdata"))
 }
 
 
-plot.rep_score_data <- function(rsc, locus = NULL, sample_col = NULL, refline = TRUE, ylab="Fn(x)", verticals = FALSE,
+plot.rep_score_data <- function(rsc, locus = NULL, sample_col = NULL, refline = TRUE, ylab="Fn(x)", verticals = TRUE,
      pch = 19, xlim, ylim = c(0,1), alpha_control = 0.5, alpha_case = NULL, ...) {
   # Plot ECDFs of rep score data
   # sample_col should be a named vector, sample names as the name and color as the value
