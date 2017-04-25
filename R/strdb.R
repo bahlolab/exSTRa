@@ -45,7 +45,7 @@ strdb_read <- function(file, ...) {
 
 strdb_xlsx <- function(file, ...) {
   if (!is.character(file)) stop("file must be character")
-  data <- read.xlsx(file, 1, ...)
+  data <- read.xlsx(file, 1, stringsAsFactors = FALSE, ...)
   assert("xlsx requires Disease or locus column", ! is.null(data$Disease) || ! is.null(data$locus))
   if(is.null(data$Disease)) {
     assert("xlsx requires Disease or locus column", ! is.null(data$locus))
@@ -200,6 +200,15 @@ strloci_minexp <- function(x, locus) {
   strloci_normal_exp (x, locus)[2]
 }
 
+`[.strdb` <- function(x, fil) {
+  assert("disease.symbol not the key of x$db (not written for UCSC yet (TODO)", key(x$db)[1] == "disease.symbol")
+  x$db <- x$db[eval(substitute(fil))]
+  x
+}
+
 # I think the following was code that was left over from another time
 #Y <- strdb_read("/Users/tankard/Documents/Research/repeats/disease_repeats/repeat_disorders.xlsx")
 #class(Y)
+
+
+# TODO method for seqnames(strdb)
