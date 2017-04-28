@@ -160,7 +160,7 @@ add.alpha <- function(col, alpha=1){
 
 
 
-rbind.rep_score_data.list <- function(strscore_list, idcol = "data_group") {
+rbind.rep_score_data.list <- function(strscore_list, idcol = "data_group", allow.sample.clash = FALSE) {
   assert("strscore_list must be a list", inherits(strscore_list, "list"))
   if(length(strscore_list) == 0) {
     stop("List is empty")
@@ -183,5 +183,15 @@ rbind.rep_score_data.list <- function(strscore_list, idcol = "data_group") {
   db.new <- strdb(db.new.db, input_type = strscore_list[[1]]$db$input_type)
   new_strscore <- rep_score_data_new(data.new, db.new)
   new_strscore$samples <- rbindlist(lapply(strscore_list, function(x) { x$samples }), idcol = idcol, fill = TRUE)
+  setkey(new_strscore$samples, sample)
+  if(!allow.sample.clash) {
+    test <- table (new_strscore$samples$sample)
+    if(max(test) > 1) {
+      stop("A sample name is duplicated in inputs, for sample names: ", 
+        paste(names(which(test > 1)), collapse = ", "), 
+        "\nSet allow.sample.clash = TRUE if this is ok. "
+      )
+    }
+  }
   return(new_strscore)
 }
