@@ -153,6 +153,35 @@ add.alpha <- function(col, alpha=1){
   if(missing(col))
     stop("Please provide a vector of colours.")
   apply(sapply(col, col2rgb)/255, 2, 
-                     function(x) 
-                       rgb(x[1], x[2], x[3], alpha=alpha))  
+    function(x) 
+      rgb(x[1], x[2], x[3], alpha=alpha))  
+}
+
+
+
+
+rbind.rep_score_data.list <- function(strscore_list, idcol = "data_group") {
+  assert("strscore_list must be a list", inherits(strscore_list, "list"))
+  if(length(strscore_list) == 0) {
+    stop("List is empty")
+  }
+  assert("Not all elements are rep score data", is.rep_score_data(strscore_list[[1]]))
+  if(length(strscore_list) == 1) {
+    return(strscore_list[[1]])
+  }
+  for(i in seq_along(strscore_list)) {
+    assert(paste("Element", i, "is not rep_score_data"), is.rep_score_data(strscore_list[[i]]))
+    assert("STR database is of mixed types", strscore_list[[1]]$db$input_type == strscore_list[[i]]$db$input_type)
+  }
+  
+  # Could be written much better, all in one go here instead, rather than recursion
+  
+  data.new <- rbindlist(lapply(strscore_list, function(x) { x$data }), idcol = idcol)
+  db.new.db <- rbindlist(lapply(strscore_list, function(x) { x$db$db }))
+  setkey(db.new.db, disease.symbol)
+  db.new.db <- unique(db.new.db)
+  db.new <- strdb(db.new.db, input_type = strscore_list[[1]]$db$input_type)
+  new_strscore <- rep_score_data_new(data.new, db.new)
+  new_strscore$samples <- rbindlist(lapply(strscore_list, function(x) { x$samples }), idcol = idcol, fill = TRUE)
+  return(new_strscore)
 }
