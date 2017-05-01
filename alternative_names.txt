@@ -3,7 +3,7 @@ pantster
 pants
 expants
 exstra: expanding str aliens
-
+exSTRa: expanded STR algorithm
 
 i really want to know where that repeat epxansion is
 irwtkwtrei
