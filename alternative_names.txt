@@ -3,7 +3,7 @@ pantster
 pants
 expants
 exstra: expanding str aliens
-
+exSTRa: expanded STR algorithm
 
 i really want to know where that repeat epxansion is
 irwtkwtrei
@@ -26,3 +26,9 @@ estrip: expanding str in progress
 die: does it expand?
 
 selfie: str expansions lost and found inside experiments
+
+Ozzie ozzie ozzie:
+STRaya 
+STRalia
+Oi Oi Oi! 
+
