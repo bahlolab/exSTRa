@@ -141,7 +141,12 @@ rsd_filter_lower_than_expected <- function(strscore) {
   strscore$db$db[, unit_length := nchar(as.character(Repeat.sequence))]
   # set score, want to remove scores that are smaller than expected by chance
   strscore$db$db[, min_score := unit_length / 4 ^ unit_length]
-  strscore$data <- strscore$data[prop > strscore$db$db[as.character(locus), min_score]]
+  #strscore$data <- strscore$data[prop > strscore$db$db[as.character(locus), min_score]]
+  small_db <- strscore$db$db[, list(disease.symbol, min_score)]
+  setkey(small_db, disease.symbol)
+  strscore$data <- strscore$data[small_db][prop > min_score][, min_score := NULL]
+  setkey(strscore$data, locus, sample)
+  #TODO: check bizarre behaviour of data not printing first time here...
   strscore
 }
 
