@@ -5,12 +5,11 @@ library(exSTRa)
 
 # data.table() # handy if closer inspection of internal tables is required
 
-# Read xlsx database
-str_database <- exstra_db_read("data/repeat_disorders.xlsx") # exstra_db object
-
+# Read score data and file with loci information
 str_score <- exstra_score_read (
-  file = "data/repeat_scores_at_known_loci.txt", # created by Perl script (TODO: exact name)
-  database = strdatabase, # alternatively, this may be the direct file path, if no import options are required (TODO)
+  file = "data/repeat_scores_at_known_loci_TEMP.txt", # created by Perl script (TODO: exact name)
+  #database = "data/repeat_disorders.xlsx", # for more control, use object from exstra_db_read() instead
+  database = "../disease_repeats/repeat_disorders_2017_04_26.xlsx",
   groups.regex = c(case = "", control = "^control"), # here, matches on successive patterns override previous matches # (TODO: maybe should be reversed?)
   filter.low.counts = TRUE
 )
