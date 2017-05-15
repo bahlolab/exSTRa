@@ -1,21 +1,21 @@
-# The strdata class
+# The exstra_map_counts class
 # Holds information related to STR counts as obtained from other programs
 
 library(data.table)
 library(testit)
-library(reshape2)
+# library(reshape2) 
 
-is.strdata <- function(x) inherits(x, "strdata")
+is.exstra_map_counts <- function(x) inherits(x, "exstra_map_counts")
 
 
-strs_read <- function(file, database, groups.regex = NULL, groups.samples = NULL) {
+exstra_map_counts_read <- function(file, database, groups.regex = NULL, groups.samples = NULL) {
   # Load the STR counts
   # Groups should be named null, control and case
-  out <- strs_read_(file, database, groups.regex, groups.samples, this.class = "strdata")
-  return(strdata_new(out$data, out$db))
+  out <- strs_read_(file, database, groups.regex, groups.samples, this.class = "exstra_map_counts")
+  return(exstra_map_counts_new_(out$data, out$db))
 }
 
-strdata_new <- function(data, db) {
+exstra_map_counts_new_ <- function(data, db) {
   assert("data must be of classs data.frame", inherits(data, "data.frame"))
   assert("db must be of class strdb", inherits(db, "strdb"))
   data <- data.table(data)
@@ -34,11 +34,11 @@ strdata_new <- function(data, db) {
   samples$plotname <- NA_character_
   samples$sex <- factor(NA, c("male", "female"))
   setkey(samples, sample)
-  structure(list(data = data.table(data), db = db, samples = samples), class = c("strdata", "exstra_score"))
+  structure(list(data = data.table(data), db = db, samples = samples), class = c("exstra_map_counts", "exstra_score"))
 }
 
 
-boxplot.strdata <- function(strdata, locus, ..., 
+boxplot.exstra_map_counts <- function(map_counts, locus, ..., 
   coverage = NULL,
   read.length = NULL,
   cases.known = FALSE,
@@ -46,13 +46,13 @@ boxplot.strdata <- function(strdata, locus, ...,
   plot.cols = c("up_01", "up_11", "up_02", "up_12"),
   case.x.offset = 0.32
 ) {
-  # A boxplot for the strdata class
+  # A boxplot for the exstra_map_counts class
   
   if(xor(is.null(coverage), is.null(read.length))) {
-    stop("Must specify either none or both of 'coverage' and 'read.length' in boxplot.strdata().")
+    stop("Must specify either none or both of 'coverage' and 'read.length' in boxplot.exstra_map_counts().")
   }
   locus.in <- locus
-  stc <- strdata$data[locus]
+  stc <- map_counts$data[locus]
   
   features <- melt(stc, id.vars = c("sample", "locus", "group"), variable.name = "bin", 
     value.name = "count", measure.vars = up.cols)
@@ -60,8 +60,8 @@ boxplot.strdata <- function(strdata, locus, ...,
   features <- features[is.element(bin, plot.cols)]
   features$bin <- factor(features$bin, levels = plot.cols)
   
-  disease.info <- tryCatch(strdata$db$db[disease.symbol == locus.in],
-    error = function (e) { strdata$db$db[locus == locus.in] } )
+  disease.info <- tryCatch(map_counts$db$db[disease.symbol == locus.in],
+    error = function (e) { map_counts$db$db[locus == locus.in] } )
   rs.len <- with(disease.info, nchar(as.character(Repeat.sequence)))
   
   ylimits <- NULL
@@ -88,8 +88,8 @@ boxplot.strdata <- function(strdata, locus, ...,
   with(features[group == "case"], points(as.numeric(bin) + case.x.offset, count, col = "red"))
   samplenames <- features[group == "case"]$sample
   with(features[group == "case"], text(as.numeric(bin) + case.x.offset - 0.03, count, pos = 4, col = "red", 
-    labels = plotnames(strdata, sample)))
-  title(strloci_text_info(strdata, locus.in),
+    labels = plotnames(map_counts, sample)))
+  title(strloci_text_info(map_counts, locus.in),
     xlab = "Read Location")
   if(!is.null(coverage)) {
     if(cases.known) {
