@@ -7,55 +7,6 @@ library(reshape2)
 
 is.strdata <- function(x) inherits(x, "strdata")
 
-strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NULL, this.class = NULL) {
-  # Load the STR data, and give it the right class
-  assert("read.strs requires database to be a strdb", inherits(database, "strdb"))
-  assert("Need groups.samples or groups.regex to be defined", !is.null(groups.samples) || !is.null(groups.regex))
-  assert("Require exactly one of groups.samples or groups.regex to be defined", xor(is.null(groups.samples), is.null(groups.regex)))
-  assert("This function must have a class to return", !is.null(this.class))
-  # Read in data
-  counts <- read.delim(file)
-  # Add some info to the data
-  if(!is.null(groups.regex)) {
-    # using regex for groups
-    if(is.null(names(groups.regex))) {
-      names(groups.regex) <- groups.regex
-    }
-    assert("Require groups to only to have names 'case', 'control' and 'null'.", is.element(names(groups.regex), c("case", "control", "null")))
-    groups_all <- factor(rep(NA, dim(counts)[1]), levels = names(groups.regex))
-    for(group.name in names(groups.regex)) {
-      groups_all[grepl(groups.regex[group.name], counts$sample)] <- group.name
-    }
-  }
-  if(!is.null(groups.samples)) {
-    # using regex for groups
-    assert("groups.samples must be a list if used, with vectors with names of at least one of 'case', 'control' or 'null'.", 
-      is.list(groups.samples), 
-      length(groups.samples) > 0,
-      !is.null(names(groups.samples)),
-      is.element(names(groups.samples), c("case", "control", "null"))
-    )
-    assert("groups.samples does not currently accept multiple of the same names for groups, please put all sample names in the one vector under that name", 
-      length(unique(names(groups.samples))) == length(names(groups.samples)) )
-    if(length(groups.samples) == 1 && names(groups.samples) == "case") {
-      # only cases described, so make other samples controls
-      groups_all <- factor(rep("control", dim(counts)[1]), levels = c("case", "control"))
-      for(sample in groups.samples$case) {
-        groups_all[sample == counts$sample] <- "case"
-      }      
-    } else {
-      groups_all <- factor(rep(NA, dim(counts)[1]), levels = names(groups.regex))
-      for(group.name in names(groups.samples)) {
-        for(sample in groups.samples[[group.name]]) {
-          groups_all[sample == counts$sample] <- group.name
-        }      
-      }     
-    }
-  }
-  
-  counts$group <- as.factor(groups_all)
-  return(list(data = counts, db = database))
-}
 
 strs_read <- function(file, database, groups.regex = NULL, groups.samples = NULL) {
   # Load the STR counts
@@ -83,24 +34,9 @@ strdata_new <- function(data, db) {
   samples$plotname <- NA_character_
   samples$sex <- factor(NA, c("male", "female"))
   setkey(samples, sample)
-  structure(list(data = data.table(data), db = db, samples = samples), class = c("strdata"))
+  structure(list(data = data.table(data), db = db, samples = samples), class = c("strdata", "exstra_score"))
 }
 
-print.strdata <- function(x, ...) {
-  cat(class(x)[1], " object with ", dim(x$data)[1], " observations of type ",  x$db$input_type, "($data),\n",
-      "  for ", dim(x$samples)[1], " samples. ($samples)\n",
-      "  Includes associated STR database of ", dim(x$db$db)[1], " loci. ($db)\n", 
-      sep = "")
-}
-
-strloci.strdata <- function(data) {  
-  strloci(data$db)
-}
-
-set_plotnames <- function(data, labels) {
-  assert("data must be of class strdata", inherits(data, "strdata"))
-  data$samples[names(labels), plotname := labels]
-}
 
 boxplot.strdata <- function(strdata, locus, ..., 
   coverage = NULL,
@@ -170,56 +106,3 @@ boxplot.strdata <- function(strdata, locus, ...,
 }
 
 
-plotnames <- function(strdata, names) {
-  # gives the plot names for given sample names
-  strdata$samples[as.character(names), plotname]
-}
-
-# This function allows square brackets to be used to select out the locus and sample
-`[.strdata` <- function(x, loc, samp) {
-    assert("locus is not the key of x$data", key(x$data)[1] == "locus")
-    assert("sample is not the key of x$samples", key(x$samples)[1] == "sample")
-    assert("disease.symbol not the key of x$db$db (not written for UCSC yet (TODO)", key(x$db$db)[1] == "disease.symbol")
-    if(!missing(loc)) {
-        x$db$db <- x$db$db[eval(substitute(loc))]
-    }
-    if(!missing(samp)) {
-        x$samples <- x$samples[eval(substitute(samp))]
-    }
-    x$data <- x$data[x$db$db$disease.symbol][sample %in% x$samples$sample]
-    x
-}
-
-# filter rep_score_data by sex
-str_filter_sex <- function(strdata, sex = "known", safe = TRUE) {
-  # filter rep_score_data by sex
-  # sex can be:
-  #   "all":     no filtering
-  #   "male":    only male samples
-  #   "female":  only female samples
-  #   "missing": only missing samples
-  #   "known":   only samples with sex assigned
-  # When safe is TRUE, missing sex assignments with cause an error for sex filtering of 
-  #    "all", "male" or "female"
-  if(sex %in% c("all", "male", "female")) {
-    if(safe) {
-      # Check that no data is missing
-      if(sum(is.na(strdata$samples$sex)) != 0) {
-        stop("In str_filter_sex(), some samples have not been assigned a sex.")
-      }
-    }
-    if(sex == "all") {
-      return(strdata)
-    } else if(sex == "male") {
-      return(strdata[, sex == "male"])
-    } else if(sex == "female") {
-      return(strdata[, sex == "female"])
-    }
-  } else if (sex == "missing") {
-    strdata[, is.na(sex)]
-  } else if (sex == "known") {
-    strdata[, !is.na(sex)]
-  } else {
-    stop("Bad sex assignment")
-  }
-}
