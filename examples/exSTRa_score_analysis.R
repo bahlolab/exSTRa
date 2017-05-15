@@ -1,58 +1,18 @@
-# example of how the package could be used
+# An example of exSTRa usage, for known STR expansion disorder loci
 
 ## ---- strexpansion_prepare
-library(strexpansion)
+library(exSTRa)
 
-strdatabase <- strdb_read("/Users/tankard/Documents/Research/repeats/disease_repeats/repeat_disorders.xlsx") # class strdb
-#strdatabase
-# or 
-# strdatabase = read.strs.ucsc("simpleRepeat.txt.gz")
+# read ub database
+str_database <- exstra_db_read("data/repeat_disorders.xlsx") # exstra_db object
 
-strcounts <- strs_read(file = "/Users/tankard/Documents/Research/repeats/read_simulation/str_simulations/summarising_simulations/simulation_summary_09.txt", 
-                       database = strdatabase, 
-                       groups.regex = c(control = "normal", case = "expanded")
-                       ) # class strdata
-
-strcounts.byalignment <- strs_read(file = "/Users/tankard/Documents/Research/repeats/read_simulation/str_simulations/summarising_simulations/simulation_summary_03.txt", 
-  database = strdatabase, 
-  groups.regex = c(control = "normal", case = "expanded")
-) # class strdata
-#strcounts
-
-shortplotlabels <- c("initial_normal_11" = "n11", "initial_expanded_03" = "e03")
-set_plotnames(strcounts, shortplotlabels)
-set_plotnames(strcounts.byalignment, shortplotlabels)
-
-strrir <- rep_in_read_data_read(
-  file = "/Volumes/tankard/projects/research/STRs/repeat_expansion_rediscovery/wgs_garvan/repeat_rediscovery_wgs_10bp_trim_rep_in_read_02.txt", 
-  database = strdatabase, 
-  groups.regex = c(control = "", case = "^(SCA[26]|HD)")
-) # class rep_in_read_data
-
-
-str_score <- rep_score_data_read(
-  file = "~/Documents/Research/repeats/repeat_expansion_rediscovery/data_wgs/repeat_rediscovery_wgs_score_02.txt",
-  database = strdatabase, 
-  groups.regex = c(control = "", case = "^(SCA[26]|HD)")
+str_score <- exstra_score_read (
+  file = "data/repeat_scores_at_known_loci.txt",
+  database = strdatabase, # alternatively, this may be the direct file path, if no import options are required (TODO)
+  groups.regex = c(case = "", control = "^control") # here
 )
   
-  
-## ---- testing_title_text
-strloci_text_info(strdatabase, "SCA1")
 
-## ---- permutation_testing
-strcounts.perm <- str_chisq_permutation_test(strcounts,
-                                            cols = c("up_00", "up_01", "up_11", "up_02", "up_12", "up_22"), 
-                                            keep.cols = c("up_01", "up_11", "up_02", "up_12"),
-                                            #loci = strloci(data),
-                                            B = 100000, 
-                                            require.nozero = TRUE) # class strdataperm (maybe a subclass of strcount???)
-
-plot(strcounts.perm) # plot all the disease p-values with confidence intervals in one plot
-
-plot(strcounts.perm, multi = TRUE, auto.layout = TRUE, cex = 1.3) # plot each disease in a separate plot, with the layout made automatically
-
-plot(strcounts.perm, multi = TRUE, auto.layout = TRUE, cex = 1.3, read.counts = NULL) 
 
 ## ---- loglinear_testing
 # A different kind of test
