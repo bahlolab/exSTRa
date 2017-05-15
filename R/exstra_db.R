@@ -1,4 +1,4 @@
-# The strdb class
+# The exSTRa.db class
 # Includes information on STRs, whether they are disease-causing or of a general nature
 
 library(data.table)
@@ -6,8 +6,8 @@ library(stringr)
 library(xlsx)
 library(testit)
 
-strdb <- function(strd, input_type = NULL) {
-  # Transforms a data.frame or data.table into a strdb object
+exSTRa.db <- function(strd, input_type = NULL) {
+  # Transforms a data.frame or data.table into a exSTRa.db object
   if (!is.data.frame(strd)) stop("strd must be data.frame")
   strd <- data.table(strd)
   strd <- strd[!(is.na(chrom) | is.na(chromStart) | is.na(chromEnd))]
@@ -19,17 +19,17 @@ strdb <- function(strd, input_type = NULL) {
   } else {
     setkey(strd, "locus")
   }
-  structure(list(db = strd, input_type = input_type), class = c("strdb"))
+  structure(list(db = strd, input_type = input_type), class = c("exSTRa.db"))
 }
 
-strdb_new <- function() {
-  # Creates an empty strdb object (may not have any use)
-  x <- data.table()
-  class(x) <- "strdb"
+exSTRa.db_new <- function() {
+  # Creates an empty exSTRa.db object (may not have any use)
+  Y <- structure(list(db = data.table(), input_type = NULL))
+  class(x) <- "exSTRa.db"
   x
 }
 
-is.strdb <- function(x) inherits(x, "strdb")
+is.exSTRa.db <- function(x) inherits(x, "strdb")
 
 strdb_read <- function(file, ...) {
   # Open up a file to load a STR database object
