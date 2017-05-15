@@ -1,4 +1,4 @@
-# The exSTRa_db class
+# The exstra_db class
 # Includes information on STRs, whether they are disease-causing or of a general nature
 
 library(data.table)
@@ -6,12 +6,13 @@ library(stringr)
 library(xlsx)
 library(testit)
 
-exSTRa_db <- function(strd, input_type = NULL) {
-  # Transforms a data.frame or data.table into a exSTRa_db object
+exstra_db <- function(strd, input_type = NULL) {
+  # Transforms a data.frame or data.table into a exstra_db object
   if (!is.data.frame(strd)) stop("strd must be data.frame")
   strd <- data.table(strd)
   strd <- strd[!(is.na(chrom) | is.na(chromStart) | is.na(chromEnd))]
   strd$input_order <- seq(1, dim(strd)[1], 1)
+  # TODO this should always just be locus, hack away!
   if(!is.null(strd$disease.symbol)) {
     setkey(strd, "disease.symbol")
   } else if(!is.null(strd$Disease)) {
@@ -19,31 +20,31 @@ exSTRa_db <- function(strd, input_type = NULL) {
   } else {
     setkey(strd, "locus")
   }
-  structure(list(db = strd, input_type = input_type), class = c("exSTRa_db"))
+  structure(list(db = strd, input_type = input_type), class = c("exstra_db"))
 }
 
-exSTRa_db_new <- function() {
-  # Creates an empty exSTRa_db object (may not have any use)
+exstra_db_new <- function() {
+  # Creates an empty exstra_db object (may not have any use)
   Y <- structure(list(db = data.table(), input_type = NULL))
-  class(x) <- "exSTRa_db"
+  class(x) <- "exstra_db"
   x
 }
 
-is.exSTRa_db <- function(x) inherits(x, "exSTRa_db")
+is.exstra_db <- function(x) inherits(x, "exstra_db")
 
-exSTRa_db_read <- function(file, ...) {
+exstra_db_read <- function(file, ...) {
   # Open up a file to load a STR database object
   if (!is.character(file)) stop("file must be character")
   strdatabase <- switch(str_extract(file, "[^.]*$"), # note str_extract is a stringr function, can be very confusing
-    xlsx = exSTRa_db_xlsx(file, ...),
-    exSTRa_db_ucsc(file, ...))
+    xlsx = exstra_db_xlsx(file, ...),
+    exstra_db_ucsc(file, ...))
   if(is.null(strdatabase)) {
     stop("Could not determine the file type")
   }
   strdatabase
 }
 
-exSTRa_db_xlsx <- function(file, ...) {
+exstra_db_xlsx <- function(file, ...) {
   if (!is.character(file)) stop("file must be character")
   data <- read.xlsx(file, 1, stringsAsFactors = FALSE, ...)
   assert("xlsx requires Disease or locus column", ! is.null(data$Disease) || ! is.null(data$locus))
@@ -76,10 +77,10 @@ exSTRa_db_xlsx <- function(file, ...) {
     }
   }
   
-  exSTRa_db(data, "named")
+  exstra_db(data, "named")
 }
 
-exSTRa_db_ucsc <- function(file, header = F, ...) {
+exstra_db_ucsc <- function(file, header = F, ...) {
   if (!is.character(file)) stop("file must be character")
   header.names <- c("X.bin", "chrom", "chromStart", "chromEnd", "name", "period", "copyNum", "consensusSize", "perMatch", "perIndel", "score", "A", "C", "G", "T", "entropy", "sequence")
   col.classes <- c("integer", "factor", "integer", "integer", "factor", 
@@ -99,20 +100,20 @@ exSTRa_db_ucsc <- function(file, header = F, ...) {
   data$Repeat.sequence <- data$sequence
   data <- data.table(data)
   data <- data[nchar(sequence) >= 2 & nchar(sequence) <= 6]
-  exSTRa_db(data, "ucsc")
+  exstra_db(data, "ucsc")
 }
 
-exSTRa_db_text <- function(file) {
+exstra_db_text <- function(file) {
   if (!is.character(file)) stop("file must be character")
-  stop("Text exSTRa_db reading not yet implemented")
+  stop("Text exstra_db reading not yet implemented")
 }
 
 strloci <- function(...) UseMethod("strloci")
 
-strloci.exSTRa_db <- function(exSTRa_db) {
+strloci.exstra_db <- function(exstra_db) {
   loci <- tryCatch(
-    { exSTRa_db$db[order(input_order), disease.symbol] },
-    error = function(e) { exSTRa_db$db[order(input_order), locus] }
+    { exstra_db$db[order(input_order), disease.symbol] },
+    error = function(e) { exstra_db$db[order(input_order), locus] }
   )
   assert("Could not identify the str loci", !is.null(loci))
   loci
@@ -121,11 +122,11 @@ strloci.exSTRa_db <- function(exSTRa_db) {
 strloci_text_info <- function(x, locus) {
   # gives text info for the locus, usually used in plot titles
   # TODO: modify this:
-  # x may be from the class exSTRa_db or strdata
+  # x may be from the class exstra_db or strdata
   if(is.element("strdata", class(x))) {
     x <- x$db
   }
-  assert("The class of x must be exSTRa_db or strdata", class(x) == "exSTRa_db")
+  assert("The class of x must be exstra_db or strdata", class(x) == "exstra_db")
   locus.in <- locus
   if(x$input_type == "named") {
     x.info <- tryCatch(x$db[locus.in == disease.symbol], 
@@ -155,7 +156,7 @@ strloci_text_info <- function(x, locus) {
       paste0(locus))
     )
   } else {
-    stop("Unrecognised input_type in exSTRa_db. Got ", x$input_type)
+    stop("Unrecognised input_type in exstra_db. Got ", x$input_type)
   }
 }
 
@@ -165,7 +166,7 @@ strloci_normal_exp <- function(x, locus) {
   if(is.element("strdata", class(x))) {
     x <- x$db
   }
-  assert("The class of x must be exSTRa_db or strdata", class(x) == "exSTRa_db")
+  assert("The class of x must be exstra_db or strdata", class(x) == "exstra_db")
   locus.in <- locus
   if(x$input_type == "named") {
     x.info <- tryCatch(x$db[locus.in == disease.symbol], 
@@ -187,7 +188,7 @@ strloci_normal_exp <- function(x, locus) {
     return(NULL
     )
   } else {
-    stop("Unrecognised input_type in exSTRa_db. Got ", x$input_type)
+    stop("Unrecognised input_type in exstra_db. Got ", x$input_type)
   }
 }
 
@@ -200,15 +201,15 @@ strloci_minexp <- function(x, locus) {
   strloci_normal_exp (x, locus)[2]
 }
 
-`[.exSTRa_db` <- function(x, fil) {
+`[.exstra_db` <- function(x, fil) {
   assert("disease.symbol not the key of x$db (not written for UCSC yet (TODO)", key(x$db)[1] == "disease.symbol")
   x$db <- x$db[eval(substitute(fil))]
   x
 }
 
 # I think the following was code that was left over from another time
-#Y <- exSTRa_db_read("/Users/tankard/Documents/Research/repeats/disease_repeats/repeat_disorders.xlsx")
+#Y <- exstra_db_read("/Users/tankard/Documents/Research/repeats/disease_repeats/repeat_disorders.xlsx")
 #class(Y)
 
 
-# TODO method for seqnames(exSTRa_db)
+# TODO method for seqnames(exstra_db)

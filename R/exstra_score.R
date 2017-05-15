@@ -112,7 +112,7 @@ plotnames <- function(strscore, names) {
 
 # This function allows square brackets to be used to select out the locus and sample
 # BIG TODO: always list by locus, throughout the code!!!
-`[.exstra_db` <- function(x, loc, samp) {
+`[.exstra_score` <- function(x, loc, samp) {
   assert("locus is not the key of x$data", key(x$data)[1] == "locus")
   assert("sample is not the key of x$samples", key(x$samples)[1] == "sample")
   assert("disease.symbol not the key of x$db$db (not written for UCSC yet (TODO)", key(x$db$db)[1] == "disease.symbol")
@@ -126,9 +126,9 @@ plotnames <- function(strscore, names) {
   x
 }
 
-
+# old name: str_filter_sex
 # filter rep_score_data by sex
-str_filter_sex <- function(strscore, sex = "known", safe = TRUE) {
+exstra_filter_sex <- function(strscore, sex = "known", safe = TRUE) {
   # filter rep_score_data by sex
   # sex can be:
   #   "all":     no filtering
@@ -223,43 +223,10 @@ plot.exstra_score <- function(rsc, locus = NULL, sample_col = NULL, refline = TR
   }
 }
 
-exstra_score_ks_tests <- function(rsc, locus = NULL, controls = c("control", "all")) {
-  # Performs Kolmogorov-Smirnov Tests on samples, comparing to other samples
-  #
-  # controls allows either just control samples to be used as the population distribution,
-  # or all other samples including designated cases. This makes no difference if there is
-  # only a single case. 
-  if(!is.exstra_score(rsc)) {
-    stop("rsc is not object of class exstra_score")
-  }
-  if(is.null(locus)) {
-    strlocis <- strloci(rsc)
-  } else {
-    strlocis <- locus
-  } 
-  results <- data.table(
-    locus = rep(strlocis, length(rsc$samples[group == 'case', sample])), 
-    sample = rep(rsc$samples[group == 'case', sample], each = length(strlocis)), 
-    p.value = NA_real_ #,
-    #test = list(list())
-  )
-  setkey(results, locus, sample)
-  for(loc in strlocis) {
-    loc_scores <- rsc$data[locus == loc]
-    for(samp in rsc$samples[group == 'case', sample]) {
-      KS <- ks.test(loc_scores[group == "control"]$rep, loc_scores[sample == samp]$rep, 
-        alternative = "greater", exact = NULL)
-      results[list(loc, samp), p.value := KS$p.value]
-      #results[list(loc, samp), test := KS]
-    }
-  }
-  
-  return(
-    data.frame(results)
-  )
-}
-
-rsd_filter_lower_than_expected <- function(strscore) {
+# old name: rsd_filter_lower_than_expected
+# Filter read scores with lower than expected scores, under
+# the assumption each base in the sequence is uniform and independent.
+exstra_low_filter  <- function(strscore) {
   strscore$db$db[, unit_length := nchar(as.character(Repeat.sequence))]
   # set score, want to remove scores that are smaller than expected by chance
   strscore$db$db[, min_score := unit_length / 4 ^ unit_length]
@@ -269,9 +236,10 @@ rsd_filter_lower_than_expected <- function(strscore) {
 
 
 # TODO:
-#this function is from http://www.magesblog.com/2013/04/how-to-change-alpha-value-of-colours-in.html
-#so will need a rewrite
-add.alpha <- function(col, alpha=1){
+# this function is from http://www.magesblog.com/2013/04/how-to-change-alpha-value-of-colours-in.html
+# so may need a rewrite
+# old name: add.alpha
+add_alpha <- function(col, alpha = 1){
   if(missing(col))
     stop("Please provide a vector of colours.")
   if(length(col) == 0) {
@@ -283,9 +251,9 @@ add.alpha <- function(col, alpha=1){
 }
 
 
-
-
-rbind.exstra_score.list <- function(strscore_list, idcol = "data_group", allow.sample.clash = FALSE) {
+# Combine multiple exstra_score objects, checking for sample name clashes
+# old name: rbind.exstra_score.list
+rbind_exstra_score_list <- function(strscore_list, idcol = "data_group", allow_sample_clash = FALSE) {
   assert("strscore_list must be a list", inherits(strscore_list, "list"))
   if(length(strscore_list) == 0) {
     stop("List is empty")
@@ -321,6 +289,46 @@ rbind.exstra_score.list <- function(strscore_list, idcol = "data_group", allow.s
   return(new_strscore)
 }
 
-
+# convinient version of rbind_exstra_score_list() without the use of lists
+rbind_exstra_score <- function(..., idcol = "data_group", allow_sample_clash = FALSE) {
+  rbind_exstra_score_list(list(...), idcol = idcol, allow_sample_clash = allow_sample_clash)
+}
 
 # TODO: easy renaming of samples
+
+# Functions likely of no use:
+exstra_score_ks_tests <- function(rsc, locus = NULL, controls = c("control", "all")) {
+  # Performs Kolmogorov-Smirnov Tests on samples, comparing to other samples
+  #
+  # controls allows either just control samples to be used as the population distribution,
+  # or all other samples including designated cases. This makes no difference if there is
+  # only a single case. 
+  if(!is.exstra_score(rsc)) {
+    stop("rsc is not object of class exstra_score")
+  }
+  if(is.null(locus)) {
+    strlocis <- strloci(rsc)
+  } else {
+    strlocis <- locus
+  } 
+  results <- data.table(
+    locus = rep(strlocis, length(rsc$samples[group == 'case', sample])), 
+    sample = rep(rsc$samples[group == 'case', sample], each = length(strlocis)), 
+    p.value = NA_real_ #,
+    #test = list(list())
+  )
+  setkey(results, locus, sample)
+  for(loc in strlocis) {
+    loc_scores <- rsc$data[locus == loc]
+    for(samp in rsc$samples[group == 'case', sample]) {
+      KS <- ks.test(loc_scores[group == "control"]$rep, loc_scores[sample == samp]$rep, 
+        alternative = "greater", exact = NULL)
+      results[list(loc, samp), p.value := KS$p.value]
+      #results[list(loc, samp), test := KS]
+    }
+  }
+  
+  return(
+    data.frame(results)
+  )
+}
