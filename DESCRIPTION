@@ -1,8 +1,8 @@
-Package: strexpansion
+Package: exSTRa
 Type: Package
-Title: Detecting short tandem repeat expansions in high-throughput sequencing data
-Version: 0.5
-Date: 2016-06-29
+Title: Expanded STR algorithm: detecting expansions in Illumina sequencing data
+Version: 0.7
+Date: 2017-05-16
 Author: Rick Tankard
 Maintainer: Rick Tankard <tankard@wehi.edu.au>
 Description: More about what it does (maybe more than one line)

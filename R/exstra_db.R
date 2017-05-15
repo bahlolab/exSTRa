@@ -1,4 +1,4 @@
-# The strdb class
+# The exstra_db class
 # Includes information on STRs, whether they are disease-causing or of a general nature
 
 library(data.table)
@@ -6,44 +6,39 @@ library(stringr)
 library(xlsx)
 library(testit)
 
-strdb <- function(strd, input_type = NULL) {
-  # Transforms a data.frame or data.table into a strdb object
+# check if the object is of this class
+is.exstra_db <- function(x) inherits(x, "exstra_db")
+
+# Create a new object of this class (not for the user)
+exstra_db_new_ <- function(strd, input_type = NULL) {
+  # Transforms a data.frame or data.table into a exstra_db object
   if (!is.data.frame(strd)) stop("strd must be data.frame")
   strd <- data.table(strd)
   strd <- strd[!(is.na(chrom) | is.na(chromStart) | is.na(chromEnd))]
   strd$input_order <- seq(1, dim(strd)[1], 1)
+  # TODO this should always just be locus, hack away!
   if(!is.null(strd$disease.symbol)) {
-    setkey(strd, "disease.symbol")
-  } else if(!is.null(strd$Disease)) {
-    setkey(strd, "Disease")
-  } else {
-    setkey(strd, "locus")
-  }
-  structure(list(db = strd, input_type = input_type), class = c("strdb"))
+    #setkey(strd, "disease.symbol")
+    setnames(strd, "disease.symbol", "locus")
+  } 
+  setkey(strd, "locus")
+  structure(list(db = strd, input_type = input_type), class = c("exstra_db"))
 }
 
-strdb_new <- function() {
-  # Creates an empty strdb object (may not have any use)
-  x <- data.table()
-  class(x) <- "strdb"
-  x
-}
 
-is.strdb <- function(x) inherits(x, "strdb")
-
-strdb_read <- function(file, ...) {
+exstra_db_read <- function(file, ...) {
   # Open up a file to load a STR database object
   if (!is.character(file)) stop("file must be character")
   strdatabase <- switch(str_extract(file, "[^.]*$"), # note str_extract is a stringr function, can be very confusing
-    xlsx = strdb_xlsx(file, ...),
-    strdb_ucsc(file, ...))
+    xlsx = exstra_db_xlsx(file, ...),
+    exstra_db_ucsc(file, ...))
   if(is.null(strdatabase)) {
     stop("Could not determine the file type")
   }
   strdatabase
 }
 
-strdb_xlsx <- function(file, ...) {
+exstra_db_xlsx <- function(file, ...) {
   if (!is.character(file)) stop("file must be character")
   data <- read.xlsx(file, 1, stringsAsFactors = FALSE, ...)
   assert("xlsx requires Disease or locus column", ! is.null(data$Disease) || ! is.null(data$locus))
@@ -52,7 +47,7 @@ strdb_xlsx <- function(file, ...) {
     data$Disease <- data$locus
   }
   data <- replace(data, data == "NA", NA)
-  data$disease.symbol <- sub(".*\\((.*)\\).*", "\\1", data$Disease, perl = T)
+  data$locus <- sub(".*\\((.*)\\).*", "\\1", data$Disease, perl = T)
   names(data)[which(names(data) == "hg19.chrom" | names(data) == "hg19_chr")] <- "chrom"
   names(data)[which(names(data) == "hg19.start.0" | names(data) == "repeat.start")] <- "chromStart"
   names(data)[which(names(data) == "hg19.end" | names(data) == "repeat.end")] <- "chromEnd"
@@ -76,10 +71,10 @@ strdb_xlsx <- function(file, ...) {
     }
   }
   
-  strdb(data, "named")
+  exstra_db_new_(data, "named")
 }
 
-strdb_ucsc <- function(file, header = F, ...) {
+exstra_db_ucsc <- function(file, header = F, ...) {
   if (!is.character(file)) stop("file must be character")
   header.names <- c("X.bin", "chrom", "chromStart", "chromEnd", "name", "period", "copyNum", "consensusSize", "perMatch", "perIndel", "score", "A", "C", "G", "T", "entropy", "sequence")
   col.classes <- c("integer", "factor", "integer", "integer", "factor", 
@@ -99,38 +94,34 @@ strdb_ucsc <- function(file, header = F, ...) {
   data$Repeat.sequence <- data$sequence
   data <- data.table(data)
   data <- data[nchar(sequence) >= 2 & nchar(sequence) <= 6]
-  strdb(data, "ucsc")
+  exstra_db_new_(data, "ucsc")
 }
 
-strdb_text <- function(file) {
+print.exstra_db <- function(x, ...) {
+  cat(class(x)[1], " object with ", dim(x$db)[1], " loci ($db) of type ",  x$input_type, "\n",
+    sep = "")
+}
+
+exstra_db_text <- function(file) {
   if (!is.character(file)) stop("file must be character")
-  stop("Text strdb reading not yet implemented")
+  stop("Text exstra_db reading not yet implemented")
 }
 
-strloci <- function(...) UseMethod("strloci")
 
-strloci.strdb <- function(strdb) {
-  loci <- tryCatch(
-    { strdb$db[order(input_order), disease.symbol] },
-    error = function(e) { strdb$db[order(input_order), locus] }
-  )
+loci.exstra_db <- function(exstra_db) {
+  # Give the loci names
+  loci <- exstra_db$db[order(input_order), locus]
   assert("Could not identify the str loci", !is.null(loci))
   loci
 }
 
-strloci_text_info <- function(x, locus) {
+loci_text_info.exstra_db <- function(x, locus) {
   # gives text info for the locus, usually used in plot titles
   # TODO: modify this:
-  # x may be from the class strdb or strdata
-  if(is.element("strdata", class(x))) {
-    x <- x$db
-  }
-  assert("The class of x must be strdb or strdata", class(x) == "strdb")
+  assert("The class of x must be exstra_db or extra_score", class(x) == "exstra_db")
   locus.in <- locus
   if(x$input_type == "named") {
-    x.info <- tryCatch(x$db[locus.in == disease.symbol], 
-      error = function(e) { x$db[locus.in == locus] }
-    )
+    x.info <- x$db[locus.in == locus]
     #TODO: this is wrong
     assert(paste("The locus", locus, "was not found"), dim(x.info)[1] >= 1)
     assert(paste("There were multiple entries for locus", locus), dim(x.info)[1] <= 1)
@@ -155,7 +146,7 @@ strloci_text_info <- function(x, locus) {
       paste0(locus))
     )
   } else {
-    stop("Unrecognised input_type in strdb. Got ", x$input_type)
+    stop("Unrecognised input_type in exstra_db. Got ", x$input_type)
   }
 }
 
@@ -165,12 +156,10 @@ strloci_normal_exp <- function(x, locus) {
   if(is.element("strdata", class(x))) {
     x <- x$db
   }
-  assert("The class of x must be strdb or strdata", class(x) == "strdb")
+  assert("The class of x must be exstra_db or strdata", class(x) == "exstra_db")
   locus.in <- locus
   if(x$input_type == "named") {
-    x.info <- tryCatch(x$db[locus.in == disease.symbol], 
-      error = function(e) { x$db[locus.in == locus] }
-    )
+    x.info <-  x$db[locus.in == locus]
     #TODO: this is wrong
     assert(paste("The locus", locus, "was not found"), dim(x.info)[1] >= 1)
     assert(paste("There were multiple entries for locus", locus), dim(x.info)[1] <= 1)
@@ -187,7 +176,7 @@ strloci_normal_exp <- function(x, locus) {
     return(NULL
     )
   } else {
-    stop("Unrecognised input_type in strdb. Got ", x$input_type)
+    stop("Unrecognised input_type in exstra_db. Got ", x$input_type)
   }
 }
 
@@ -200,15 +189,15 @@ strloci_minexp <- function(x, locus) {
   strloci_normal_exp (x, locus)[2]
 }
 
-`[.strdb` <- function(x, fil) {
-  assert("disease.symbol not the key of x$db (not written for UCSC yet (TODO)", key(x$db)[1] == "disease.symbol")
+`[.exstra_db` <- function(x, fil) {
+  assert("locus not the key of x$db", key(x$db)[1] == "locus")
   x$db <- x$db[eval(substitute(fil))]
   x
 }
 
 # I think the following was code that was left over from another time
-#Y <- strdb_read("/Users/tankard/Documents/Research/repeats/disease_repeats/repeat_disorders.xlsx")
+#Y <- exstra_db_read("/Users/tankard/Documents/Research/repeats/disease_repeats/repeat_disorders.xlsx")
 #class(Y)
 
 
-# TODO method for seqnames(strdb)
+# TODO method for seqnames(exstra_db)
