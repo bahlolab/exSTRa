@@ -6,7 +6,11 @@ library(stringr)
 library(xlsx)
 library(testit)
 
-exstra_db <- function(strd, input_type = NULL) {
+# check if the object is of this class
+is.exstra_db <- function(x) inherits(x, "exstra_db")
+
+# Create a new object of this class (not for the user)
+exstra_db_new_ <- function(strd, input_type = NULL) {
   # Transforms a data.frame or data.table into a exstra_db object
   if (!is.data.frame(strd)) stop("strd must be data.frame")
   strd <- data.table(strd)
@@ -14,23 +18,16 @@ exstra_db <- function(strd, input_type = NULL) {
   strd$input_order <- seq(1, dim(strd)[1], 1)
   # TODO this should always just be locus, hack away!
   if(!is.null(strd$disease.symbol)) {
-    setkey(strd, "disease.symbol")
+    #setkey(strd, "disease.symbol")
+    setnames(strd, "disease.symbol", locus)
   } else if(!is.null(strd$Disease)) {
-    setkey(strd, "Disease")
-  } else {
-    setkey(strd, "locus")
-  }
+    #setkey(strd, "Disease")
+    setnames(strd, "Disease", locus)
+  } 
+  setkey(strd, "locus")
   structure(list(db = strd, input_type = input_type), class = c("exstra_db"))
 }
 
-exstra_db_new <- function() {
-  # Creates an empty exstra_db object (may not have any use)
-  Y <- structure(list(db = data.table(), input_type = NULL))
-  class(x) <- "exstra_db"
-  x
-}
-
-is.exstra_db <- function(x) inherits(x, "exstra_db")
 
 exstra_db_read <- function(file, ...) {
   # Open up a file to load a STR database object
@@ -77,7 +74,7 @@ exstra_db_xlsx <- function(file, ...) {
     }
   }
   
-  exstra_db(data, "named")
+  exstra_db_new(data, "named")
 }
 
 exstra_db_ucsc <- function(file, header = F, ...) {
@@ -100,7 +97,7 @@ exstra_db_ucsc <- function(file, header = F, ...) {
   data$Repeat.sequence <- data$sequence
   data <- data.table(data)
   data <- data[nchar(sequence) >= 2 & nchar(sequence) <= 6]
-  exstra_db(data, "ucsc")
+  exstra_db_new(data, "ucsc")
 }
 
 exstra_db_text <- function(file) {
