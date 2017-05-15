@@ -58,12 +58,21 @@ strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NUL
   return(list(data = counts, db = database))
 }
 
-exstra_score_read <- function(file, database, groups.regex = NULL, groups.samples = NULL) {
+exstra_score_read <- function(file, database, groups.regex = NULL, groups.samples = NULL, filter.low.counts = TRUE) {
   # Load the STR counts
   # Groups should be named null, control and case
+  if(is.character(database)) {
+    # as database is presumbly a file, try to read from it
+    database <- exstra_db_read(database)
+  }
   out <- strs_read_(file, database, groups.regex, groups.samples, this.class = "exstra_score")
   out$data$prop <- with(out$data, rep / mlength)
-  return(exstra_score_new(out$data, out$db))
+  strscore <- exstra_score_new(out$data, out$db)
+  if(filter.low.counts) {
+    # Filter low counts, assumed wanted by default
+    strscore <- exstra_low_filter(strscore)
+  }
+  return(strscore)
 }
 
 
@@ -89,26 +98,27 @@ exstra_score_new <- function(data, db) {
   structure(list(data = data.table(data), db = db, samples = samples), class = c("exstra_score"))
 }
 
-print.exstra_db <- function(x, ...) {
+print.exstra_score <- function(x, ...) {
   cat(class(x)[1], " object with ", dim(x$data)[1], " observations of type ",  x$db$input_type, "($data),\n",
     "  for ", dim(x$samples)[1], " samples. ($samples)\n",
     "  Includes associated STR database of ", dim(x$db$db)[1], " loci. ($db)\n", 
     sep = "")
 }
 
-strloci.exstra_db <- function(data) {  
-  strloci(data$db)
+loci.exstra_score <- function(data) {  
+  loci(data$db)
 }
 
-set_plotnames <- function(data, labels) {
+plot_names.exstra_score <- function(strscore, names) {
+  # gives the plot names for given sample names
+  strscore$samples[as.character(names), plotname]
+}
+
+`plot_names.exstra_score<-` <- function(data, labels) {
   assert("data must be of class exstra_db", inherits(data, "exstra_db"))
   data$samples[names(labels), plotname := labels]
 }
 
-plotnames <- function(strscore, names) {
-  # gives the plot names for given sample names
-  strscore$samples[as.character(names), plotname]
-}
 
 # This function allows square brackets to be used to select out the locus and sample
 # BIG TODO: always list by locus, throughout the code!!!
@@ -169,7 +179,7 @@ plot.exstra_score <- function(rsc, locus = NULL, sample_col = NULL, refline = TR
   # refline: if TRUE, include reference
   # xlinked: For loci on X chromosome, "all" for all samples, "male" and "female" for only that sex
   if(is.null(locus)) {
-    strlocis <- strloci(rsc)
+    strlocis <- loci(rsc)
   } else {
     strlocis <- locus
   }
@@ -185,7 +195,7 @@ plot.exstra_score <- function(rsc, locus = NULL, sample_col = NULL, refline = TR
   for(locus.name in strlocis) {
     #strrir.trim <- trim.rep_in_read_data(strrir, trimming)
     for(xlinked in xlinked_loop) {
-      main.title <- paste(strloci_text_info(rsc$db, locus.name), "score ECDF")
+      main.title <- paste(loci_text_info(rsc$db, locus.name), "score ECDF")
       if(xlinked != "all" && grepl("X", str_score_fil$db$db[locus.name]$Gene.location)) {
         plot_data <- str_filter_sex(rsc, xlinked, xlinked.safe)$data[locus == locus.name]
         main.title <- paste(main.title, paste0(xlinked, 's'))
@@ -239,7 +249,7 @@ exstra_low_filter  <- function(strscore) {
 # this function is from http://www.magesblog.com/2013/04/how-to-change-alpha-value-of-colours-in.html
 # so may need a rewrite
 # old name: add.alpha
-add_alpha <- function(col, alpha = 1){
+add_alpha_ <- function(col, alpha = 1){
   if(missing(col))
     stop("Please provide a vector of colours.")
   if(length(col) == 0) {
@@ -307,7 +317,7 @@ exstra_score_ks_tests <- function(rsc, locus = NULL, controls = c("control", "al
     stop("rsc is not object of class exstra_score")
   }
   if(is.null(locus)) {
-    strlocis <- strloci(rsc)
+    strlocis <- loci(rsc)
   } else {
     strlocis <- locus
   } 
