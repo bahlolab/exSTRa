@@ -105,9 +105,8 @@ exstra_db_text <- function(file) {
   stop("Text exstra_db reading not yet implemented")
 }
 
-strloci <- function(...) UseMethod("strloci")
 
-strloci.exstra_db <- function(exstra_db) {
+loci.exstra_db <- function(exstra_db) {
   loci <- tryCatch(
     { exstra_db$db[order(input_order), disease.symbol] },
     error = function(e) { exstra_db$db[order(input_order), locus] }
@@ -116,7 +115,7 @@ strloci.exstra_db <- function(exstra_db) {
   loci
 }
 
-strloci_text_info <- function(x, locus) {
+loci_text_info.exstra_db <- function(x, locus) {
   # gives text info for the locus, usually used in plot titles
   # TODO: modify this:
   # x may be from the class exstra_db or strdata
