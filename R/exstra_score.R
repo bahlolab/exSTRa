@@ -3,7 +3,7 @@
 
 library(data.table)
 library(testit)
-library(reshape2)
+# library(reshape2) # I forget where I use this...
 
 is.exstra_score <- function(x) inherits(x, "exstra_score")
 # make this the main class
