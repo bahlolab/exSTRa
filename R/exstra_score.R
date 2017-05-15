@@ -10,7 +10,7 @@ is.exstra_score <- function(x) inherits(x, "exstra_score")
 
 strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NULL, this.class = NULL) {
   # Load the STR data, and give it the right class
-  assert("read.strs requires database to be a strdb", inherits(database, "strdb"))
+  assert("read.strs requires database to be class exstra_db", is.exstra_db(database))
   assert("Need groups.samples or groups.regex to be defined", !is.null(groups.samples) || !is.null(groups.regex))
   assert("Require exactly one of groups.samples or groups.regex to be defined", xor(is.null(groups.samples), is.null(groups.regex)))
   assert("This function must have a class to return", !is.null(this.class))
@@ -66,8 +66,9 @@ exstra_score_read <- function(file, database, groups.regex = NULL, groups.sample
     database <- exstra_db_read(database)
   }
   out <- strs_read_(file, database, groups.regex, groups.samples, this.class = "exstra_score")
+  # TODO: checks for this input
   out$data$prop <- with(out$data, rep / mlength)
-  strscore <- exstra_score_new(out$data, out$db)
+  strscore <- exstra_score_new_(out$data, out$db)
   if(filter.low.counts) {
     # Filter low counts, assumed wanted by default
     strscore <- exstra_low_filter(strscore)
@@ -76,7 +77,7 @@ exstra_score_read <- function(file, database, groups.regex = NULL, groups.sample
 }
 
 
-exstra_score_new <- function(data, db) {
+exstra_score_new_ <- function(data, db) {
   assert("data must be of class data.frame", inherits(data, "data.frame"))
   assert("db must be of class exstra_db", inherits(db, "exstra_db"))
   data <- data.table(data)
@@ -125,14 +126,14 @@ plot_names.exstra_score <- function(strscore, names) {
 `[.exstra_score` <- function(x, loc, samp) {
   assert("locus is not the key of x$data", key(x$data)[1] == "locus")
   assert("sample is not the key of x$samples", key(x$samples)[1] == "sample")
-  assert("disease.symbol not the key of x$db$db (not written for UCSC yet (TODO)", key(x$db$db)[1] == "disease.symbol")
+  assert("locus not the key of x$db$db", key(x$db$db)[1] == "locus")
   if(!missing(loc)) {
     x$db$db <- x$db$db[eval(substitute(loc))]
   }
   if(!missing(samp)) {
     x$samples <- x$samples[eval(substitute(samp))]
   }
-  x$data <- x$data[x$db$db$disease.symbol][sample %in% x$samples$sample]
+  x$data <- x$data[x$db$db$locus][sample %in% x$samples$sample]
   x
 }
 
@@ -240,7 +241,12 @@ exstra_low_filter  <- function(strscore) {
   strscore$db$db[, unit_length := nchar(as.character(Repeat.sequence))]
   # set score, want to remove scores that are smaller than expected by chance
   strscore$db$db[, min_score := unit_length / 4 ^ unit_length]
-  strscore$data <- strscore$data[prop > strscore$db$db[as.character(locus), min_score]]
+  small_db <- strscore$db$db[, list(locus, min_score)]
+  setkey(small_db, locus)
+  # strscore$data <- strscore$data[prop > strscore$db$db[as.character(locus), min_score]]
+  strscore$data <- strscore$data[small_db][prop > min_score][, min_score := NULL]
+  setkey(strscore$data, locus, sample)
+  #TODO: check bizarre behaviour of data not printing first time here...
   strscore
 }
 
@@ -281,10 +287,10 @@ rbind_exstra_score_list <- function(strscore_list, idcol = "data_group", allow_s
   
   data.new <- rbindlist(lapply(strscore_list, function(x) { x$data }), idcol = idcol)
   db.new.db <- rbindlist(lapply(strscore_list, function(x) { x$db$db }))
-  setkey(db.new.db, disease.symbol)
+  setkey(db.new.db, locus)
   db.new.db <- unique(db.new.db)
   db.new <- exstra_db(db.new.db, input_type = strscore_list[[1]]$db$input_type)
-  new_strscore <- exstra_score_new(data.new, db.new)
+  new_strscore <- exstra_score_new_(data.new, db.new)
   new_strscore$samples <- rbindlist(lapply(strscore_list, function(x) { x$samples }), idcol = idcol, fill = TRUE)
   setkey(new_strscore$samples, sample)
   if(!allow.sample.clash) {
@@ -341,4 +347,9 @@ exstra_score_ks_tests <- function(rsc, locus = NULL, controls = c("control", "al
   return(
     data.frame(results)
   )
+}
+
+
+loci_text_info.exstra_score <- function(x) {
+  loci_text_info(x$db)
 }

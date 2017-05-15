@@ -1,10 +1,8 @@
-\name{strexpansion-package}
-\alias{strexpansion-package}
-\alias{strexpansion}
+\name{exSTRa}
+\alias{exstra}
 \docType{package}
 \title{
-What the package does (short line)
-~~ package title ~~
+Expanded STR algorithm
 }
 \description{
 More about what it does (maybe more than one line)
@@ -12,9 +10,9 @@ More about what it does (maybe more than one line)
 }
 \details{
 \tabular{ll}{
-Package: \tab strexpansion\cr
+Package: \tab exSTRa\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
+Version: \tab 0.7\cr
 Date: \tab 2014-07-02\cr
 License: \tab What license is it under?\cr
 }
@@ -23,7 +21,7 @@ License: \tab What license is it under?\cr
 \author{
 Who wrote it
 
-Maintainer: Who to complain to <yourfault@somewhere.net>
+Maintainer: Who to complain to <tankard@wehi.edu.au>
 ~~ The author and/or maintainer of the package ~~
 }
 \references{

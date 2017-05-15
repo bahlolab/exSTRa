@@ -19,10 +19,7 @@ exstra_db_new_ <- function(strd, input_type = NULL) {
   # TODO this should always just be locus, hack away!
   if(!is.null(strd$disease.symbol)) {
     #setkey(strd, "disease.symbol")
-    setnames(strd, "disease.symbol", locus)
-  } else if(!is.null(strd$Disease)) {
-    #setkey(strd, "Disease")
-    setnames(strd, "Disease", locus)
+    setnames(strd, "disease.symbol", "locus")
   } 
   setkey(strd, "locus")
   structure(list(db = strd, input_type = input_type), class = c("exstra_db"))
@@ -50,7 +47,7 @@ exstra_db_xlsx <- function(file, ...) {
     data$Disease <- data$locus
   }
   data <- replace(data, data == "NA", NA)
-  data$disease.symbol <- sub(".*\\((.*)\\).*", "\\1", data$Disease, perl = T)
+  data$locus <- sub(".*\\((.*)\\).*", "\\1", data$Disease, perl = T)
   names(data)[which(names(data) == "hg19.chrom" | names(data) == "hg19_chr")] <- "chrom"
   names(data)[which(names(data) == "hg19.start.0" | names(data) == "repeat.start")] <- "chromStart"
   names(data)[which(names(data) == "hg19.end" | names(data) == "repeat.end")] <- "chromEnd"
@@ -74,7 +71,7 @@ exstra_db_xlsx <- function(file, ...) {
     }
   }
   
-  exstra_db_new(data, "named")
+  exstra_db_new_(data, "named")
 }
 
 exstra_db_ucsc <- function(file, header = F, ...) {
@@ -97,7 +94,12 @@ exstra_db_ucsc <- function(file, header = F, ...) {
   data$Repeat.sequence <- data$sequence
   data <- data.table(data)
   data <- data[nchar(sequence) >= 2 & nchar(sequence) <= 6]
-  exstra_db_new(data, "ucsc")
+  exstra_db_new_(data, "ucsc")
+}
+
+print.exstra_db <- function(x, ...) {
+  cat(class(x)[1], " object with ", dim(x$db)[1], " loci ($db) of type ",  x$input_type, "\n",
+    sep = "")
 }
 
 exstra_db_text <- function(file) {
@@ -107,10 +109,8 @@ exstra_db_text <- function(file) {
 
 
 loci.exstra_db <- function(exstra_db) {
-  loci <- tryCatch(
-    { exstra_db$db[order(input_order), disease.symbol] },
-    error = function(e) { exstra_db$db[order(input_order), locus] }
-  )
+  # Give the loci names
+  loci <- exstra_db$db[order(input_order), locus]
   assert("Could not identify the str loci", !is.null(loci))
   loci
 }
@@ -118,16 +118,10 @@ loci.exstra_db <- function(exstra_db) {
 loci_text_info.exstra_db <- function(x, locus) {
   # gives text info for the locus, usually used in plot titles
   # TODO: modify this:
-  # x may be from the class exstra_db or strdata
-  if(is.element("strdata", class(x))) {
-    x <- x$db
-  }
-  assert("The class of x must be exstra_db or strdata", class(x) == "exstra_db")
+  assert("The class of x must be exstra_db or extra_score", class(x) == "exstra_db")
   locus.in <- locus
   if(x$input_type == "named") {
-    x.info <- tryCatch(x$db[locus.in == disease.symbol], 
-      error = function(e) { x$db[locus.in == locus] }
-    )
+    x.info <- x$db[locus.in == locus]
     #TODO: this is wrong
     assert(paste("The locus", locus, "was not found"), dim(x.info)[1] >= 1)
     assert(paste("There were multiple entries for locus", locus), dim(x.info)[1] <= 1)
@@ -165,9 +159,7 @@ strloci_normal_exp <- function(x, locus) {
   assert("The class of x must be exstra_db or strdata", class(x) == "exstra_db")
   locus.in <- locus
   if(x$input_type == "named") {
-    x.info <- tryCatch(x$db[locus.in == disease.symbol], 
-      error = function(e) { x$db[locus.in == locus] }
-    )
+    x.info <-  x$db[locus.in == locus]
     #TODO: this is wrong
     assert(paste("The locus", locus, "was not found"), dim(x.info)[1] >= 1)
     assert(paste("There were multiple entries for locus", locus), dim(x.info)[1] <= 1)
@@ -198,7 +190,7 @@ strloci_minexp <- function(x, locus) {
 }
 
 `[.exstra_db` <- function(x, fil) {
-  assert("disease.symbol not the key of x$db (not written for UCSC yet (TODO)", key(x$db)[1] == "disease.symbol")
+  assert("locus not the key of x$db", key(x$db)[1] == "locus")
   x$db <- x$db[eval(substitute(fil))]
   x
 }
