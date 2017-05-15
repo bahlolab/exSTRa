@@ -1,24 +1,75 @@
-# The rep_score_data class
+# The exstra_score class
 # Holds scores that give the proportion of a read that matches a given repeat
 
 library(data.table)
 library(testit)
 library(reshape2)
 
-is.rep_score_data <- function(x) inherits(x, "rep_score_data")
+is.exstra_score <- function(x) inherits(x, "exstra_score")
+# make this the main class
 
-rep_score_data_read <- function(file, database, groups.regex = NULL, groups.samples = NULL) {
+strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NULL, this.class = NULL) {
+  # Load the STR data, and give it the right class
+  assert("read.strs requires database to be a strdb", inherits(database, "strdb"))
+  assert("Need groups.samples or groups.regex to be defined", !is.null(groups.samples) || !is.null(groups.regex))
+  assert("Require exactly one of groups.samples or groups.regex to be defined", xor(is.null(groups.samples), is.null(groups.regex)))
+  assert("This function must have a class to return", !is.null(this.class))
+  # Read in data
+  counts <- read.delim(file)
+  # Add some info to the data
+  if(!is.null(groups.regex)) {
+    # using regex for groups
+    if(is.null(names(groups.regex))) {
+      names(groups.regex) <- groups.regex
+    }
+    assert("Require groups to only to have names 'case', 'control' and 'null'.", is.element(names(groups.regex), c("case", "control", "null")))
+    groups_all <- factor(rep(NA, dim(counts)[1]), levels = names(groups.regex))
+    for(group.name in names(groups.regex)) {
+      groups_all[grepl(groups.regex[group.name], counts$sample)] <- group.name
+    }
+  }
+  if(!is.null(groups.samples)) {
+    # using regex for groups
+    assert("groups.samples must be a list if used, with vectors with names of at least one of 'case', 'control' or 'null'.", 
+      is.list(groups.samples), 
+      length(groups.samples) > 0,
+      !is.null(names(groups.samples)),
+      is.element(names(groups.samples), c("case", "control", "null"))
+    )
+    assert("groups.samples does not currently accept multiple of the same names for groups, please put all sample names in the one vector under that name", 
+      length(unique(names(groups.samples))) == length(names(groups.samples)) )
+    if(length(groups.samples) == 1 && names(groups.samples) == "case") {
+      # only cases described, so make other samples controls
+      groups_all <- factor(rep("control", dim(counts)[1]), levels = c("case", "control"))
+      for(sample in groups.samples$case) {
+        groups_all[sample == counts$sample] <- "case"
+      }      
+    } else {
+      groups_all <- factor(rep(NA, dim(counts)[1]), levels = names(groups.regex))
+      for(group.name in names(groups.samples)) {
+        for(sample in groups.samples[[group.name]]) {
+          groups_all[sample == counts$sample] <- group.name
+        }      
+      }     
+    }
+  }
+  
+  counts$group <- as.factor(groups_all)
+  return(list(data = counts, db = database))
+}
+
+exstra_score_read <- function(file, database, groups.regex = NULL, groups.samples = NULL) {
   # Load the STR counts
   # Groups should be named null, control and case
-  out <- strs_read_(file, database, groups.regex, groups.samples, this.class = "strdata")
+  out <- strs_read_(file, database, groups.regex, groups.samples, this.class = "exstra_score")
   out$data$prop <- with(out$data, rep / mlength)
-  return(rep_score_data_new(out$data, out$db))
+  return(exstra_score_new(out$data, out$db))
 }
 
 
-rep_score_data_new <- function(data, db) {
+exstra_score_new <- function(data, db) {
   assert("data must be of class data.frame", inherits(data, "data.frame"))
-  assert("db must be of class strdb", inherits(db, "strdb"))
+  assert("db must be of class exstra_db", inherits(db, "exstra_db"))
   data <- data.table(data)
   if(!is.element("locus", colnames(data))) {
     if(is.element("disease", colnames(data))) {
@@ -35,11 +86,82 @@ rep_score_data_new <- function(data, db) {
   samples$plotname <- NA_character_
   samples$sex <- factor(NA, c("male", "female"))
   setkey(samples, sample)
-  structure(list(data = data.table(data), db = db, samples = samples), class = c("rep_score_data", "strdata"))
+  structure(list(data = data.table(data), db = db, samples = samples), class = c("exstra_score"))
+}
+
+print.exstra_db <- function(x, ...) {
+  cat(class(x)[1], " object with ", dim(x$data)[1], " observations of type ",  x$db$input_type, "($data),\n",
+    "  for ", dim(x$samples)[1], " samples. ($samples)\n",
+    "  Includes associated STR database of ", dim(x$db$db)[1], " loci. ($db)\n", 
+    sep = "")
+}
+
+strloci.exstra_db <- function(data) {  
+  strloci(data$db)
+}
+
+set_plotnames <- function(data, labels) {
+  assert("data must be of class exstra_db", inherits(data, "exstra_db"))
+  data$samples[names(labels), plotname := labels]
+}
+
+plotnames <- function(strscore, names) {
+  # gives the plot names for given sample names
+  strscore$samples[as.character(names), plotname]
+}
+
+# This function allows square brackets to be used to select out the locus and sample
+# BIG TODO: always list by locus, throughout the code!!!
+`[.exstra_db` <- function(x, loc, samp) {
+  assert("locus is not the key of x$data", key(x$data)[1] == "locus")
+  assert("sample is not the key of x$samples", key(x$samples)[1] == "sample")
+  assert("disease.symbol not the key of x$db$db (not written for UCSC yet (TODO)", key(x$db$db)[1] == "disease.symbol")
+  if(!missing(loc)) {
+    x$db$db <- x$db$db[eval(substitute(loc))]
+  }
+  if(!missing(samp)) {
+    x$samples <- x$samples[eval(substitute(samp))]
+  }
+  x$data <- x$data[x$db$db$disease.symbol][sample %in% x$samples$sample]
+  x
 }
 
 
-plot.rep_score_data <- function(rsc, locus = NULL, sample_col = NULL, refline = TRUE, ylab="Fn(x)", verticals = TRUE,
+# filter rep_score_data by sex
+str_filter_sex <- function(strscore, sex = "known", safe = TRUE) {
+  # filter rep_score_data by sex
+  # sex can be:
+  #   "all":     no filtering
+  #   "male":    only male samples
+  #   "female":  only female samples
+  #   "missing": only missing samples
+  #   "known":   only samples with sex assigned
+  # When safe is TRUE, missing sex assignments with cause an error for sex filtering of 
+  #    "all", "male" or "female"
+  if(sex %in% c("all", "male", "female")) {
+    if(safe) {
+      # Check that no data is missing
+      if(sum(is.na(strscore$samples$sex)) != 0) {
+        stop("In str_filter_sex(), some samples have not been assigned a sex.")
+      }
+    }
+    if(sex == "all") {
+      return(strscore)
+    } else if(sex == "male") {
+      return(strscore[, sex == "male"])
+    } else if(sex == "female") {
+      return(strscore[, sex == "female"])
+    }
+  } else if (sex == "missing") {
+    strscore[, is.na(sex)]
+  } else if (sex == "known") {
+    strscore[, !is.na(sex)]
+  } else {
+    stop("Bad sex assignment")
+  }
+}
+
+plot.exstra_score <- function(rsc, locus = NULL, sample_col = NULL, refline = TRUE, ylab="Fn(x)", verticals = TRUE,
   pch = 19, xlim, ylim = c(0,1), alpha_control = 0.5, alpha_case = NULL, 
   xlinked = "all", xlinked.safe = TRUE, ...) {
   # Plot ECDFs of rep score data
@@ -54,7 +176,7 @@ plot.rep_score_data <- function(rsc, locus = NULL, sample_col = NULL, refline = 
   if(!missing(xlim)) {
     xlim_1 <- xlim
   }
-  assert('In plot.rep_score_data(), must have xlinked one of "all", "male", "female" or "both"', xlinked %in% c("all", "male", "female", "both"))
+  assert('In plot.exstra_score(), must have xlinked one of "all", "male", "female" or "both"', xlinked %in% c("all", "male", "female", "both"))
   if(xlinked == "both") {
     xlinked_loop <- c("male", "female")
   } else {
@@ -101,14 +223,14 @@ plot.rep_score_data <- function(rsc, locus = NULL, sample_col = NULL, refline = 
   }
 }
 
-rep_score_data_ks_tests <- function(rsc, locus = NULL, controls = c("control", "all")) {
+exstra_score_ks_tests <- function(rsc, locus = NULL, controls = c("control", "all")) {
   # Performs Kolmogorov-Smirnov Tests on samples, comparing to other samples
   #
   # controls allows either just control samples to be used as the population distribution,
   # or all other samples including designated cases. This makes no difference if there is
   # only a single case. 
-  if(!is.rep_score_data(rsc)) {
-    stop("rsc is not object of class rep_score_data")
+  if(!is.exstra_score(rsc)) {
+    stop("rsc is not object of class exstra_score")
   }
   if(is.null(locus)) {
     strlocis <- strloci(rsc)
@@ -163,17 +285,17 @@ add.alpha <- function(col, alpha=1){
 
 
 
-rbind.rep_score_data.list <- function(strscore_list, idcol = "data_group", allow.sample.clash = FALSE) {
+rbind.exstra_score.list <- function(strscore_list, idcol = "data_group", allow.sample.clash = FALSE) {
   assert("strscore_list must be a list", inherits(strscore_list, "list"))
   if(length(strscore_list) == 0) {
     stop("List is empty")
   }
-  assert("Not all elements are rep score data", is.rep_score_data(strscore_list[[1]]))
+  assert("Not all elements are rep score data", is.exstra_score(strscore_list[[1]]))
   if(length(strscore_list) == 1) {
     return(strscore_list[[1]])
   }
   for(i in seq_along(strscore_list)) {
-    assert(paste("Element", i, "is not rep_score_data"), is.rep_score_data(strscore_list[[i]]))
+    assert(paste("Element", i, "is not exstra_score"), is.exstra_score(strscore_list[[i]]))
     assert("STR database is of mixed types", strscore_list[[1]]$db$input_type == strscore_list[[i]]$db$input_type)
   }
   
@@ -183,8 +305,8 @@ rbind.rep_score_data.list <- function(strscore_list, idcol = "data_group", allow
   db.new.db <- rbindlist(lapply(strscore_list, function(x) { x$db$db }))
   setkey(db.new.db, disease.symbol)
   db.new.db <- unique(db.new.db)
-  db.new <- strdb(db.new.db, input_type = strscore_list[[1]]$db$input_type)
-  new_strscore <- rep_score_data_new(data.new, db.new)
+  db.new <- exstra_db(db.new.db, input_type = strscore_list[[1]]$db$input_type)
+  new_strscore <- exstra_score_new(data.new, db.new)
   new_strscore$samples <- rbindlist(lapply(strscore_list, function(x) { x$samples }), idcol = idcol, fill = TRUE)
   setkey(new_strscore$samples, sample)
   if(!allow.sample.clash) {
@@ -198,5 +320,7 @@ rbind.rep_score_data.list <- function(strscore_list, idcol = "data_group", allow
   }
   return(new_strscore)
 }
+
+
 
 # TODO: easy renaming of samples
