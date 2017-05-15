@@ -1,3 +1,3 @@
-import(testit, data.table, xlsx, stringr, reshape2)
-exportPattern("^[[:alpha:]]+") # TODO: make this more exclusive
-export(`[.strdata`)
+import(testit, data.table, xlsx, stringr)
+exportPattern("^[^\\.]+.*[^_]$") # TODO: make this more exclusive
+#export(`[.strdata`)
