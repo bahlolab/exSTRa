@@ -118,7 +118,7 @@ loci.exstra_db <- function(exstra_db) {
 loci_text_info.exstra_db <- function(x, locus) {
   # gives text info for the locus, usually used in plot titles
   # TODO: modify this:
-  assert("The class of x must be exstra_db or extra_score", class(x) == "exstra_db")
+  assert("The class of x must be exstra_db", is.exstra_db(x))
   locus.in <- locus
   if(x$input_type == "named") {
     x.info <- x$db[locus.in == locus]

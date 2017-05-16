@@ -350,6 +350,6 @@ exstra_score_ks_tests <- function(rsc, locus = NULL, controls = c("control", "al
 }
 
 
-loci_text_info.exstra_score <- function(x) {
-  loci_text_info(x$db)
+loci_text_info.exstra_score <- function(x, ...) {
+  loci_text_info(x$db, ...)
 }
