@@ -1,5 +1,5 @@
 ## After running exSTRa_score_analysis.R
-context("Text information for plots loci_text_info()")
+context("Test with a real dataset")
 # 
 #TODO: make explicit code for test
 show(getwd())
