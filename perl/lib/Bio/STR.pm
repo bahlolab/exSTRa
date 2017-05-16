@@ -606,7 +606,7 @@ sub assess_str_reads_by_readinspect {
             print join ("\t", qw(locus sample rep mlength));
         }
         if($print_read_name) {
-            print "\tread_id";
+            print "\tQNAME";
         }
         say '';
     }
@@ -798,7 +798,7 @@ sub rep_in_read_print {
     # Format could be:
     # locus, sample, a, b, c, strand? (once per read)
     # optional read ID column?
-    say join("\t", (qw(locus sample a b c strand), ($read_name ? 'read_id': ())));
+    say join("\t", (qw(locus sample a b c strand), ($read_name ? 'QNAME': ())));
     foreach my $str (values %{$self->strs}) {
         foreach my $sample (keys %{$self->bams}) {
             foreach my $rir (@{$str->read_loc_per_sample->{$sample}->rep_in_read}) {
