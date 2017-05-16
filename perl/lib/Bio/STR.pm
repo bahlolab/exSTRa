@@ -603,7 +603,7 @@ sub assess_str_reads_by_readinspect {
         if(defined($inputs{give_rep_in_read}) && $inputs{give_rep_in_read}) {
             print join ("\t", qw(locus sample a b c strand));
         } elsif (defined($inputs{give_score}) && $inputs{give_score}) {
-            print join ("\t", qw(locus sample rep mlength));
+            print join ("\t", qw(locus sample rep mlength MAPQ mapped_origin));
         }
         if($print_read_name) {
             print "\tQNAME";
@@ -640,6 +640,8 @@ sub assess_str_reads_by_readinspect {
                             $sample,
                             $scr->repeat_starts,
                             $scr->mlength,
+                            $scr->bam_read->qual,
+                            $scr->mapped_origin,
                             ($print_read_name ? $scr->bam_read->name : ()),
                         ));
                     }
@@ -1277,15 +1279,14 @@ sub determine_location_se {
             if ($anchor_direction) {
                 # The start is as we would expect for an STR on the mate.
                 # We have been very tolerant in this implementation.
-                my $mate_recovered = 0;
+                my $mate_origin = 'ok';
                 if(!defined($detect_mate)) {
                     # we want to ensure we have the mate of the read, it wasn't loaded so attempt to
                     # find it in the BAM file
-                    $detect_mate = _find_mate ($anchor_mate);
+                    $detect_mate = _find_mate ($anchor_mate, $mate_origin); # TODO: record origin
                     unless(defined($detect_mate)) {
                         next ANCHORBYMATE;
                     }
-                    $mate_recovered = 1;
                 }
                 # Check the sequence has been reversed if required
                 my $sequence = $detect_mate->query->dna;
@@ -1303,7 +1304,7 @@ sub determine_location_se {
                 #  $detect_mate->
                 # TODO: don't run filter on recovered reads
                 my $seq_len = length($sequence);
-                unless ($mate_recovered || 
+                unless ($mate_origin != 'ok' || 
                     ($detect_mate->start + $seq_len > $str_start && $detect_mate->end - $seq_len < $str_end + 1)
                     ) {
                     next ANCHORBYMATE;
@@ -1315,6 +1316,7 @@ sub determine_location_se {
                                 repeat_starts => $detect->repeated_bases,
                                 mlength => $detect->matchable_bases,
                                 bam_read => $detect_mate,
+                                mapped_origin => $mate_origin,
                             );
                     if (defined($score)) {
                         push @{$self->score}, $score;
@@ -1367,6 +1369,7 @@ sub determine_location_se {
 sub _find_mate {
     # find the mate of a given read
     my $read1 = $_[0];
+    my $origin = \{$_[1]}; # can be un(mapped), mis(mapped), ok
     warn "  Finding mate for read " . $read1->name . "\n"; #TODO: verbose only
     my @reads2;
     if($read1->get_tag_values('M_UNMAPPED')) {
@@ -1381,6 +1384,7 @@ sub _find_mate {
             -start => $read1->start,
             -end => $read1->start,
         );
+        $$origin = 'un';
     } else {
         # read is mapped somewhere far. Lets find it
         #  $read1->mate_start
@@ -1394,6 +1398,7 @@ sub _find_mate {
         # Don't accidently keep the original read (assuming it doesn't have the exact same start position)
         # If this same position occurs, we may have to look at the tag value directly
         @reads2 = grep { $_->start == $read1->mate_start } @reads2;
+        $$origin = 'mis';
     }
     unless(@reads2 == 1) {
         if(@reads2 == 0) {
@@ -1482,6 +1487,12 @@ has [qw(mlength)] => ( # total number of bases we may start at
 has 'bam_read' => ( # keeps track of the read whose pair these values were generated from
     isa => 'Bio::DB::Bam::AlignWrapper',
     is => 'rw',
+);
+
+has 'mapped_origin' => ( # keeps track of origin of read
+    isa => 'Str',
+    is  => 'rw', 
+    # TODO: add a more strict type contraint
 );
 
 }
