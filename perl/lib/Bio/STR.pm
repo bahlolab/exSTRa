@@ -603,7 +603,7 @@ sub assess_str_reads_by_readinspect {
         if(defined($inputs{give_rep_in_read}) && $inputs{give_rep_in_read}) {
             print join ("\t", qw(locus sample a b c strand));
         } elsif (defined($inputs{give_score}) && $inputs{give_score}) {
-            print join ("\t", qw(locus sample rep mlength MAPQ mapped_origin));
+            print join ("\t", qw(locus sample rep mlength MAPQ mapped_origin chrom start end FLAG));
         }
         if($print_read_name) {
             print "\tQNAME";
@@ -611,8 +611,15 @@ sub assess_str_reads_by_readinspect {
         say '';
     }
     foreach my $str (values %{$self->strs}) {
+        if (defined($str->{name})) {
+            warn 'Working on the locus ' . $str->{name} . "\n"; # TODO / on verbose
+        } else {
+            warn 'Working on the locus at ' . $str->{chrom} . ":" . $str->{start} . 
+                "-" . $str->{end} . "\n"; # TODO / on verbose
+        }
         foreach my $sample (keys %{$self->bams}) {
             # here instead just directly print out each output
+            warn "  Working on the sample $sample\n"; # TODO / on verbose
             my $strloc_ri = STR::ReadLocation::ReadInspect->new( 
                 bam => $self->bams->{$sample}, 
                 str => $str, 
@@ -642,6 +649,10 @@ sub assess_str_reads_by_readinspect {
                             $scr->mlength,
                             $scr->bam_read->qual,
                             $scr->mapped_origin,
+                            $scr->bam_read->seq_id,
+                            $scr->bam_read->start,
+                            $scr->bam_read->end,
+                            $scr->bam_read->flag,
                             ($print_read_name ? $scr->bam_read->name : ()),
                         ));
                     }
@@ -1037,7 +1048,8 @@ sub determine_location_pe {
             $start2 = $second_mate->start;
             $end2 =  $second_mate->end;
             unless($start1 < $end1 && $start1 <= $start2 && $start2 < $end2 && $end1 <= $end2) {
-                 warn "Read location is not as expected and may cause errors. \$start1=$start1, \$end1=$end1, \$start2=$start2, \$end2=$end2.";
+                 # TODO: show on verbose
+                 # warn "Read location is not as expected and may cause errors. \$start1=$start1, \$end1=$end1, \$start2=$start2, \$end2=$end2.";
                  # TODO: Deal with these reads better
             }
         }
@@ -1203,12 +1215,12 @@ sub determine_location_se {
     if($self->give_score && $read_trim_static != 0) {
         warn "Warning: Trimming is not implemented for give_score.\n"; 
     }
-    if (defined($self->str->{name})) {
-        warn 'Working on the locus ' . $self->str->{name} . "\n"; # TOREMOVE / on verbose
-    } else {
-        warn 'Working on the locus at ' . $self->str->{chrom} . ":" . $self->str->{start} . 
-            "-" . $self->str->{end} . "\n"; # TOREMOVE / on verbose
-    }
+    # if (defined($self->str->{name})) {
+    #     warn 'Working on the locus ' . $self->str->{name} . "\n"; # TOREMOVE / on verbose
+    # } else {
+    #     warn 'Working on the locus at ' . $self->str->{chrom} . ":" . $self->str->{start} . 
+    #         "-" . $self->str->{end} . "\n"; # TOREMOVE / on verbose
+    # }
     #$debug = 1; # show extra info for some reads
     my %target_reads;
     my @target_reads_array = ();
@@ -1304,7 +1316,7 @@ sub determine_location_se {
                 #  $detect_mate->
                 # TODO: don't run filter on recovered reads
                 my $seq_len = length($sequence);
-                unless ($mate_origin != 'ok' || 
+                unless ($mate_origin ne 'ok' || 
                     ($detect_mate->start + $seq_len > $str_start && $detect_mate->end - $seq_len < $str_end + 1)
                     ) {
                     next ANCHORBYMATE;
@@ -1368,9 +1380,11 @@ sub determine_location_se {
 
 sub _find_mate {
     # find the mate of a given read
+    # first argument is a Bio::DB::Bam::Alignment object (I think)
+    # second is a string variable, that will be modified
     my $read1 = $_[0];
-    my $origin = \{$_[1]}; # can be un(mapped), mis(mapped), ok
-    warn "  Finding mate for read " . $read1->name . "\n"; #TODO: verbose only
+    my $origin = \$_[1]; # can be un(mapped), mis(mapped), ok
+    #warn "    Finding mate for read " . $read1->name . "\n"; #TODO: verbose only
     my @reads2;
     if($read1->get_tag_values('M_UNMAPPED')) {
         # mate is unmapped, go find it!
