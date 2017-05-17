@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/bahlolab/exSTRa.svg?branch=master)](https://travis-ci.org/bahlolab/exSTRa)
+
 # exSTRa
 expanded STR algorithm: detecting expansions with paired-end Illumina sequencing data. 
 
