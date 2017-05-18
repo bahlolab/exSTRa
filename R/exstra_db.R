@@ -204,6 +204,14 @@ strloci_minexp <- function(x, locus) {
   x
 }
 
+# copy data.table inside
+#' @export
+copy.exstra_db <- function(x) {
+  x$db <- copy(x$db)
+  x
+}
+
+
 # I think the following was code that was left over from another time
 #Y <- exstra_db_read("/Users/tankard/Documents/Research/repeats/disease_repeats/repeat_disorders.xlsx")
 #class(Y)
