@@ -1,3 +1,0 @@
-import(testit, data.table, xlsx, stringr)
-exportPattern("^[^\\.]+.*[^_]$") # TODO: make this more exclusive
-#export(`[.strdata`)

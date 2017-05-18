@@ -21,3 +21,8 @@ Read above data into R with this package. Provides an OO S3 interface.
 Currently makes extensive use of the data.table package, and understanding its use may help with this package. 
 Use the plot() function to draw ECDFs of the data for visual identification. 
 Computational methods for mass-screening coming soon... 
+
+# Development
+
+Run `roxygen2::roxygenise()` on code before builds (or commit). Use roxygen2 for documentation. 
+
