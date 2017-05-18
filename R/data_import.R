@@ -3,7 +3,8 @@
 #' @include exstra_db.R
 #' @include exstra_score.R
 
-#knownloci_test_db = exstra_db_read("~/Documents/Research/repeats/disease_repeats/repeat_disorders_2017_04_26.xlsx")
+#' @export
+knownloci_test_db <- exstra_db_read("~/Documents/Research/repeats/disease_repeats/repeat_disorders_2017_04_10.xlsx")
 
 #   str_score <- exstra_score_read (
 #     file = "data/HiSeqXTen_WGS_PCR_2.txt", # created by Perl script (TODO: exact name)
