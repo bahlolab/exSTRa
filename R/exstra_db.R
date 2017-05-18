@@ -7,9 +7,16 @@ library(xlsx)
 library(testit)
 
 # check if the object is of this class
+#' @import data.table
+#' @import stringr
+#' @import xlsx
+#' @import testit
+#' 
+#' @export
 is.exstra_db <- function(x) inherits(x, "exstra_db")
 
 # Create a new object of this class (not for the user)
+#' @export
 exstra_db_new_ <- function(strd, input_type = NULL) {
   # Transforms a data.frame or data.table into a exstra_db object
   if (!is.data.frame(strd)) stop("strd must be data.frame")
@@ -25,7 +32,7 @@ exstra_db_new_ <- function(strd, input_type = NULL) {
   structure(list(db = strd, input_type = input_type), class = c("exstra_db"))
 }
 
-
+#' @export
 exstra_db_read <- function(file, ...) {
   # Open up a file to load a STR database object
   if (!is.character(file)) stop("file must be character")
@@ -74,6 +81,7 @@ exstra_db_xlsx <- function(file, ...) {
   exstra_db_new_(data, "named")
 }
 
+#' @export
 exstra_db_ucsc <- function(file, header = F, ...) {
   if (!is.character(file)) stop("file must be character")
   header.names <- c("X.bin", "chrom", "chromStart", "chromEnd", "name", "period", "copyNum", "consensusSize", "perMatch", "perIndel", "score", "A", "C", "G", "T", "entropy", "sequence")
@@ -97,17 +105,19 @@ exstra_db_ucsc <- function(file, header = F, ...) {
   exstra_db_new_(data, "ucsc")
 }
 
+#' @export
 print.exstra_db <- function(x, ...) {
   cat(class(x)[1], " object with ", dim(x$db)[1], " loci ($db) of type ",  x$input_type, "\n",
     sep = "")
 }
 
+#' @export
 exstra_db_text <- function(file) {
   if (!is.character(file)) stop("file must be character")
   stop("Text exstra_db reading not yet implemented")
 }
 
-
+#' @export
 loci.exstra_db <- function(exstra_db) {
   # Give the loci names
   loci <- exstra_db$db[order(input_order), locus]
@@ -115,6 +125,7 @@ loci.exstra_db <- function(exstra_db) {
   loci
 }
 
+#' @export
 loci_text_info.exstra_db <- function(x, locus) {
   # gives text info for the locus, usually used in plot titles
   # TODO: modify this:
@@ -150,7 +161,7 @@ loci_text_info.exstra_db <- function(x, locus) {
   }
 }
 
-
+#' @export
 strloci_normal_exp <- function(x, locus) {
   # Give the reference or normal size of the STR
   if(is.element("strdata", class(x))) {
@@ -180,15 +191,18 @@ strloci_normal_exp <- function(x, locus) {
   }
 }
 
+#' @export
 strloci_normal <- function(x, locus) {
   strloci_normal_exp (x, locus)[1]
 }
 
+#' @export
 strloci_minexp <- function(x, locus) {
   # Give the minimum expanded STR in bp
   strloci_normal_exp (x, locus)[2]
 }
 
+#' @export
 `[.exstra_db` <- function(x, fil) {
   assert("locus not the key of x$db", key(x$db)[1] == "locus")
   x$db <- x$db[eval(substitute(fil))]
