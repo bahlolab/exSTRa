@@ -5,9 +5,10 @@ library(data.table)
 library(testit)
 # library(reshape2) # I forget where I use this...
 
+#' @export
 is.exstra_score <- function(x) inherits(x, "exstra_score")
-# make this the main class
 
+#' @export
 strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NULL, this.class = NULL) {
   # Load the STR data, and give it the right class
   assert("read.strs requires database to be class exstra_db", is.exstra_db(database))
@@ -58,6 +59,7 @@ strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NUL
   return(list(data = counts, db = database))
 }
 
+#' @export
 exstra_score_read <- function(file, database, groups.regex = NULL, groups.samples = NULL, filter.low.counts = TRUE) {
   # Load the STR counts
   # Groups should be named null, control and case
@@ -76,7 +78,7 @@ exstra_score_read <- function(file, database, groups.regex = NULL, groups.sample
   return(strscore)
 }
 
-
+#' @export
 exstra_score_new_ <- function(data, db) {
   assert("data must be of class data.frame", inherits(data, "data.frame"))
   assert("db must be of class exstra_db", inherits(db, "exstra_db"))
@@ -99,6 +101,7 @@ exstra_score_new_ <- function(data, db) {
   structure(list(data = data.table(data), db = db, samples = samples), class = c("exstra_score"))
 }
 
+#' @export
 print.exstra_score <- function(x, ...) {
   cat(class(x)[1], " object with ", dim(x$data)[1], " observations of type ",  x$db$input_type, "($data),\n",
     "  for ", dim(x$samples)[1], " samples. ($samples)\n",
@@ -106,15 +109,18 @@ print.exstra_score <- function(x, ...) {
     sep = "")
 }
 
+#' @export
 loci.exstra_score <- function(data) {  
   loci(data$db)
 }
 
+#' @export
 plot_names.exstra_score <- function(strscore, names) {
   # gives the plot names for given sample names
   strscore$samples[as.character(names), plotname]
 }
 
+#' @export
 `plot_names.exstra_score<-` <- function(data, labels) {
   assert("data must be of class exstra_db", inherits(data, "exstra_db"))
   data$samples[names(labels), plotname := labels]
@@ -123,6 +129,7 @@ plot_names.exstra_score <- function(strscore, names) {
 
 # This function allows square brackets to be used to select out the locus and sample
 # BIG TODO: always list by locus, throughout the code!!!
+#' @export
 `[.exstra_score` <- function(x, loc, samp) {
   assert("locus is not the key of x$data", key(x$data)[1] == "locus")
   assert("sample is not the key of x$samples", key(x$samples)[1] == "sample")
@@ -139,6 +146,7 @@ plot_names.exstra_score <- function(strscore, names) {
 
 # old name: str_filter_sex
 # filter rep_score_data by sex
+#' @export
 exstra_filter_sex <- function(strscore, sex = "known", safe = TRUE) {
   # filter rep_score_data by sex
   # sex can be:
@@ -172,6 +180,7 @@ exstra_filter_sex <- function(strscore, sex = "known", safe = TRUE) {
   }
 }
 
+#' @export
 plot.exstra_score <- function(rsc, locus = NULL, sample_col = NULL, refline = TRUE, ylab="Fn(x)", verticals = TRUE,
   pch = 19, xlim, ylim = c(0,1), alpha_control = 0.5, alpha_case = NULL, 
   xlinked = "all", xlinked.safe = TRUE, ...) {
@@ -237,6 +246,7 @@ plot.exstra_score <- function(rsc, locus = NULL, sample_col = NULL, refline = TR
 # old name: rsd_filter_lower_than_expected
 # Filter read scores with lower than expected scores, under
 # the assumption each base in the sequence is uniform and independent.
+#' @export
 exstra_low_filter  <- function(strscore) {
   strscore$db$db[, unit_length := nchar(as.character(Repeat.sequence))]
   # set score, want to remove scores that are smaller than expected by chance
@@ -255,6 +265,7 @@ exstra_low_filter  <- function(strscore) {
 # this function is from http://www.magesblog.com/2013/04/how-to-change-alpha-value-of-colours-in.html
 # so may need a rewrite
 # old name: add.alpha
+#' @export
 add_alpha_ <- function(col, alpha = 1){
   if(missing(col))
     stop("Please provide a vector of colours.")
@@ -269,6 +280,7 @@ add_alpha_ <- function(col, alpha = 1){
 
 # Combine multiple exstra_score objects, checking for sample name clashes
 # old name: rbind.exstra_score.list
+#' @export
 rbind_exstra_score_list <- function(strscore_list, idcol = "data_group", allow_sample_clash = FALSE) {
   assert("strscore_list must be a list", inherits(strscore_list, "list"))
   if(length(strscore_list) == 0) {
@@ -313,6 +325,7 @@ rbind_exstra_score <- function(..., idcol = "data_group", allow_sample_clash = F
 # TODO: easy renaming of samples
 
 # Functions likely of no use:
+#' @export
 exstra_score_ks_tests <- function(rsc, locus = NULL, controls = c("control", "all")) {
   # Performs Kolmogorov-Smirnov Tests on samples, comparing to other samples
   #
@@ -349,7 +362,7 @@ exstra_score_ks_tests <- function(rsc, locus = NULL, controls = c("control", "al
   )
 }
 
-
+#' @export
 loci_text_info.exstra_score <- function(x, ...) {
   loci_text_info(x$db, ...)
 }
