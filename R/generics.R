@@ -1,5 +1,12 @@
 # Declaring generics
 
+#' Return the loci of the selected object
+#' 
+#' @param x object of an exSTRa class.
+#' @return The loci of \code{ex}.
+#' @examples 
+#' loci(exstra_known)
+#' loci(exstra_wgs_pcr_2)
 #' @export
 loci <- function (x, ...) {
   UseMethod("loci", x)
