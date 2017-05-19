@@ -76,7 +76,25 @@ Duplicate removal
 
     PICARDPATH=picard.jar # path to picard.jar
     # Assuming 16GB+ memory on your machine
-    java -jar -Xmx10g -XX:ParallelGCThreads=1 $PICARDPATH MarkDuplicates
+    java -jar -Xmx10g -XX:ParallelGCThreads=1 $PICARDPATH MarkDuplicates \
+        INPUT=output.sort.bam \
+        OUTPUT=output.dedup.bam  \
+        METRICS_FILE=output.dedup.bam.metrics.txt \
+        VALIDATION_STRINGENCY=SILENT \
+        MAX_FILE_HANDLES=1000 \
+        CREATE_INDEX=true
+
+## index for Perl script
+
+As Picard creates index files for file `output.dedup.bam` as `output.dedup.bai` instead of `output.dedup.bam.bai`, we need to create a softlink to the index that the Perl module Bio::DB::Sam will work with correctly. 
+This can be easily created in the directory of duplicate removed BAM files with this loop: 
+
+    for file in *.bam
+    do
+        bname=$(basename "$file" .bam)
+        ln -s "$bname.bai" "$bname.bam.bai"
+    done
+
 
 
 # Versions of software tested
