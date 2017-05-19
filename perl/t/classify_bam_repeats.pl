@@ -11,7 +11,7 @@ within read STR finding from SAM file format. Must be given as STDIN or uncompre
 use 5.014;
 use warnings; 
 use Data::Dumper;
-use Bio::STR::Detection;
+use Bio::STR::exSTRa::Detection;
 use Getopt::Long; 
 
 my $repeat_unit;
@@ -28,9 +28,9 @@ while(<>) {
     }
     my @line = split /\t/;
     my $seq = $line[9]; # this is where the sequence should always be
-    my $strdetect = Bio::STR::Detection->new (repeat_unit => $repeat_unit, sequence => $seq);
+    my $strdetect = Bio::STR::exSTRa::Detection->new (repeat_unit => $repeat_unit, sequence => $seq);
     my $qualloc = $strdetect->qualloc;
-    $strdetect = Bio::STR::Detection->new (repeat_unit => $repeat_unit_rev, sequence => $seq);
+    $strdetect = Bio::STR::exSTRa::Detection->new (repeat_unit => $repeat_unit_rev, sequence => $seq);
     my $qualloc_rev = $strdetect->qualloc;
     #printf "%-8s:%s\t%s\n", $qualloc, $seq, $_;
     #printf "%-8s%s\n", $qualloc, $_;

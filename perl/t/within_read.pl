@@ -12,7 +12,7 @@ Some ideas to find STRs within reads.
 use 5.014;
 use warnings; 
 use Data::Dumper;
-use Bio::STR::Detection;
+use Bio::STR::exSTRa::Detection;
 
 my %headcols;
 my ($tests_passed, $n_tests) = (0, 0);
@@ -35,7 +35,7 @@ while (<>) {
     if(!defined($rep_unit) || !defined($seq)) {
         die "There does not appear to be both of the columns 'repeat_unit' and 'sequence' in the input\n";
     }
-    my $strdetect = Bio::STR::Detection->new (repeat_unit => $rep_unit, sequence => $seq);
+    my $strdetect = Bio::STR::exSTRa::Detection->new (repeat_unit => $rep_unit, sequence => $seq);
     $strdetect->verify_repeat_found;
     if ($test_qualloc) {
         $qualloc = $strdetect->qualloc;
