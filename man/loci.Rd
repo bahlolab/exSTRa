@@ -7,7 +7,7 @@
 loci(x, ...)
 }
 \arguments{
-\item{ex}{exSTRa object.}
+\item{x}{object of an exSTRa class.}
 }
 \value{
 The loci of \code{ex}.
