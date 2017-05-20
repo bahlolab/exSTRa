@@ -31,7 +31,7 @@ Add results from:
 use 5.014;
 use strict 'vars';
 use warnings; 
-use Bio::STR; 
+use Bio::STR::exSTRa; 
 use Bio::DB::Sam;
 use autodie; 
 use Getopt::Long;
@@ -58,7 +58,7 @@ my @bam_files = @ARGV;
 # my $bam_file = shift @ARGV;
 
 # identify locations from Excel file
-my $strs = STR::DB->new;
+my $strs = exSTRa::DB->new;
 $strs->fasta($reference);
 my $input_type = '';
 if($repeat_database =~ /\.xlsx$/) {
