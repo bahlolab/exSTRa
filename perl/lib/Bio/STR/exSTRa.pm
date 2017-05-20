@@ -91,7 +91,7 @@ has 'repeat_unit_fwd' => (
     default => sub {
         my $self = shift;
         if ($self->strand eq '-') {
-            STR::_reverse_comp ($self->repeat_unit);
+            exSTRa::_reverse_comp ($self->repeat_unit);
         } else {
             $self->repeat_unit;
         }
@@ -921,7 +921,7 @@ has [qw(outer_distance)] => (
 );
 
 has 'str' => (
-    isa => 'STR',
+    isa => 'exSTRa',
     is  => 'ro',
     required => 1,
 );
@@ -955,13 +955,13 @@ has 'regions_pe_names' => (
 );
 
 has 'rep_in_read' => (
-    isa => 'ArrayRef[STR::Rep_in_read]',
+    isa => 'ArrayRef[exSTRa::Rep_in_read]',
     is => 'ro',
     default => sub { [] },
 );
 
 has 'score' => (
-    isa => 'ArrayRef[STR::Score]',
+    isa => 'ArrayRef[exSTRa::Score]',
     is => 'ro',
     default => sub { [] },
 );
@@ -1304,7 +1304,7 @@ sub determine_location_se {
                 my $sequence = $detect_mate->query->dna;
                 if ($anchor_direction == 1 xor $detect_mate->get_tag_values('REVERSED')) {
                     # correct for when this read has been unexpectedly not reversed, maybe because it was un/mismapped
-                    $sequence = STR::_reverse_comp $sequence;
+                    $sequence = exSTRa::_reverse_comp $sequence;
                     if ($interesting_read) {
                         warn 'The mate was unexpectedly reversed ' . $detect_mate->name . "\n";
                     }
@@ -1324,7 +1324,7 @@ sub determine_location_se {
                 # Score
                 if ($self->give_score) {
                     my $detect = Bio::STR::exSTRa::Score->new (repeat_unit => $rep_unit, sequence => $sequence); 
-                    my $score = STR::Score->new (
+                    my $score = exSTRa::Score->new (
                                 repeat_starts => $detect->repeated_bases,
                                 mlength => $detect->matchable_bases,
                                 bam_read => $detect_mate,
@@ -1360,7 +1360,7 @@ sub determine_location_se {
                         my $rir = $detect->rep_in_read ($read_trim_static);
                         # give the inferred strand of the detect read, not the anchor
                         if(defined($rir)) {
-                            my $rir_ob = STR::Rep_in_read->new (
+                            my $rir_ob = exSTRa::Rep_in_read->new (
                                 a => $rir->[0],
                                 b => $rir->[1],
                                 c => $rir->[2],
@@ -1450,6 +1450,66 @@ sub _find_mate {
 ##     return $type;
 ## }
 ## }
+
+
+### 
+{
+package exSTRa::Rep_in_read;
+use Moose; 
+use namespace::autoclean;
+use autodie;
+
+has [qw(a c)] => (
+    isa => 'Natural0',
+    is => 'rw',
+);
+
+has [qw(b)] => (
+    isa => 'Natural',
+    is => 'rw',
+);
+
+has 'strand' => (
+    isa => 'Strand',
+    is => 'rw',
+);
+
+has 'bam_read' => ( # keeps track of the read whose pair these values were generated from
+    isa => 'Bio::DB::Bam::AlignWrapper',
+    is => 'rw',
+);
+
+}
+
+### 
+{
+package exSTRa::Score;
+use Moose; 
+use namespace::autoclean;
+use autodie;
+
+has [qw(repeat_starts)] => (
+    isa => 'Natural0',
+    is => 'rw',
+);
+
+has [qw(mlength)] => ( # total number of bases we may start at
+    isa => 'Natural',
+    is => 'rw',
+);
+
+has 'bam_read' => ( # keeps track of the read whose pair these values were generated from
+    isa => 'Bio::DB::Bam::AlignWrapper',
+    is => 'rw',
+);
+
+has 'mapped_origin' => ( # keeps track of origin of read
+    isa => 'Str',
+    is  => 'rw', 
+    # TODO: add a more strict type contraint
+);
+
+}
 
 
 1; # Exit success
