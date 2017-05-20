@@ -201,7 +201,7 @@ sub read_loc_calc {
     # for a single STR object
     # Usage: 
     # $str->read_loc_calc($bams);
-    # $bams is a reference to a hash: keys=sample names, values=Bio::DB::HTS objects
+    # $bams is a reference to a hash: keys=sample names, values=Bio::DB::Sam objects
     my $self = shift;
 }
 
@@ -267,7 +267,7 @@ use Spreadsheet::XLSX;
 use Spreadsheet::ParseExcel;
 use warnings;
 #use STR;
-use Bio::DB::HTS;
+use Bio::DB::Sam;
 use Data::Dumper;
 use Text::Iconv;
 use Tie::IxHash;
@@ -310,7 +310,7 @@ has 'fasta' => (
 
 has 'bams' => (
     # database of the bam files
-    isa => 'HashRef[Bio::DB::HTS]',
+    isa => 'HashRef[Bio::DB::Sam]',
     is  => 'ro',
     default => sub { {} },
 );
@@ -523,7 +523,7 @@ sub read_bams {
     foreach my $sample (keys %{$bam_filenames}) {
         warn "Loading BAM for sample $sample.\n";
         if(exists($self->bams->{$sample})) { warn "Reloading existing loaded BAM file for sample $sample.\n" }
-        my $bam = Bio::DB::HTS->new(
+        my $bam = Bio::DB::Sam->new(
             -bam => $bam_filenames->{$sample},
             -fasta => $self->fasta,
             -autoindex => 1,
@@ -543,7 +543,7 @@ sub read_bams_array {
     my $self = shift;
     my $bam_filenames = shift;
     for my $bam_file (@$bam_filenames) {
-        my $bam = Bio::DB::HTS->new(
+        my $bam = Bio::DB::Sam->new(
             -bam => $bam_file,
             -autoindex => 1,
         );
@@ -845,7 +845,7 @@ use Moose;
 use namespace::autoclean;
 use autodie;
 #use STR;
-use Bio::DB::HTS;
+use Bio::DB::Sam;
 use Data::Dumper;
 
 use constant REGIONSSE => qw (
@@ -909,7 +909,7 @@ sub BUILD {
 # Attributes
 has 'bam' => (
     # given bam file
-    isa => 'Bio::DB::HTS',
+    isa => 'Bio::DB::Sam',
     is  => 'ro', 
     required => 1,
 );
