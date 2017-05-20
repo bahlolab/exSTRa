@@ -201,7 +201,7 @@ sub read_loc_calc {
     # for a single STR object
     # Usage: 
     # $str->read_loc_calc($bams);
-    # $bams is a reference to a hash: keys=sample names, values=Bio::DB::Sam objects
+    # $bams is a reference to a hash: keys=sample names, values=Bio::DB::HTS objects
     my $self = shift;
 }
 
@@ -267,7 +267,7 @@ use Spreadsheet::XLSX;
 use Spreadsheet::ParseExcel;
 use warnings;
 #use STR;
-use Bio::DB::Sam;
+use Bio::DB::HTS;
 use Data::Dumper;
 use Text::Iconv;
 use Tie::IxHash;
@@ -310,7 +310,7 @@ has 'fasta' => (
 
 has 'bams' => (
     # database of the bam files
-    isa => 'HashRef[Bio::DB::Sam]',
+    isa => 'HashRef[Bio::DB::HTS]',
     is  => 'ro',
     default => sub { {} },
 );
@@ -523,7 +523,7 @@ sub read_bams {
     foreach my $sample (keys %{$bam_filenames}) {
         warn "Loading BAM for sample $sample.\n";
         if(exists($self->bams->{$sample})) { warn "Reloading existing loaded BAM file for sample $sample.\n" }
-        my $bam = Bio::DB::Sam->new(
+        my $bam = Bio::DB::HTS->new(
             -bam => $bam_filenames->{$sample},
             -fasta => $self->fasta,
             -autoindex => 1,
@@ -543,7 +543,7 @@ sub read_bams_array {
     my $self = shift;
     my $bam_filenames = shift;
     for my $bam_file (@$bam_filenames) {
-        my $bam = Bio::DB::Sam->new(
+        my $bam = Bio::DB::HTS->new(
             -bam => $bam_file,
             -autoindex => 1,
         );
@@ -845,7 +845,7 @@ use Moose;
 use namespace::autoclean;
 use autodie;
 #use STR;
-use Bio::DB::Sam;
+use Bio::DB::HTS;
 use Data::Dumper;
 
 use constant REGIONSSE => qw (
@@ -909,7 +909,7 @@ sub BUILD {
 # Attributes
 has 'bam' => (
     # given bam file
-    isa => 'Bio::DB::Sam',
+    isa => 'Bio::DB::HTS',
     is  => 'ro', 
     required => 1,
 );
@@ -929,14 +929,14 @@ has 'str' => (
 has [REGIONSSE] => (
     # Single end reads, each group is mutally exclusive
     is  => 'ro',
-    isa => 'ArrayRef[Bio::DB::Bam::Alignment]',
+    isa => 'ArrayRef[Bio::DB::HTS::Alignment]',
     default => sub { [] },
 );
 
 has [REGIONSPE] => (
     # Paired end reads, each group is mutally exclusive
     is  => 'ro',
-    isa => 'ArrayRef[Bio::DB::Bam::Alignment]',
+    isa => 'ArrayRef[Bio::DB::HTS::Alignment]',
     default => sub { [] },
 );
 
@@ -1184,7 +1184,7 @@ use namespace::autoclean;
 extends 'exSTRa::ReadLocation';
 use Bio::STR::exSTRa::Detection;
 use Bio::STR::exSTRa::Score;
-# use Bio::DB::Bam::AlignWrapper;
+# use Bio::DB::HTS::AlignWrapper;
 
 # Attributes of exSTRa::ReadLocation::ReadInspect
 
@@ -1380,7 +1380,7 @@ sub determine_location_se {
 
 sub _find_mate {
     # find the mate of a given read
-    # first argument is a Bio::DB::Bam::Alignment object (I think)
+    # first argument is a Bio::DB::HTS::Alignment object (I think)
     # second is a string variable, that will be modified
     my $read1 = $_[0];
     my $origin = \$_[1]; # can be un(mapped), mis(mapped), ok
@@ -1475,7 +1475,7 @@ has 'strand' => (
 );
 
 has 'bam_read' => ( # keeps track of the read whose pair these values were generated from
-    isa => 'Bio::DB::Bam::AlignWrapper',
+    isa => 'Bio::DB::HTS::AlignWrapper',
     is => 'rw',
 );
 
@@ -1499,7 +1499,7 @@ has [qw(mlength)] => ( # total number of bases we may start at
 );
 
 has 'bam_read' => ( # keeps track of the read whose pair these values were generated from
-    isa => 'Bio::DB::Bam::AlignWrapper',
+    isa => 'Bio::DB::HTS::AlignWrapper',
     is => 'rw',
 );
 
