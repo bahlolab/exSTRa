@@ -81,9 +81,9 @@ if($repeat_database =~ /\.xlsx$/) {
     $input_type = 'xlsx';
 } else {
     warn "Importing repeats assuming UCSC Simple Repeat style, from file $repeat_database.\n";
-    open RD, '<', $repeat_database or die $!;
-    my $head = <RD>;
-    close RD;
+    open my $rd, '<', $repeat_database or die $!;
+    my $head = <$rd>;
+    close $rd;
     if($head =~ /^#bin\tchrom/) {
         $strs->read_str_database_UCSC_TRF($repeat_database);
     } else {
