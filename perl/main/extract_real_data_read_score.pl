@@ -32,7 +32,7 @@ use 5.014;
 use strict 'vars';
 use warnings; 
 use Bio::STR::exSTRa; 
-use Bio::DB::Sam;
+use Bio::DB::HTS;
 use autodie; 
 use Getopt::Long;
 use Tie::IxHash;
