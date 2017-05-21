@@ -6,24 +6,28 @@ to the STR expansion disease loci. Counts the number of repeated bases
 in reads found. 
 
 Usage: 
-perl extract_real_data_info.pl  $bahlolab_db/hg19/standard_gatk/hg19.fa ../../../disorders/repeat_disorders.xlsx sample.bam [sample2.bam] [...]
+perl exSTRa_score.pl  $bahlolab_db/hg19/standard_gatk/hg19.fa ../../../disorders/repeat_disorders.xlsx sample.bam [sample2.bam] [...]
 
 Testing:
-perl extract_real_data_info.pl  --debug $bahlolab_db/hg19/standard_gatk/hg19.fa ../../../disorders/repeat_disorders.xlsx ../simulations/*1/pipeline/initial_*_pipeline/bam_recal/*_bowtie2_recal.bam
+perl exSTRa_score.pl  --debug $bahlolab_db/hg19/standard_gatk/hg19.fa ../../../disorders/repeat_disorders.xlsx ../simulations/*1/pipeline/initial_*_pipeline/bam_recal/*_bowtie2_recal.bam
 
 Actual Usage: 
-perl extract_real_data_info_with_module.pl $bahlolab_db/hg19/standard_gatk/hg19.fa ../disorders/repeat_disorders.xlsx bam_links/*.bam > repeat_rediscovery_02_readdetect.txt
+perl exSTRa_score.pl $bahlolab_db/hg19/standard_gatk/hg19.fa ../disorders/repeat_disorders.xlsx bam_links/*.bam > repeat_rediscovery_02_readdetect.txt
 
-perl extract_real_data_info_with_module.pl --by_alignment $bahlolab_db/hg19/standard_gatk/hg19.fa ../disorders/repeat_disorders.xlsx bam_links/*.bam > repeat_rediscovery_02_byalignment.txt
+perl exSTRa_score.pl --by_alignment $bahlolab_db/hg19/standard_gatk/hg19.fa ../disorders/repeat_disorders.xlsx bam_links/*.bam > repeat_rediscovery_02_byalignment.txt
 
 =head1 TODO
 
 Add feature counts around the STRs only, especially with respect to length. 
 Get length changing mean and std.dev for spanning reads
 Add results from:
+
 - lobSTR
+
 - reviSTR
+
 - RepeatSeq
+
 - STRViper
 
 =cut
