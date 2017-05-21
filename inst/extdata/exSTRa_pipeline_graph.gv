@@ -1,0 +1,142 @@
+digraph boxes_and_circles {
+    ordering=out
+    
+    # a 'graph' statement
+    graph [overlap = true, fontsize = 11, shape = rectangle]
+    
+    # several 'node' statements
+    node [shape = oval, 
+        fontname = Helvetica,
+        width = 0.9,
+        fontsize = 11,
+        fillcolor = "red"]
+    Patient_1_DNA [label = 'Patient 1 DNA']
+    Patient_2_DNA [label = 'Patient 2 DNA']
+    Patient_3_DNA [label = 'Patient 3 DNA']
+    STR_db [ label = 'Known\nexpansion loci']
+    { fastq_1_2, fastq_1_1, fastq_2_1, fastq_2_2, fastq_3_1 [label = 'FastQ data\n(paired)'] }
+    ready_bam_1 [label = 'Patient 1\nready BAM']
+    ready_bam_2 [label = 'Patient 2\nready BAM']
+    ready_bam_3 [label = 'Patient 3\nready BAM']
+    expansion_calls [label = 'Expansion calls']
+    score_visualisation [label = 'Score visualisation']
+    
+    # boxed nodes
+    node [shape = box, 
+        fixedsize = true,
+        fontname = Helvetica
+        width = 1.2,
+        fontsize = 11] 
+    { libprep_1, libprep_2, libprep_3 [label = 'Library\npreparation'] } 
+    { seq_1_2, seq_1_1, seq_2_1, seq_2_2, seq_3_1 [label = 'Sequencing\nlane'] }    
+    { alignment_1_2, alignment_1_1, alignment_2_1, alignment_2_2, alignment_3_1 [label = 'Alignment\n(BAM out)'] }  
+    { sortmerge_1, sortmerge_2[label = 'Sort + merge\n(BAM out)'] } 
+    { sortmerge_3 [label = 'Sort\n(BAM out)'] } 
+    { dedup_1, dedup_2, dedup_3 [label = 'Duplicate\nmarking'] } 
+    perlexSTRa [label = 'Calculate STR\nscores per read\n(Perl Bio::STR::exSTRa)', fixedsize = false]
+    exSTRa_R [label = 'exSTRa\n(R package)', fixedsize = false]
+    pcr_validation [label = 'PCR validation', fixedsize = false]
+    
+    # node colours
+    {   # wet-lab
+        Patient_1_DNA, Patient_2_DNA, Patient_3_DNA, 
+        libprep_1, libprep_2, libprep_3,
+        seq_1_2, seq_1_1, seq_2_1, seq_2_2, seq_3_1,
+        pcr_validation
+        [fillcolor = "#acd6f9", style=filled] 
+    }
+    {   # dry lab
+        alignment_1_2, alignment_1_1, alignment_2_1, alignment_2_2, alignment_3_1,
+        sortmerge_1, sortmerge_2, sortmerge_3,
+        dedup_1, dedup_2, dedup_3,
+        fastq_1_2, fastq_1_1, fastq_2_1, fastq_2_2, fastq_3_1,
+        ready_bam_1, ready_bam_2, ready_bam_3
+        [fillcolor = "#ffc054", style=filled] 
+    }
+    {   # what we provide
+        perlexSTRa,
+        exSTRa_R,
+        expansion_calls, 
+        score_visualisation
+        [fillcolor = "#b70505", style=filled, fontcolor = white] 
+    }
+    {   # STR_db
+        STR_db
+        [fillcolor = "#ffc6e4", style=filled] 
+    }
+    
+
+    # alignment vertical
+    ready_bam_2 [group=g_perlalign]
+    perlexSTRa [group=g_perlalign]
+
+    # alignment horizontal
+    { rank=same; seq_1_1, seq_1_1, seq_2_1, seq_2_2, seq_3_1 }
+    { rank=same; fastq_1_2, fastq_1_1, fastq_2_1, fastq_2_2, fastq_3_1 }
+    { rank=same; alignment_1_2, alignment_1_1, alignment_2_1, alignment_2_2, alignment_3_1 }
+    { rank=same; dedup_1, dedup_2, dedup_3 }
+    { rank=same; ready_bam_1, ready_bam_2, ready_bam_3 }
+
+    
+    # invisible edges to keep things together
+    dedup_1 -> dedup_2 [color=red][style=invis]
+    dedup_2 -> dedup_3 [color=red][style=invis]
+
+    # several 'edge' statements
+    ### Patient 1
+    Patient_1_DNA -> libprep_1
+    libprep_1 -> { seq_1_2 seq_1_1 }
+    
+    seq_1_1 -> fastq_1_1
+    fastq_1_1 -> alignment_1_1
+
+    seq_1_2 -> fastq_1_2
+    fastq_1_2 -> alignment_1_2
+
+    { alignment_1_2 alignment_1_1 }  -> sortmerge_1
+    sortmerge_1 -> dedup_1
+
+    dedup_1 -> ready_bam_1
+
+    ### Patient 2
+    Patient_2_DNA -> libprep_2
+    libprep_2 -> { seq_2_1 seq_2_2 }
+    
+    seq_2_1 -> fastq_2_1
+    fastq_2_1 -> alignment_2_1
+    
+    seq_2_2 -> fastq_2_2
+    fastq_2_2 -> alignment_2_2
+    
+    { alignment_2_1 alignment_2_2 }  -> sortmerge_2
+    sortmerge_2 -> dedup_2
+
+    dedup_2 -> ready_bam_2
+    
+    ### Patient 3
+    Patient_3_DNA -> libprep_3
+    libprep_3 -> { seq_3_1 }
+    
+    seq_3_1 -> fastq_3_1
+    fastq_3_1 -> alignment_3_1
+    
+    #seq_3_2 -> fastq_3_2
+    #fastq_3_2 -> alignment_3_2
+    
+    { alignment_3_1 }  -> sortmerge_3
+    sortmerge_3 -> dedup_3
+
+    dedup_3 -> ready_bam_3
+    
+    ### 
+    { ready_bam_1 ready_bam_2 ready_bam_3 } -> perlexSTRa
+    perlexSTRa -> exSTRa_R
+
+    STR_db -> { perlexSTRa exSTRa_R }
+
+    exSTRa_R -> expansion_calls
+
+    exSTRa_R -> score_visualisation
+
+    { expansion_calls score_visualisation } -> pcr_validation
+}
