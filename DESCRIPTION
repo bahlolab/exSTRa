@@ -15,3 +15,4 @@ Collate:
     'exstra_db.R'
     'data_import.R'
     'generics.R'
+    'suggested_exstra_pipeline.R'
