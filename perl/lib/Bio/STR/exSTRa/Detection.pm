@@ -9,7 +9,7 @@ Some ideas to find STRs within reads.
 =cut
 
 # Define a class to store our results
-package Bio::STR::Detection;
+package Bio::STR::exSTRa::Detection;
 use Data::Dumper;
 
 use 5.014;
