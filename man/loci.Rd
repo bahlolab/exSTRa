@@ -10,7 +10,7 @@ loci(x, ...)
 \item{x}{object of an exSTRa class.}
 }
 \value{
-The loci of \code{ex}.
+The loci of \code{x}.
 }
 \description{
 Return the loci of the selected object
