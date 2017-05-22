@@ -1,11 +1,6 @@
 # The exstra_db class
 # Includes information on STRs, whether they are disease-causing or of a general nature
 
-library(data.table)
-library(stringr)
-library(xlsx)
-library(testit)
-
 # check if the object is of this class
 #' @import data.table
 #' @import stringr
@@ -16,7 +11,7 @@ library(testit)
 is.exstra_db <- function(x) inherits(x, "exstra_db")
 
 # Create a new object of this class (not for the user)
-#' @export
+#
 exstra_db_new_ <- function(strd, input_type = NULL) {
   # Transforms a data.frame or data.table into a exstra_db object
   if (!is.data.frame(strd)) stop("strd must be data.frame")
@@ -208,6 +203,14 @@ strloci_minexp <- function(x, locus) {
   x$db <- x$db[eval(substitute(fil))]
   x
 }
+
+# copy data.table inside
+#' @export
+copy.exstra_db <- function(x) {
+  x$db <- copy(x$db)
+  x
+}
+
 
 # I think the following was code that was left over from another time
 #Y <- exstra_db_read("/Users/tankard/Documents/Research/repeats/disease_repeats/repeat_disorders.xlsx")

@@ -1,14 +1,15 @@
 # The exstra_score class
 # Holds scores that give the proportion of a read that matches a given repeat
 
-library(data.table)
-library(testit)
-# library(reshape2) # I forget where I use this...
-
+#' @import data.table
+#' @import stringr
+#' @import xlsx
+#' @import testit
+#' 
 #' @export
 is.exstra_score <- function(x) inherits(x, "exstra_score")
 
-#' @export
+# 
 strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NULL, this.class = NULL) {
   # Load the STR data, and give it the right class
   assert("read.strs requires database to be class exstra_db", is.exstra_db(database))
@@ -365,4 +366,11 @@ exstra_score_ks_tests <- function(rsc, locus = NULL, controls = c("control", "al
 #' @export
 loci_text_info.exstra_score <- function(x, ...) {
   loci_text_info(x$db, ...)
+}
+
+#' @export
+copy.exstra_score <- function(x) {
+  x$data <- copy(x$data)
+  x$db <- copy(x$db)
+  x
 }

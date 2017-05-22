@@ -12,7 +12,7 @@ Some ideas to find STRs within reads.
 use 5.014;
 use warnings; 
 use Data::Dumper;
-use Bio::STR::Score;
+use Bio::STR::exSTRa::Score;
 
 my %headcols;
 my ($tests_passed, $n_tests) = (0, 0);
@@ -36,7 +36,7 @@ while (<>) {
     if(!defined($rep_unit) || !defined($seq) || !defined($starts) || !defined($ends) || !defined($lengths)) {
         die "There does not appear to be all of the columns 'repeat_unit', 'sequence', 'starts', 'ends' and 'lengths' in the input\n";
     }
-    my $strscore = Bio::STR::Score->new (repeat_unit => $rep_unit, sequence => $seq);
+    my $strscore = Bio::STR::exSTRa::Score->new (repeat_unit => $rep_unit, sequence => $seq);
     say $line[$headcols{Disease}];
     say $strscore->{sequence};
     say $strscore->repeated_bases . " / " . $strscore->matchable_bases;

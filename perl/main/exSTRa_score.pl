@@ -6,24 +6,28 @@ to the STR expansion disease loci. Counts the number of repeated bases
 in reads found. 
 
 Usage: 
-perl extract_real_data_info.pl  $bahlolab_db/hg19/standard_gatk/hg19.fa ../../../disorders/repeat_disorders.xlsx sample.bam [sample2.bam] [...]
+perl exSTRa_score.pl  $bahlolab_db/hg19/standard_gatk/hg19.fa ../../../disorders/repeat_disorders.xlsx sample.bam [sample2.bam] [...]
 
 Testing:
-perl extract_real_data_info.pl  --debug $bahlolab_db/hg19/standard_gatk/hg19.fa ../../../disorders/repeat_disorders.xlsx ../simulations/*1/pipeline/initial_*_pipeline/bam_recal/*_bowtie2_recal.bam
+perl exSTRa_score.pl  --debug $bahlolab_db/hg19/standard_gatk/hg19.fa ../../../disorders/repeat_disorders.xlsx ../simulations/*1/pipeline/initial_*_pipeline/bam_recal/*_bowtie2_recal.bam
 
 Actual Usage: 
-perl extract_real_data_info_with_module.pl $bahlolab_db/hg19/standard_gatk/hg19.fa ../disorders/repeat_disorders.xlsx bam_links/*.bam > repeat_rediscovery_02_readdetect.txt
+perl exSTRa_score.pl $bahlolab_db/hg19/standard_gatk/hg19.fa ../disorders/repeat_disorders.xlsx bam_links/*.bam > repeat_rediscovery_02_readdetect.txt
 
-perl extract_real_data_info_with_module.pl --by_alignment $bahlolab_db/hg19/standard_gatk/hg19.fa ../disorders/repeat_disorders.xlsx bam_links/*.bam > repeat_rediscovery_02_byalignment.txt
+perl exSTRa_score.pl --by_alignment $bahlolab_db/hg19/standard_gatk/hg19.fa ../disorders/repeat_disorders.xlsx bam_links/*.bam > repeat_rediscovery_02_byalignment.txt
 
 =head1 TODO
 
 Add feature counts around the STRs only, especially with respect to length. 
 Get length changing mean and std.dev for spanning reads
 Add results from:
+
 - lobSTR
+
 - reviSTR
+
 - RepeatSeq
+
 - STRViper
 
 =cut
@@ -31,8 +35,8 @@ Add results from:
 use 5.014;
 use strict 'vars';
 use warnings; 
-use Bio::STR; 
-use Bio::DB::Sam;
+use Bio::STR::exSTRa; 
+use Bio::DB::HTS;
 use autodie; 
 use Getopt::Long;
 use Tie::IxHash;
@@ -58,7 +62,7 @@ my @bam_files = @ARGV;
 # my $bam_file = shift @ARGV;
 
 # identify locations from Excel file
-my $strs = STR::DB->new;
+my $strs = exSTRa::DB->new;
 $strs->fasta($reference);
 my $input_type = '';
 if($repeat_database =~ /\.xlsx$/) {
@@ -81,9 +85,9 @@ if($repeat_database =~ /\.xlsx$/) {
     $input_type = 'xlsx';
 } else {
     warn "Importing repeats assuming UCSC Simple Repeat style, from file $repeat_database.\n";
-    open RD, '<', $repeat_database or die $!;
-    my $head = <RD>;
-    close RD;
+    open my $rd, '<', $repeat_database or die $!;
+    my $head = <$rd>;
+    close $rd;
     if($head =~ /^#bin\tchrom/) {
         $strs->read_str_database_UCSC_TRF($repeat_database);
     } else {

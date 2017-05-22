@@ -12,7 +12,7 @@ Defines the STR object and its properties
 use 5.014;
 use warnings;
 
-package Bio::STR;
+package Bio::STR::exSTRa;
 
 # use Spreadsheet::XLSX;
 use autodie;
@@ -30,10 +30,10 @@ $VERSION = 0.02;
 
 ### Main code ###
 {
-package STR;
+package exSTRa;
 
 =head2
-Bio::STR
+Bio::STR::exSTRa
 
 Defines the properties of one simple tandem repeat
 
@@ -91,7 +91,7 @@ has 'repeat_unit_fwd' => (
     default => sub {
         my $self = shift;
         if ($self->strand eq '-') {
-            STR::_reverse_comp ($self->repeat_unit);
+            exSTRa::_reverse_comp ($self->repeat_unit);
         } else {
             $self->repeat_unit;
         }
@@ -148,7 +148,7 @@ has [qw(stable_repeats unstable_repeats)] => (
 );
 
 has 'read_loc_per_sample' => (
-    isa => 'HashRef[STR::ReadLocation | STR::ReadLocation::ReadInspect]',
+    isa => 'HashRef[exSTRa::ReadLocation | exSTRa::ReadLocation::ReadInspect]',
     is  => 'ro',
     default => sub { { } }, 
 );
@@ -201,7 +201,7 @@ sub read_loc_calc {
     # for a single STR object
     # Usage: 
     # $str->read_loc_calc($bams);
-    # $bams is a reference to a hash: keys=sample names, values=Bio::DB::Sam objects
+    # $bams is a reference to a hash: keys=sample names, values=Bio::DB::HTS objects
     my $self = shift;
 }
 
@@ -213,7 +213,7 @@ sub give_empirical_str_size {
     my $outer_distance = $inputs{outer_distance} // 800; # change depending on insert size
     # get sequence and repeat unit
     my $sequence = _get_sequence($reference_fasta, $self->{chrom}, $self->{start}, $self->{end});
-    my $detect = Bio::STR::Detection->new (repeat_unit => $self->repeat_unit_fwd, sequence => $sequence); 
+    my $detect = Bio::STR::exSTRa::Detection->new (repeat_unit => $self->repeat_unit_fwd, sequence => $sequence); 
     my $locations = $detect->location();
     if(@{$locations->{lengths}} == 1) {
         $self->{read_detect_size} = $locations->{lengths}->[0];
@@ -249,12 +249,12 @@ sub _get_sequence {
 
 ### Main code ###
 {
-package STR::DB;
+package exSTRa::DB;
 
 =head2
-Bio::STR::DB
+Bio::STR::exSTRa::DB
 
-Describes a collection of Bio::STR objects. Includes methods for importing these collections from files. 
+Describes a collection of Bio::STR::exSTRa objects. Includes methods for importing these collections from files. 
 
 =cut 
 
@@ -267,7 +267,7 @@ use Spreadsheet::XLSX;
 use Spreadsheet::ParseExcel;
 use warnings;
 #use STR;
-use Bio::DB::Sam;
+use Bio::DB::HTS;
 use Data::Dumper;
 use Text::Iconv;
 use Tie::IxHash;
@@ -287,14 +287,14 @@ no Moose::Util::TypeConstraints;
 has [qw(strs)] => (
     # Database of the STRs
     is  => 'ro',
-    isa => 'HashRef[Bio::STR]',
+    isa => 'HashRef[Bio::STR::exSTRa]',
     default => sub { {} },
 );
 
 has [qw(strs_by_name strs_by_gene)] => (
     # Database of the STRs
     is  => 'ro',
-    isa => 'HashRef[Bio::STR]',
+    isa => 'HashRef[Bio::STR::exSTRa]',
     default => sub { 
         my %hash; 
         tie %hash, 'Tie::IxHash';
@@ -310,7 +310,7 @@ has 'fasta' => (
 
 has 'bams' => (
     # database of the bam files
-    isa => 'HashRef[Bio::DB::Sam]',
+    isa => 'HashRef[Bio::DB::HTS]',
     is  => 'ro',
     default => sub { {} },
 );
@@ -445,13 +445,13 @@ sub read_str_database_excel {
             warn "This may be ok if there are multiple sheets in the Excel file.\n";
             warn "Input column names and column number:\n";
             warn ((Dumper \%cols). "\n");
-            warn "Bio::STR class attribute names and names we expect to find in Excel file:\n";
+            warn "Bio::STR::exSTRa class attribute names and names we expect to find in Excel file:\n";
             warn ((Dumper \%feature_names). "\n");
             next;
         }
         # Read body
         for my $row ( ($row_min + 1) .. $row_max ) {
-            my $str = STR->new(compound_strs_allowed => $self->compound_strs_allowed);
+            my $str = exSTRa->new(compound_strs_allowed => $self->compound_strs_allowed);
             for my $feat (keys %feature_names) {
                 my $cell = $worksheet->get_cell( $row, $cols{$feature_names{$feat}} );
                 my $cvalue;
@@ -523,7 +523,7 @@ sub read_bams {
     foreach my $sample (keys %{$bam_filenames}) {
         warn "Loading BAM for sample $sample.\n";
         if(exists($self->bams->{$sample})) { warn "Reloading existing loaded BAM file for sample $sample.\n" }
-        my $bam = Bio::DB::Sam->new(
+        my $bam = Bio::DB::HTS->new(
             -bam => $bam_filenames->{$sample},
             -fasta => $self->fasta,
             -autoindex => 1,
@@ -543,7 +543,7 @@ sub read_bams_array {
     my $self = shift;
     my $bam_filenames = shift;
     for my $bam_file (@$bam_filenames) {
-        my $bam = Bio::DB::Sam->new(
+        my $bam = Bio::DB::HTS->new(
             -bam => $bam_file,
             -autoindex => 1,
         );
@@ -571,7 +571,7 @@ sub assess_str_reads_by_alignment {
     }
     foreach my $str (values %{$self->strs}) {
         foreach my $sample (keys %{$self->bams}) {
-            $str->read_loc_per_sample->{$sample} = STR::ReadLocation->new( 
+            $str->read_loc_per_sample->{$sample} = exSTRa::ReadLocation->new( 
                 bam => $self->bams->{$sample}, 
                 str => $str, 
                 outer_distance => $outer_distance, 
@@ -620,7 +620,7 @@ sub assess_str_reads_by_readinspect {
         foreach my $sample (keys %{$self->bams}) {
             # here instead just directly print out each output
             warn "  Working on the sample $sample\n"; # TODO / on verbose
-            my $strloc_ri = STR::ReadLocation::ReadInspect->new( 
+            my $strloc_ri = exSTRa::ReadLocation::ReadInspect->new( 
                 bam => $self->bams->{$sample}, 
                 str => $str, 
                 outer_distance => $outer_distance, 
@@ -839,13 +839,13 @@ sub _disease_shorten {
 
 ### Main code ###
 {
-package STR::ReadLocation;
+package exSTRa::ReadLocation;
 use Carp;
 use Moose; 
 use namespace::autoclean;
 use autodie;
 #use STR;
-use Bio::DB::Sam;
+use Bio::DB::HTS;
 use Data::Dumper;
 
 use constant REGIONSSE => qw (
@@ -909,7 +909,7 @@ sub BUILD {
 # Attributes
 has 'bam' => (
     # given bam file
-    isa => 'Bio::DB::Sam',
+    isa => 'Bio::DB::HTS',
     is  => 'ro', 
     required => 1,
 );
@@ -921,7 +921,7 @@ has [qw(outer_distance)] => (
 );
 
 has 'str' => (
-    isa => 'STR',
+    isa => 'exSTRa',
     is  => 'ro',
     required => 1,
 );
@@ -929,14 +929,14 @@ has 'str' => (
 has [REGIONSSE] => (
     # Single end reads, each group is mutally exclusive
     is  => 'ro',
-    isa => 'ArrayRef[Bio::DB::Bam::Alignment]',
+    isa => 'ArrayRef[Bio::DB::HTS::Alignment]',
     default => sub { [] },
 );
 
 has [REGIONSPE] => (
     # Paired end reads, each group is mutally exclusive
     is  => 'ro',
-    isa => 'ArrayRef[Bio::DB::Bam::Alignment]',
+    isa => 'ArrayRef[Bio::DB::HTS::Alignment]',
     default => sub { [] },
 );
 
@@ -955,13 +955,13 @@ has 'regions_pe_names' => (
 );
 
 has 'rep_in_read' => (
-    isa => 'ArrayRef[STR::Rep_in_read]',
+    isa => 'ArrayRef[exSTRa::Rep_in_read]',
     is => 'ro',
     default => sub { [] },
 );
 
 has 'score' => (
-    isa => 'ArrayRef[STR::Score]',
+    isa => 'ArrayRef[exSTRa::Score]',
     is => 'ro',
     default => sub { [] },
 );
@@ -1174,19 +1174,19 @@ sub _quality_filter {
 
 ### class for the location of reads using read inspection ###
 {
-package STR::ReadLocation::ReadInspect;
-# A package to replace the STR::ReadLocation class, instead deriving counts
-# from the Bio::STR::detection module/class to determine STR location with
+package exSTRa::ReadLocation::ReadInspect;
+# A package to replace the exSTRa::ReadLocation class, instead deriving counts
+# from the Bio::STR::exSTRa::detection module/class to determine STR location with
 # the read content. 
 use Carp;
 use Moose;
 use namespace::autoclean;
-extends 'STR::ReadLocation';
-use Bio::STR::Detection;
-use Bio::STR::Score;
-# use Bio::DB::Bam::AlignWrapper;
+extends 'exSTRa::ReadLocation';
+use Bio::STR::exSTRa::Detection;
+use Bio::STR::exSTRa::Score;
+# use Bio::DB::HTS::AlignWrapper;
 
-# Attributes of STR::ReadLocation::ReadInspect
+# Attributes of exSTRa::ReadLocation::ReadInspect
 
 has [qw(read_trim_static)] => (
     isa => 'Natural0', 
@@ -1200,7 +1200,7 @@ has [qw(give_qualloc give_rep_in_read give_score)] => (
     default => 0,
 );
 
-# Methods of STR::ReadLocation::ReadInspect
+# Methods of exSTRa::ReadLocation::ReadInspect
 
 sub determine_location_se {
     # Categorise single ends of reads into their location relative to STRs
@@ -1261,7 +1261,7 @@ sub determine_location_se {
         # TODO: Check that we don't have an unmapped read pair that we will be missing (make these statements earlier) [Is this still to do Rick?]
         # TODO: test these two filters: 
         # Filter read marked as duplicate:
-        if(STR::ReadLocation::_quality_filter($first_mate, $second_mate, 3)) {
+        if(exSTRa::ReadLocation::_quality_filter($first_mate, $second_mate, 3)) {
             next READPAIRS;
         }
         ANCHORBYMATE: for my $i (0, 1) {
@@ -1304,7 +1304,7 @@ sub determine_location_se {
                 my $sequence = $detect_mate->query->dna;
                 if ($anchor_direction == 1 xor $detect_mate->get_tag_values('REVERSED')) {
                     # correct for when this read has been unexpectedly not reversed, maybe because it was un/mismapped
-                    $sequence = STR::_reverse_comp $sequence;
+                    $sequence = exSTRa::_reverse_comp $sequence;
                     if ($interesting_read) {
                         warn 'The mate was unexpectedly reversed ' . $detect_mate->name . "\n";
                     }
@@ -1323,8 +1323,8 @@ sub determine_location_se {
                 }
                 # Score
                 if ($self->give_score) {
-                    my $detect = Bio::STR::Score->new (repeat_unit => $rep_unit, sequence => $sequence); 
-                    my $score = STR::Score->new (
+                    my $detect = Bio::STR::exSTRa::Score->new (repeat_unit => $rep_unit, sequence => $sequence); 
+                    my $score = exSTRa::Score->new (
                                 repeat_starts => $detect->repeated_bases,
                                 mlength => $detect->matchable_bases,
                                 bam_read => $detect_mate,
@@ -1336,7 +1336,7 @@ sub determine_location_se {
                 } 
                 # Qual loc or rep in read
                 if ($self->give_qualloc || $self->give_rep_in_read) {
-                    my $detect = Bio::STR::Detection->new (repeat_unit => $rep_unit, sequence => $sequence); 
+                    my $detect = Bio::STR::exSTRa::Detection->new (repeat_unit => $rep_unit, sequence => $sequence); 
                     if ($self->give_qualloc) {
                         my $key;
                         my $qualloc = $detect->qualloc ($read_trim_static);
@@ -1360,7 +1360,7 @@ sub determine_location_se {
                         my $rir = $detect->rep_in_read ($read_trim_static);
                         # give the inferred strand of the detect read, not the anchor
                         if(defined($rir)) {
-                            my $rir_ob = STR::Rep_in_read->new (
+                            my $rir_ob = exSTRa::Rep_in_read->new (
                                 a => $rir->[0],
                                 b => $rir->[1],
                                 c => $rir->[2],
@@ -1380,7 +1380,7 @@ sub determine_location_se {
 
 sub _find_mate {
     # find the mate of a given read
-    # first argument is a Bio::DB::Bam::Alignment object (I think)
+    # first argument is a Bio::DB::HTS::Alignment object (I think)
     # second is a string variable, that will be modified
     my $read1 = $_[0];
     my $origin = \$_[1]; # can be un(mapped), mis(mapped), ok
@@ -1454,7 +1454,7 @@ sub _find_mate {
 
 ### 
 {
-package STR::Rep_in_read;
+package exSTRa::Rep_in_read;
 use Moose; 
 use namespace::autoclean;
 use autodie;
@@ -1475,7 +1475,7 @@ has 'strand' => (
 );
 
 has 'bam_read' => ( # keeps track of the read whose pair these values were generated from
-    isa => 'Bio::DB::Bam::AlignWrapper',
+    isa => 'Bio::DB::HTS::AlignWrapper',
     is => 'rw',
 );
 
@@ -1483,7 +1483,7 @@ has 'bam_read' => ( # keeps track of the read whose pair these values were gener
 
 ### 
 {
-package STR::Score;
+package exSTRa::Score;
 use Moose; 
 use namespace::autoclean;
 use autodie;
@@ -1499,7 +1499,7 @@ has [qw(mlength)] => ( # total number of bases we may start at
 );
 
 has 'bam_read' => ( # keeps track of the read whose pair these values were generated from
-    isa => 'Bio::DB::Bam::AlignWrapper',
+    isa => 'Bio::DB::HTS::AlignWrapper',
     is => 'rw',
 );
 
@@ -1510,5 +1510,7 @@ has 'mapped_origin' => ( # keeps track of origin of read
 );
 
 }
+
+
 1; # Exit success
 

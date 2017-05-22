@@ -7,7 +7,7 @@ Within read STR scoring. Gives a score as to the number of times the repeat unit
 =cut
 
 # Define a class to store our results
-package Bio::STR::Score;
+package Bio::STR::exSTRa::Score;
 use Data::Dumper;
 
 use 5.014;
@@ -17,9 +17,9 @@ use namespace::autoclean;
 use List::Util qw(max sum);
 
 # Types
-# TODO: can I put these into a single file for both Bio::STR and Bio::STR::Score
+# TODO: can I put these into a single file for both Bio::STR::exSTRa and Bio::STR::exSTRa::Score
 use Moose::Util::TypeConstraints;
-subtype 'Bio::STR::Score::Natural',
+subtype 'Bio::STR::exSTRa::Score::Natural',
     as 'Int',
     where { $_ > 0 };
 no Moose::Util::TypeConstraints;
@@ -65,7 +65,7 @@ has 'repeated_bases' => (
 
 has 'matchable_bases' => (
     # the maximum value that repeated_bases may take
-    isa => 'Bio::STR::Score::Natural',
+    isa => 'Bio::STR::exSTRa::Score::Natural',
     is => 'ro',
     writer => '_set_matchable_bases',
 );
