@@ -90,13 +90,13 @@ loci_text_info.exstra_db <- function(x, locus) {
 
 #' @export
 loci_normal <- function(x, locus) {
-  strloci_normal_exp (x, locus)[1]
+  loci_normal_exp (x, locus)[1]
 }
 
 #' @export
 loci_min_exp <- function(x, locus) {
   # Give the minimum expanded STR in bp
-  strloci_normal_exp (x, locus)[2]
+  loci_normal_exp (x, locus)[2]
 }
 
 #' @export
