@@ -1,0 +1,23 @@
+Build.PL
+lib/Bio/STR/exSTRa.pm
+lib/Bio/STR/exSTRa/Detection.pm
+lib/Bio/STR/exSTRa/Score.pm
+main/exSTRa_score.pl
+main/generating_counts.sh
+main/run_strexpansion_score.sh
+MANIFEST			This list of files
+prepare_BAMs.md
+README.md
+t/classify_bam_repeats.pl
+t/location_within_sequence.pl
+t/reads_from_SCA10_region.txt
+t/reads_of_SCA10_repeat.txt
+t/reads_of_SCA10_repeat.txt.inner.txt
+t/score_of_sequence.pl
+t/STR_test.pl
+t/test_repeats.txt
+t/test_repeats_ref_qualloc.txt
+t/test_repeats_ref_qualloc_location.txt
+t/test_repeats_reference.txt
+t/test_repeats_reference_original.txt
+t/within_read.pl

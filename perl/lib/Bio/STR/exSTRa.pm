@@ -21,7 +21,7 @@ use Carp;
 our(@ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS, $VERSION);
 
 use Exporter; 
-$VERSION = 0.02;
+$VERSION = 0.5;
 @ISA = qw(Exporter); 
 
 @EXPORT     = qw ();
