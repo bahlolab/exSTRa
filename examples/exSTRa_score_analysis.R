@@ -9,7 +9,7 @@ library(exSTRa)
 str_score <- exstra_score_read (
   file = system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa"), 
   #database = "data/repeat_disorders.xlsx", # for more control, use object from exstra_db_read() instead
-  database = "../disease_repeats/repeat_disorders_2017_04_26.xlsx",
+  database = "../disease_repeats/repeat_disorders_2017_05_18.xlsx",
   groups.regex = c(case = "^WGSrpt", control = "^WGSrpt_0[24]$"), # here, matches on successive patterns override previous matches # (TODO: maybe should be reversed?)
   filter.low.counts = TRUE
 )
