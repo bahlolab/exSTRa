@@ -6,7 +6,7 @@ library(exSTRa)
 # data.table() # handy if closer inspection of internal tables is required
 
 # Read score data and file with loci information
-str_score <- exstra_score_read (
+str_score <- read_score (
   file = system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa"), 
   #database = "data/repeat_disorders.xlsx", # for more control, use object from exstra_db_read() instead
   database = "../disease_repeats/repeat_disorders_2017_05_18.xlsx",
