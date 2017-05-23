@@ -1,7 +1,7 @@
 # load datasets
 
-#' @include exstra_db.R
-#' @include exstra_score.R
+#' @include CLASS_exstra_db.R
+#' @include CLASS_exstra_score.R
 
 #' @export
 # TODO: should be importing text file 
