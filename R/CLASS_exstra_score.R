@@ -172,7 +172,7 @@ plot.exstra_score <- function(rsc, locus = NULL, sample_col = NULL, refline = TR
         ...)
       grid(col = "grey80")
       if(refline) {
-        abline(v = strloci_normal_exp(rsc$db, locus.name), col = c("blue", "red"), lty = 3:4)
+        abline(v = loci_normal_exp(rsc$db, locus.name), col = c("blue", "red"), lty = 3:4)
       }
       black_trans <- rgb(0, 0, 0, alpha = alpha_control)
       if(is.null(sample_col)) {
