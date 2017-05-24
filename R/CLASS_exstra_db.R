@@ -1,6 +1,7 @@
 # The exstra_db class
 # Includes information on STRs, whether they are disease-causing or of a general nature
 
+
 # check if the object is of this class
 #' @import data.table
 #' @import stringr
@@ -120,3 +121,7 @@ copy.exstra_db <- function(x) {
 
 
 # TODO method for seqnames(exstra_db)
+
+#TODO length(exstra_db) =  number of loci
+
+#TODO dim(exstra_db) = dim(exstra_db$db)
