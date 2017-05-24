@@ -64,8 +64,8 @@ summary(tsum) # maybe? Not sure what this would do.
 #Maybe indication of significance? Samples that are significant? 
 # summarise each locus?
 # ideas for options:
-summary(tsum, fdr = 0.05) # by false discovery rate
-summary(tsum, p = 0.05)   # by raw p-value
+summary(tsum, fdr = 0.05)  # by false discovery rate
+summary(tsum, p = 0.05)    # by raw p-value
 summary(tsum, p_bf = 0.05) # by p-value with bonferroni correction
 
 

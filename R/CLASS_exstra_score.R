@@ -1,6 +1,8 @@
 # The exstra_score class
 # Holds scores that give the proportion of a read that matches a given repeat
 
+# TODO: inherit exstra_db, saving many rewriting of methods
+
 #' @import data.table
 #' @import stringr
 #' @import xlsx
@@ -205,3 +207,10 @@ copy.exstra_score <- function(x) {
   x$db <- copy(x$db)
   x
 }
+
+
+#TODO length(exstra_score) =  number of data points = length(exstra_score$data)
+
+#TODO dim(exstra_score) = c(#loci, #samples)
+
+
