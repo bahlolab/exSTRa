@@ -35,5 +35,7 @@ Maintainer: Who to complain to <tankard@wehi.edu.au>
 ~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
 }
 \examples{
-~~ simple examples of the most important functions ~~
+exstra_wgs_pcr_2["HD"]
+plot(exstra_wgs_pcr_2["HD"])
+
 }
