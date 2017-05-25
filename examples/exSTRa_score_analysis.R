@@ -37,6 +37,7 @@ plot(str_score, "HD", sample_col = c("WGSrpt_10" = "red", "WGSrpt_12" = "blue"))
 # also can take mfrow or mfcol (not both) to place plots in an nr-by-nc array
 exstra_mass_plot(str_score, dir = "PLACEHOLDER", file.base = "HiSeqXTen_WGS_PCR_2")
 
+( rbinding <- rbind_score_list(list(str_score[, 5], str_score[, 10])) )
 
 ## ---- Performing tests for expansions ----
 # here, the brackets mean the object is shown
