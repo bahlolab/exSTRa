@@ -1,4 +1,4 @@
-# Declaring generics
+# Declaring generic methods for S3 classes
 
 #' Return the loci of the selected object
 #' 

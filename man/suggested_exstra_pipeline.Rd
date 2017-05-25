@@ -2,7 +2,7 @@
 % Please edit documentation in R/suggested_exstra_pipeline.R
 \name{suggested_exstra_pipeline}
 \alias{suggested_exstra_pipeline}
-\title{Create graphs of the suggested pipeline}
+\title{Create a graph of the suggested pipeline}
 \usage{
 suggested_exstra_pipeline(file = NULL, show.with.file = FALSE)
 }
@@ -15,7 +15,7 @@ suggested_exstra_pipeline(file = NULL, show.with.file = FALSE)
 The loci of \code{x}.
 }
 \description{
-Create graphs of the suggested pipeline
+Create a graph of the suggested pipeline
 }
 \examples{
 suggested_exstra_pipeline()
