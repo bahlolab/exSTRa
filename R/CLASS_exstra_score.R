@@ -23,6 +23,7 @@ strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NUL
   # Add some info to the data
   if(!is.null(groups.regex)) {
     # using regex for groups
+    groups.regex <- rev(groups.regex) # we want the first argument of groups.regex to take priority, this behaviour replaces the old behaviour
     if(is.null(names(groups.regex))) {
       names(groups.regex) <- groups.regex
     }
