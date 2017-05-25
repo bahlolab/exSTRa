@@ -4,7 +4,7 @@
 
 # old name: rbind.exstra_score.list
 #' @export
-rbind_score_list <- function(strscore_list, idcol = "data_group", allow_sample_clash = FALSE) {
+rbind_score_list <- function(strscore_list, idcol = "data_group", allow_sample_clash = FALSE, ...) {
   assert("strscore_list must be a list", inherits(strscore_list, "list"))
   if(length(strscore_list) == 0) {
     stop("List is empty")
@@ -20,20 +20,20 @@ rbind_score_list <- function(strscore_list, idcol = "data_group", allow_sample_c
   
   # Could be written much better, all in one go here instead, rather than recursion
   
-  data.new <- rbindlist(lapply(strscore_list, function(x) { x$data }), idcol = idcol)
-  db.new.db <- rbindlist(lapply(strscore_list, function(x) { x$db$db }))
+  data.new <- rbindlist(lapply(strscore_list, function(x) { x$data }), idcol = idcol, ...)
+  db.new.db <- rbindlist(lapply(strscore_list, function(x) { x$db$db }), ...)
   setkey(db.new.db, locus)
   db.new.db <- unique(db.new.db)
-  db.new <- exstra_db(db.new.db, input_type = strscore_list[[1]]$db$input_type)
+  db.new <- exstra_db_new_(db.new.db, input_type = strscore_list[[1]]$db$input_type)
   new_strscore <- exstra_score_new_(data.new, db.new)
   new_strscore$samples <- rbindlist(lapply(strscore_list, function(x) { x$samples }), idcol = idcol, fill = TRUE)
   setkey(new_strscore$samples, sample)
-  if(!allow.sample.clash) {
+  if(!allow_sample_clash) {
     test <- table (new_strscore$samples$sample)
     if(max(test) > 1) {
       stop("A sample name is duplicated in inputs, for sample names: ", 
         paste(names(which(test > 1)), collapse = ", "), 
-        "\nSet allow.sample.clash = TRUE if this is ok. "
+        "\nSet allow_sample_clash = TRUE if this is ok. "
       )
     }
   }
@@ -41,6 +41,7 @@ rbind_score_list <- function(strscore_list, idcol = "data_group", allow_sample_c
 }
 
 # convinient version of rbind_exstra_score_list() without the use of lists
-rbind_score <- function(..., idcol = "data_group", allow_sample_clash = FALSE) {
-  rbind_exstra_score_list(list(...), idcol = idcol, allow_sample_clash = allow_sample_clash)
+#' @export
+rbind_score <- function(..., idcol = "data_group", allow_sample_clash = FALSE, fill = FALSE) {
+  rbind_exstra_score_list(list(...), idcol = idcol, allow_sample_clash = allow_sample_clash, fill = fill)
 }

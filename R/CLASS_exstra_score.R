@@ -84,7 +84,7 @@ exstra_score_new_ <- function(data, db) {
   samples$plotname <- NA_character_
   samples$sex <- factor(NA, c("male", "female"))
   setkey(samples, sample)
-  structure(list(data = data.table(data), db = db, samples = samples), class = c("exstra_score"))
+  structure(list(data = data.table(data), db = db, samples = samples), class = c("exstra_score")) #TODO also inherit from exstra_db
 }
 
 #' @export
