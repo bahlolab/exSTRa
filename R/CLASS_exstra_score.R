@@ -1,6 +1,8 @@
 # The exstra_score class
 # Holds scores that give the proportion of a read that matches a given repeat
 
+# TODO: inherit exstra_db, saving many rewriting of methods
+
 #' @import data.table
 #' @import stringr
 #' @import xlsx
@@ -21,6 +23,7 @@ strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NUL
   # Add some info to the data
   if(!is.null(groups.regex)) {
     # using regex for groups
+    groups.regex <- rev(groups.regex) # we want the first argument of groups.regex to take priority, this behaviour replaces the old behaviour
     if(is.null(names(groups.regex))) {
       names(groups.regex) <- groups.regex
     }
@@ -81,7 +84,7 @@ exstra_score_new_ <- function(data, db) {
   samples$plotname <- NA_character_
   samples$sex <- factor(NA, c("male", "female"))
   setkey(samples, sample)
-  structure(list(data = data.table(data), db = db, samples = samples), class = c("exstra_score"))
+  structure(list(data = data.table(data), db = db, samples = samples), class = c("exstra_score")) #TODO also inherit from exstra_db
 }
 
 #' @export
@@ -205,3 +208,10 @@ copy.exstra_score <- function(x) {
   x$db <- copy(x$db)
   x
 }
+
+
+#TODO length(exstra_score) =  number of data points = length(exstra_score$data)
+
+#TODO dim(exstra_score) = c(#loci, #samples)
+
+
