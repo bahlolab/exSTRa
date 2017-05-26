@@ -8,7 +8,7 @@
 
 #' @export
 # TODO: should be importing text file 
-exstra_known <- read_exstra_db(system.file("extdata", "repeat_disorders_2017_05_18_external.xlsx", package = "exSTRa"))
+exstra_known <- read_exstra_db(system.file("extdata", "exSTRa_repeat_disorders.xlsx", package = "exSTRa"))
 
 #' @export
 exstra_wgs_pcr_2 <- read_score (
