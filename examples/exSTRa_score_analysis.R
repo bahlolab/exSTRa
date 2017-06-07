@@ -8,7 +8,7 @@ library(exSTRa)
 # Read score data and file with loci information
 str_score <- read_score (
   file = system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa"), 
-  database = system.file("extdata", "exSTRa_repeat_disordersl.xlsx", package = "exSTRa"),  # for more control, use object from exstra_db_read() instead
+  database = system.file("extdata", "exSTRa_repeat_disorders.xlsx", package = "exSTRa"),  # for more control, use object from exstra_db_read() instead
   groups.regex = c(control = "^WGSrpt_0[24]$", case = ""), # here, matches on successive patterns override previous matches
   filter.low.counts = TRUE
 )
