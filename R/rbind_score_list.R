@@ -43,5 +43,5 @@ rbind_score_list <- function(strscore_list, idcol = "data_group", allow_sample_c
 # convinient version of rbind_exstra_score_list() without the use of lists
 #' @export
 rbind_score <- function(..., idcol = "data_group", allow_sample_clash = FALSE, fill = FALSE) {
-  rbind_exstra_score_list(list(...), idcol = idcol, allow_sample_clash = allow_sample_clash, fill = fill)
+  rbind_score_list(list(...), idcol = idcol, allow_sample_clash = allow_sample_clash, fill = fill)
 }
