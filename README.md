@@ -4,7 +4,6 @@
 expanded STR algorithm: detecting expansions with paired-end Illumina sequencing data. 
 
 
-
 # Structure
 At present, the pipeline requires:
 - Paired-end Illumina sequencing. Has been tested with some whole-exome sequencing, and whole-genome sequencing with and without PCR in the library preparation step. (Testing on single-end data has not occured, but we presume it would perform poorly due to the affect on alignment.)
