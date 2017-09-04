@@ -5,7 +5,6 @@
 # check if the object is of this class
 #' @import data.table
 #' @import stringr
-#' @import xlsx
 #' @import testit
 #' 
 #' @export
@@ -62,23 +61,23 @@ loci_text_info.exstra_db <- function(x, locus) {
     #TODO: this is wrong
     assert(paste("The locus", locus, "was not found"), dim(x.info)[1] >= 1)
     assert(paste("There were multiple entries for locus", locus), dim(x.info)[1] <= 1)
-    rs.len <- with(x.info, nchar(as.character(Repeat.sequence)))
-    normal.copyNum <- with(x.info, ifelse(is.null(read_detect_size), floor(copyNum), floor(read_detect_size / rs.len)))
-    normal.size.bp <- with(x.info, ifelse(is.null(read_detect_size), floor(copyNum * rs.len), read_detect_size))
+    rs.len <- with(x.info, nchar(as.character(motif)))
+    normal.copyNum <- with(x.info, floor(copyNum))
+    normal.size.bp <- with(x.info, floor(copyNum * rs.len))
     return(with(x.info,  
       paste0(locus, " (", 
-        Location.of.repeat.within.gene, " ", Repeat.sequence, ") norm: ", normal.copyNum, 
-        " (", normal.size.bp, "bp) , exp: ", rn.unst.low, " (", 
-        floor(rn.unst.low * rs.len), "bp)"))
+        location, " ", motif, ") norm: ", normal.copyNum, 
+        " (", normal.size.bp, "bp) , exp: ", norm_low, " (", 
+        floor(norm_low * rs.len), "bp)"))
     )
   } else if (x$input_type == "ucsc") {
     x.info <- x$db[locus.in == locus] 
     #TODO: this is wrong
     assert(paste("The locus", locus, "was not found"), dim(x.info)[1] >= 1)
     assert(paste("There were multiple entries for locus", locus), dim(x.info)[1] <= 1)
-    rs.len <- with(x.info, nchar(as.character(Repeat.sequence)))
-    #normal.copyNum <- with(x.info, ifelse(is.null(read_detect_size), floor(copyNum), floor(read_detect_size / rs.len)))
-    #normal.size.bp <- with(x.info, ifelse(is.null(read_detect_size), floor(copyNum * rs.len), read_detect_size))
+    rs.len <- with(x.info, nchar(as.character(motif)))
+    # normal.copyNum <- with(x.info, floor(copyNum))
+    # normal.size.bp <- with(x.info, floor(copyNum * rs.len))
     return(with(x.info,  
       paste0(locus))
     )

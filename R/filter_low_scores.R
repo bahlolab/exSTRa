@@ -3,7 +3,7 @@
 # the assumption each base in the sequence is uniform and independent.
 #' @export
 filter_low_scores  <- function(strscore) {
-  strscore$db$db[, unit_length := nchar(as.character(Repeat.sequence))]
+  strscore$db$db[, unit_length := nchar(as.character(motif))]
   # set score, want to remove scores that are smaller than expected by chance
   strscore$db$db[, min_score := unit_length / 4 ^ unit_length]
   small_db <- strscore$db$db[, list(locus, min_score)]

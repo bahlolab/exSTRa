@@ -11,9 +11,9 @@ loci_normal_exp <- function(x, locus) {
     #TODO: this is wrong
     assert(paste("The locus", locus, "was not found"), dim(x.info)[1] >= 1)
     assert(paste("There were multiple entries for locus", locus), dim(x.info)[1] <= 1)
-    rs.len <- with(x.info, nchar(as.character(Repeat.sequence)))
-    normal.copyNum <- with(x.info, ifelse(is.null(read_detect_size), floor(copyNum), floor(read_detect_size / rs.len)))
-    normal.size.bp <- with(x.info, ifelse(is.null(read_detect_size), floor(copyNum * rs.len), read_detect_size))
+    rs.len <- with(x.info, nchar(as.character(motif)))
+    # normal.copyNum <- with(x.info, floor(copyNum))
+    normal.size.bp <- with(x.info, floor(copyNum * rs.len))
     return(c(normal.size.bp, floor(x.info$rn.unst.low * rs.len)))
   } else if (x$input_type == "ucsc") {
     x.info <- x$db[locus.in == locus] 

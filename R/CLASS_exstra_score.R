@@ -5,7 +5,6 @@
 
 #' @import data.table
 #' @import stringr
-#' @import xlsx
 #' @import testit
 #' 
 #' @export
