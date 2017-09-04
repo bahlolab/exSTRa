@@ -63,12 +63,12 @@ loci_text_info.exstra_db <- function(x, locus) {
     assert(paste("There were multiple entries for locus", locus), dim(x.info)[1] <= 1)
     rs.len <- with(x.info, nchar(as.character(motif)))
     normal.copyNum <- with(x.info, floor(copyNum))
-    normal.size.bp <- with(x.info, floor(copyNum * rs.len))
+    normal.size.bp <- with(x.info, round(copyNum * rs.len))
     return(with(x.info,  
       paste0(locus, " (", 
-        location, " ", motif, ") norm: ", normal.copyNum, 
-        " (", normal.size.bp, "bp) , exp: ", norm_low, " (", 
-        floor(norm_low * rs.len), "bp)"))
+        gene_region, " ", motif, ") norm: ", normal.copyNum, 
+        " (", normal.size.bp, "bp) , exp: ", aff_low, " (", 
+        floor(aff_low * rs.len), "bp)"))
     )
   } else if (x$input_type == "ucsc") {
     x.info <- x$db[locus.in == locus] 
