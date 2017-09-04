@@ -5,7 +5,7 @@ Version: 0.8
 Date: 2017-09-04
 Author: Rick Tankard
 Maintainer: Rick Tankard <tankard@wehi.edu.au>
-Description: More about what it does (maybe more than one line)
+Description: Detecting expansions with paired-end Illumina sequencing data.
 License: GPL-2
 Imports: testit, data.table, stringr, reshape2
 Suggests: testthat
