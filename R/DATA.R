@@ -12,13 +12,14 @@
 # This needs to read from the package being installed
 cat(getwd(), "\n") #TODO remove this line
 
-#exstra_known <- read_exstra_db("../inst/extdata/repeat_expansion_disorders.txt")
-exstra_known <- read_exstra_db("inst/extdata/exSTRa_repeat_disorders.xlsx")
+exstra_known <- read_exstra_db("inst/extdata/repeat_expansion_disorders.txt")
+#exstra_known <- read_exstra_db("inst/extdata/exSTRa_repeat_disorders.xlsx")
 
 
 #' @export
 exstra_wgs_pcr_2 <- read_score (
-    system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa"),
+    #system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa"), # doesn't work before first install
+    "inst/extdata/HiSeqXTen_WGS_PCR_2.txt", 
     database = exstra_known,
     groups.regex = c(case = "^WGSrpt", control = "^WGSrpt_0[24]$"), # here, matches on successive patterns override previous matches # (TODO: maybe should be reversed?)
     filter.low.counts = TRUE
