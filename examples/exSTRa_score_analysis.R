@@ -1,5 +1,7 @@
 # An example of exSTRa usage, for known STR expansion disorder loci
 
+
+rm(list=ls())
 ## ---- strexpansion_prepare
 library(exSTRa)
 
