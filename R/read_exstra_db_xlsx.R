@@ -11,6 +11,7 @@ read_exstra_db_xlsx <- function(file, ...) {
   names(data)[which(names(data) == "hg19.chrom" | names(data) == "hg19_chr")] <- "chrom"
   names(data)[which(names(data) == "hg19.start.0" | names(data) == "repeat.start")] <- "chromStart"
   names(data)[which(names(data) == "hg19.end" | names(data) == "repeat.end")] <- "chromEnd"
+  names(data)[which(names(data) == "Repeat.sequence")] <- "motif"
   
   # give more verbose repeat number information
   data$rn.stab.low <- as.numeric(NA)
