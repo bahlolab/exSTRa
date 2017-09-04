@@ -21,6 +21,8 @@ Collate:
     'DATA.R'
     'GENERICS.R'
     'TRASH.R'
+    'Ttest.R'
+    'X_statistic.R'
     'add_alpha_.R'
     'filter_sex.R'
     'loci_normal_expansion.R'
