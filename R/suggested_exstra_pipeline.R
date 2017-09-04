@@ -7,7 +7,9 @@
 #' @param show.with.file If output to a file, determines whether to display in R also. Has no effect when file is NULL.
 #' @return The loci of \code{x}.
 #' @examples 
+#' \dontrun{
 #' suggested_exstra_pipeline()
+#' }
 #' @seealso \pkg{\link{DiagrammeR}}
 #' @seealso \pkg{\link{DiagrammeRsvg}}
 #' @export
