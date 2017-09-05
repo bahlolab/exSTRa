@@ -1,6 +1,12 @@
 ---
-title: "Plotting"
-output: html_document
+title: "Introduction to exSTRa"
+author: "Peter Degorski"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to exSTRa}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
@@ -15,9 +21,9 @@ Reading this will explain how to install, configure and use exSTRa to analyse WG
 
 * exSTRa comes in three bits. The first part of exSTRa is alignment where we process .fastq files into .BAM files. The specifications of which aligner to use and the options that optimise the software can be found  [here](https://github.com/bahlolab/Bio-STR-exSTRa/blob/master/prepare_BAMs.md).
 
-* The second part of exSTRa is to use a perl module to extract the relevant information from the reads. This relies on software that can be downloaded from [github](https://github.com/bahlolab/Bio-STR-exSTRa). Installation is a breeze, after the setup and installation of the Bio-STR-exSTRa script which involves the following steps.
+* The second part of exSTRa is to use a perl module to extract the relevant information from the reads. This relies on software that can be downloaded from [github](https://github.com/bahlolab/Bio-STR-exSTRa). Installation is a breeze, after the setup and installation of the Bio::STR::exSTRa script which involves the following steps.
 
-```{r Bio-STR-exSTRa, include=TRUE}
+```
 perl Build.PL
 ./Build
 ./Build test
@@ -30,7 +36,7 @@ Now that Bio-STR-exSTRa is installed find your way into the examples directory w
 
 The contents of the file should like similar to this. 
 
-```{r Bio-STR-exSTRa, include=TRUE}
+```
 locus   sample  rep     mlength QNAME
 SCA3    WGSrpt_15       85      150     ST-E00152:258:H7F3MALXX:4:2110:21186:49971
 SCA3    WGSrpt_15       35      150     ST-E00152:258:H7F3MALXX:4:1104:7050:12578
@@ -56,7 +62,7 @@ library(exSTRa)
 # Read score data and file with loci information
 str_score <- read_score (
   file = system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa"), 
-  database = "./data/repeat_disorders_2017_06_10.xlsx",
+  database = system.file("extdata", "repeat_expansion_disorders.txt", package = "exSTRa"),
   groups.regex = c(control = "^WGSrpt_0[24]$", case = ""), 
   filter.low.counts = TRUE
 )
