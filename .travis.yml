@@ -6,3 +6,9 @@ r:
 cache: packages
 
 warnings_are_errors: false
+
+r_packages:
+  - DiagrammeR
+
+r_github_packages:
+  - rich-iannone/DiagrammeRsvg
