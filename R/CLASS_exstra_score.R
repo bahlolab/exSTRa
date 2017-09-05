@@ -5,7 +5,6 @@
 
 #' @import data.table
 #' @import stringr
-#' @import xlsx
 #' @import testit
 #' 
 #' @export
@@ -84,20 +83,15 @@ exstra_score_new_ <- function(data, db) {
   samples$plotname <- NA_character_
   samples$sex <- factor(NA, c("male", "female"))
   setkey(samples, sample)
-  structure(list(data = data.table(data), db = db, samples = samples), class = c("exstra_score")) #TODO also inherit from exstra_db
+  structure(list(data = data.table(data), db = db$db, input_type = db$input_type, samples = samples), class = c("exstra_score", "exstra_db"))
 }
 
 #' @export
 print.exstra_score <- function(x, ...) {
-  cat(class(x)[1], " object with ", dim(x$data)[1], " observations of type ",  x$db$input_type, "($data),\n",
+  cat(class(x)[1], " object with ", dim(x$data)[1], " observations of type ",  x$input_type, "($data),\n",
     "  for ", dim(x$samples)[1], " samples. ($samples)\n",
-    "  Includes associated STR database of ", dim(x$db$db)[1], " loci. ($db)\n", 
+    "  Includes associated STR database of ", dim(x$db)[1], " loci. ($db)\n", 
     sep = "")
-}
-
-#' @export
-loci.exstra_score <- function(data) {  
-  loci(data$db)
 }
 
 #' @export
@@ -119,14 +113,14 @@ plot_names.exstra_score <- function(strscore, names) {
 `[.exstra_score` <- function(x, loc, samp) {
   assert("locus is not the key of x$data", key(x$data)[1] == "locus")
   assert("sample is not the key of x$samples", key(x$samples)[1] == "sample")
-  assert("locus not the key of x$db$db", key(x$db$db)[1] == "locus")
+  assert("locus not the key of x$db", key(x$db)[1] == "locus")
   if(!missing(loc)) {
-    x$db$db <- x$db$db[eval(substitute(loc))]
+    x$db <- x$db[eval(substitute(loc))]
   }
   if(!missing(samp)) {
     x$samples <- x$samples[eval(substitute(samp))]
   }
-  x$data <- x$data[x$db$db$locus][sample %in% x$samples$sample]
+  x$data <- x$data[x$db$locus][sample %in% x$samples$sample]
   x
 }
 
@@ -155,8 +149,8 @@ plot.exstra_score <- function(rsc, locus = NULL, sample_col = NULL, refline = TR
   for(locus.name in strlocis) {
     #strrir.trim <- trim.rep_in_read_data(strrir, trimming)
     for(xlinked in xlinked_loop) {
-      main.title <- paste(loci_text_info(rsc$db, locus.name), "score ECDF")
-      if(xlinked != "all" && grepl("X", str_score_fil$db$db[locus.name]$Gene.location)) {
+      main.title <- paste(loci_text_info(rsc, locus.name), "score ECDF")
+      if(xlinked != "all" && grepl("X", str_score_fil$db[locus.name]$Gene.location)) {
         plot_data <- str_filter_sex(rsc, xlinked, xlinked.safe)$data[locus == locus.name]
         main.title <- paste(main.title, paste0(xlinked, 's'))
       } else {
@@ -175,7 +169,7 @@ plot.exstra_score <- function(rsc, locus = NULL, sample_col = NULL, refline = TR
         ...)
       grid(col = "grey80")
       if(refline) {
-        abline(v = loci_normal_exp(rsc$db, locus.name), col = c("blue", "red"), lty = 3:4)
+        abline(v = loci_normal_exp(rsc, locus.name), col = c("blue", "red"), lty = 3:4)
       }
       black_trans <- rgb(0, 0, 0, alpha = alpha_control)
       if(is.null(sample_col)) {
@@ -198,14 +192,10 @@ plot.exstra_score <- function(rsc, locus = NULL, sample_col = NULL, refline = TR
 # TODO: easy renaming of samples
 
 #' @export
-loci_text_info.exstra_score <- function(x, ...) {
-  loci_text_info(x$db, ...)
-}
-
-#' @export
 copy.exstra_score <- function(x) {
   x$data <- copy(x$data)
   x$db <- copy(x$db)
+  x$input_type <- copy(x$input_type)
   x
 }
 

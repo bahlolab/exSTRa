@@ -8,7 +8,7 @@ library(exSTRa)
 # Read score data and file with loci information
 str_score <- read_score (
   file = system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa"), 
-  database = system.file("extdata", "exSTRa_repeat_disorders.xlsx", package = "exSTRa"),  # for more control, use object from exstra_db_read() instead
+  database = system.file("extdata", "repeat_expansion_disorders.txt", package = "exSTRa"),  # for more control, use object from read_exstra_db() instead
   groups.regex = c(control = "^WGSrpt_0[24]$", case = ""), # here, matches on successive patterns override previous matches
   filter.low.counts = TRUE
 )
@@ -82,3 +82,4 @@ summary(tsum, p_bf = 0.05) # by p-value with bonferroni correction
 tsum_performance(tsum) 
 # restricting to common SCAs and the similar Freidrich (sic) ataxia, likely to have been tested in SCA patients
 tsum_performance(tsum, neg_loci = c( "DRPLA", "SCA1", "SCA2", "SCA3", "SCA6", "SCA7", "SCA17", "FRDA"))
+
