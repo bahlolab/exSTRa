@@ -1,7 +1,7 @@
 # Functions likely of no use, poor performance
 
 
-#'
+#
 exstra_score_ks_tests <- function(rsc, locus = NULL, controls = c("control", "all")) {
   # Performs Kolmogorov-Smirnov Tests on samples, comparing to other samples
   #

@@ -5,37 +5,36 @@
 Expanded STR algorithm
 }
 \description{
-More about what it does (maybe more than one line)
-~~ A concise (1-5 lines) description of the package ~~
+Detecting expansions with paired-end Illumina sequencing data
 }
 \details{
 \tabular{ll}{
 Package: \tab exSTRa\cr
 Type: \tab Package\cr
-Version: \tab 0.7\cr
-Date: \tab 2014-07-02\cr
-License: \tab What license is it under?\cr
+Version: \tab 0.8\cr
+Date: \tab 2017-09-04\cr
+License: \tab GPL-2\cr
 }
-~~ An overview of how to use the package, including the most important functions ~~
+For an overview of how to use the package, see TODO. 
 }
 \author{
-Who wrote it
 
-Maintainer: Who to complain to <tankard@wehi.edu.au>
-~~ The author and/or maintainer of the package ~~
+Maintainer:  \email{tankard@wehi.edu.au}
+
 }
 \references{
-~~ Literature or other references for background information ~~
+Detecting known repeat expansions with standard protocol next generation sequencing, towards developing a single screening test for neurological repeat expansion disorders.
+Rick M. Tankard, Martin B. Delatycki, Paul J. Lockhart, Melanie Bahlo.
+bioRxiv 157792; June 2017. doi: \code{\link{https://doi.org/10.1101/157792}}
 }
-~~ Optionally other standard keywords, one per line, from file KEYWORDS in the R documentation ~~
-~~ directory ~~
 \keyword{ package }
 \seealso{
-~~ Optional links to other man pages, e.g. ~~
-~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
+Data must first be prepared from BAM/CRAM files with the Perl module 
+\code{\link[https://github.com/bahlolab/Bio-STR-exSTRa]{<Bio::STR::exSTR>}}.
 }
 \examples{
 exstra_wgs_pcr_2["HD"]
+
 plot(exstra_wgs_pcr_2["HD"])
 
 }
