@@ -4,7 +4,7 @@ loci_normal_exp <- function(x, locus) {
   if(is.element("strdata", class(x))) {
     x <- x$db
   }
-  assert("The class of x must be exstra_db or strdata", class(x) == "exstra_db")
+  assert("The class of x must inherit from exstra_db", inherits(x, "exstra_db"))
   locus.in <- locus
   if(x$input_type == "named") {
     x.info <-  x$db[locus.in == locus]
