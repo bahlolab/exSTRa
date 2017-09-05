@@ -5,6 +5,9 @@ r:
   - devel
 cache: packages
 
+env:
+  - _R_CHECK_FORCE_SUGGESTS_=FALSE
+
 warnings_are_errors: false
 
 r_packages:
