@@ -8,9 +8,11 @@ Maintainer: Rick Tankard <tankard@wehi.edu.au>
 Description: Detecting expansions with paired-end Illumina sequencing data.
 License: GPL-2
 Imports: testit, data.table, stringr, reshape2
-Suggests: testthat, DiagrammeR, DiagrammeRsvg, xlsx
+Suggests: testthat, DiagrammeR, DiagrammeRsvg, xlsx,
+    knitr,
+    rmarkdown
 RoxygenNote: 6.0.1
-Collate: 
+Collate:
     'CLASS_exstra_db.R'
     'CLASS_exstra_score.R'
     'filter_low_scores.R'
@@ -28,3 +30,4 @@ Collate:
     'loci_normal_expansion.R'
     'rbind_score_list.R'
     'suggested_exstra_pipeline.R'
+VignetteBuilder: knitr
