@@ -8,7 +8,7 @@ Maintainer: Rick Tankard <tankard@wehi.edu.au>
 Description: Detecting expansions with paired-end Illumina sequencing data.
 License: GPL-2
 Imports: testit, data.table, stringr, reshape2
-Suggests: testthat
+Suggests: testthat, DiagrammeR, DiagrammeRsvg, xlsx
 RoxygenNote: 6.0.1
 Collate: 
     'CLASS_exstra_db.R'
