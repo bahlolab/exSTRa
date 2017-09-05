@@ -9,7 +9,8 @@ read_score <- function(file, database, groups.regex = NULL, groups.samples = NUL
   out <- strs_read_(file, database, groups.regex, groups.samples, this.class = "exstra_score")
   # TODO: checks for this input
   out$data$prop <- with(out$data, rep / mlength)
-  strscore <- exstra_score_new_(out$data, out$db)
+  #strscore <- exstra_score_new_(out$data, out$db)
+  strscore <- exstra_score_new_(out$data, database)
   if(filter.low.counts) {
     # Filter low counts, assumed wanted by default
     strscore <- filter_low_scores(strscore)
