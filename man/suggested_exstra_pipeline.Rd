@@ -18,7 +18,9 @@ The loci of \code{x}.
 Create a graph of the suggested pipeline
 }
 \examples{
+\dontrun{
 suggested_exstra_pipeline()
+}
 }
 \seealso{
 \pkg{\link{DiagrammeR}}

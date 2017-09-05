@@ -16,7 +16,7 @@ read_exstra_db_ucsc <- function(file, header = F, ...) {
   }
   assert("The column classes of the UCSC file are not as expected. Are you sure you are supplying a UCSCS file and that the header setting is correct?", prod(sapply(data, class) == col.classes) == 1)
   data$locus <- with(data, paste0(chrom, ":", chromStart + 1, "-", chromEnd, ":", sequence))
-  data$Repeat.sequence <- data$sequence
+  data$motif <- data$sequence
   data <- data.table(data)
   data <- data[nchar(sequence) >= 2 & nchar(sequence) <= 6]
   exstra_db_new_(data, "ucsc")

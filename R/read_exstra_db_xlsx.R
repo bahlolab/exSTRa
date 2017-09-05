@@ -1,6 +1,6 @@
 read_exstra_db_xlsx <- function(file, ...) {
   if (!is.character(file)) stop("file must be character")
-  data <- read.xlsx(file, 1, stringsAsFactors = FALSE, ...)
+  data <- xlsx::read.xlsx(file, 1, stringsAsFactors = FALSE, ...)
   assert("xlsx requires Disease or locus column", ! is.null(data$Disease) || ! is.null(data$locus))
   if(is.null(data$Disease)) {
     assert("xlsx requires Disease or locus column", ! is.null(data$locus))
@@ -11,6 +11,7 @@ read_exstra_db_xlsx <- function(file, ...) {
   names(data)[which(names(data) == "hg19.chrom" | names(data) == "hg19_chr")] <- "chrom"
   names(data)[which(names(data) == "hg19.start.0" | names(data) == "repeat.start")] <- "chromStart"
   names(data)[which(names(data) == "hg19.end" | names(data) == "repeat.end")] <- "chromEnd"
+  names(data)[which(names(data) == "Repeat.sequence")] <- "motif"
   
   # give more verbose repeat number information
   data$rn.stab.low <- as.numeric(NA)
