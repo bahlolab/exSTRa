@@ -3,7 +3,7 @@ library(truncnorm)
 source("R/Ttest.R")
 
 # Data munging
-#htresh <- .5
+htresh <- .5
 
 str_score <- read_score (
   file = system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa"), 
@@ -18,6 +18,7 @@ str_score <- read_score (
 
 
 # Reads in each quantiles
+# RICK: I have no idea what htresh is here
 df_real <- df_real_f(str_score,htresh)
 # T test added to data frame
 str_score_real <- T_test(df_real,str_score)
@@ -31,6 +32,7 @@ I=0
 B=20
 
 str_score_p <- str_score
+# RICK: to work out why pvalues go from 1 to 100, without apparent respect to the data?
 pvalue <- seq(1,100,length.out = dim(str_score_p$data)[1])
 str_score_p$data <- cbind(str_score_p$data,pvalue)
 

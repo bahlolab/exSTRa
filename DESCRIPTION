@@ -12,7 +12,7 @@ Suggests: testthat, DiagrammeR, DiagrammeRsvg, xlsx,
     knitr,
     rmarkdown
 RoxygenNote: 6.0.1
-Collate:
+Collate: 
     'CLASS_exstra_db.R'
     'CLASS_exstra_score.R'
     'filter_low_scores.R'
@@ -25,6 +25,8 @@ Collate:
     'DATA.R'
     'GENERICS.R'
     'TRASH.R'
+    'Ttest.R'
+    'X_statistic.R'
     'add_alpha_.R'
     'filter_sex.R'
     'loci_normal_expansion.R'
