@@ -18,6 +18,7 @@ Collate:
     'TRASH.R'
     'add_alpha_.R'
     'exstra_known.R'
+    'exstra_wgs_pcr_2.R'
     'filter_low_scores.R'
     'filter_sex.R'
     'loci_normal_expansion.R'
