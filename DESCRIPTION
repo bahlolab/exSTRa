@@ -10,6 +10,7 @@ License: GPL-2
 Imports: testit, data.table, stringr, reshape2
 Suggests: testthat, DiagrammeR, DiagrammeRsvg, xlsx
 RoxygenNote: 6.0.1
+LazyData: true
 Collate: 
     'CLASS_exstra_db.R'
     'CLASS_exstra_score.R'
@@ -26,5 +27,7 @@ Collate:
     'add_alpha_.R'
     'filter_sex.R'
     'loci_normal_expansion.R'
+    'munoz_rueda_al1.R'
+    'private_functions.R'
     'rbind_score_list.R'
     'suggested_exstra_pipeline.R'
