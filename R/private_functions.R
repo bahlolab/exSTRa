@@ -983,7 +983,7 @@ sd_of_trimmed <- function(...) {
 # This also passes remaining options onto quant_statistic() and quant_statistic_sampp()
 simulation_run <- function(data, B = 99, trim = 0.15, ...) {
   N <- data$samples[, .N]
-  L <- data$db$db[, .N]
+  L <- data$db[, .N]
   p.matrix <- matrix(nrow = N, ncol = L)
   rownames(p.matrix) <- data$samples$sample
   colnames(p.matrix) <- strloci(data)
