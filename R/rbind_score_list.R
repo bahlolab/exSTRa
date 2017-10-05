@@ -4,6 +4,14 @@
 
 # old name: rbind.exstra_score.list
 #' @export
+#' Combine multiple exSTRa data objects
+#' 
+#' @param strscore_list A list containing exstra_score objects.
+#' @param idcol The name of the column giving the names of strscore_list in the output.
+#' @param allow_sample_clash If TRUE, allows a sample name to occur multiple times in the exstra_score objects, otherwise duplicates cause an error. 
+#' @param ... Additional arguments to rbindlist().
+#' @return An exstra_score object.
+#' @examples
 rbind_score_list <- function(strscore_list, idcol = "data_group", allow_sample_clash = FALSE, ...) {
   assert("strscore_list must be a list", inherits(strscore_list, "list"))
   if(length(strscore_list) == 0) {
