@@ -340,7 +340,7 @@ sample_safe <- function(x, size, replace = FALSE, ...) {
       }
     }
   }
-  sample(x, size, replace = FALSE, ...)
+  sample(x, size, replace = replace, ...)
 }
 
 make_quantiles_matrix <- function(strscore, loc = TRUE, sample = NULL, read_count_quant = 1, 
