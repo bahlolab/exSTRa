@@ -40,8 +40,6 @@ exstra_mass_plot(str_score, dir = "PLACEHOLDER", file.base = "HiSeqXTen_WGS_PCR_
 
 ## ---- Performing tests for expansions ----
 # here, the brackets mean the object is shown
-(Ts <- T_test(str_score))
-# or
 (tsum <- tsum_test(str_score))
 # output example (not implemented):
 # 
