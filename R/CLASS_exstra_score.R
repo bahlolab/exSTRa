@@ -1,5 +1,5 @@
 # The exstra_score class
-# Holds scores that give the proportion of a read that matches a given repeat
+# Holds scores that give the proportion of a read that matches a given repeat.
 
 # TODO: inherit exstra_db, saving many rewriting of methods
 
@@ -63,7 +63,7 @@ strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NUL
 }
 
 
-#' @export
+#'
 exstra_score_new_ <- function(data, db) {
   assert("data must be of class data.frame", inherits(data, "data.frame"))
   assert("db must be of class exstra_db", inherits(db, "exstra_db"))
