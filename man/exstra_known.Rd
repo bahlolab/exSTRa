@@ -10,7 +10,13 @@
   \item{input_type}{Indication that the loci are referred to by name (as opposed to genomic position)}
 }}
 \source{
-\url{http://www.biorxiv.org/content/early/2017/06/30/157792}
+Rick M. Tankard, Martin B. Delatycki, Paul J. Lockhart, 
+        Melanie Bahlo. 
+        Detecting known repeat expansions with standard protocol next generation 
+        sequencing, towards developing a single screening test for neurological repeat 
+        expansion disorders. 
+        \emph{bioRxiv} 157792; 
+        doi: \url{https://doi.org/10.1101/157792}
 }
 \usage{
 exstra_known
