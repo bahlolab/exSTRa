@@ -3,16 +3,46 @@
 # TODO: can roxygen make this the one man page?
 
 # old name: rbind.exstra_score.list
-#' @export
-#' Combine multiple exSTRa data objects
+#' Combine multiple exSTRa data objects.
+#' 
+#' @aliases rbind_score
 #' 
 #' @param strscore_list A list containing exstra_score objects.
+#' @param ... exstra_score objects to combine.
 #' @param idcol The name of the column giving the names of strscore_list in the output.
-#' @param allow_sample_clash If TRUE, allows a sample name to occur multiple times in the exstra_score objects, otherwise duplicates cause an error. 
-#' @param ... Additional arguments to rbindlist().
+#' @param allow_sample_clash If TRUE, allows a sample name to occur multiple times in the 
+#'         exstra_score objects, otherwise duplicates cause an error.
+#' @param fill If TRUE, missing columns are filled with NAs. Default FALSE. 
 #' @return An exstra_score object.
+#' 
+#' @seealso \code{\link[data.table]{rbindlist}}
+#' 
 #' @examples
-rbind_score_list <- function(strscore_list, idcol = "data_group", allow_sample_clash = FALSE, ...) {
+#' # create a list of distinct samples
+#' score_list <- list(group1 = exstra_wgs_pcr_2[, "WGSrpt_20"], 
+#'                    controls = exstra_wgs_pcr_2[, c("WGSrpt_02", "WGSrpt_04")],
+#'                    group2 = exstra_wgs_pcr_2[, c("WGSrpt_15", "WGSrpt_16")]
+#'                   )
+#' combined_scores <- rbind_score_list(score_list)
+#' combined_scores$samples
+#' 
+#' # Without using a list:
+#' rbind_score(group1 = exstra_wgs_pcr_2[, "WGSrpt_20"], 
+#'             controls = exstra_wgs_pcr_2[, c("WGSrpt_02", "WGSrpt_04")],
+#'             group2 = exstra_wgs_pcr_2[, c("WGSrpt_15", "WGSrpt_16")]
+#'             )$samples
+#' 
+#' # Combining with a repeated sample name, possibly due to multiple experiments.
+#' # Splitting data for this example:
+#' score_1 <- exstra_wgs_pcr_2["DM1", "WGSrpt_15"]
+#' score_2 <- exstra_wgs_pcr_2["HD", "WGSrpt_15"]
+#' # Combine with the sample name repeated across exstra_score objects:
+#' rbind_score_list(list(score_1, score_2), allow_sample_clash = TRUE)
+#' # or
+#' rbind_score(score_1, score_2, allow_sample_clash = TRUE)
+#' @export
+rbind_score_list <- function(strscore_list, idcol = "data_group", 
+  allow_sample_clash = FALSE, fill = FALSE) {
   assert("strscore_list must be a list", inherits(strscore_list, "list"))
   if(length(strscore_list) == 0) {
     stop("List is empty")
@@ -28,8 +58,8 @@ rbind_score_list <- function(strscore_list, idcol = "data_group", allow_sample_c
   
   # Could be written much better, all in one go here instead, rather than recursion
   
-  data.new <- rbindlist(lapply(strscore_list, function(x) { x$data }), idcol = idcol, ...)
-  db.new.db <- rbindlist(lapply(strscore_list, function(x) { x$db }), ...)
+  data.new <- rbindlist(lapply(strscore_list, function(x) { x$data }), idcol = idcol, fill = fill)
+  db.new.db <- rbindlist(lapply(strscore_list, function(x) { x$db }), fill = fill)
   setkey(db.new.db, locus)
   db.new.db <- unique(db.new.db)
   db.new <- exstra_db_new_(db.new.db, input_type = strscore_list[[1]]$input_type)
@@ -49,6 +79,7 @@ rbind_score_list <- function(strscore_list, idcol = "data_group", allow_sample_c
 }
 
 # convinient version of rbind_exstra_score_list() without the use of lists
+#' @rdname rbind_score_list
 #' @export
 rbind_score <- function(..., idcol = "data_group", allow_sample_clash = FALSE, fill = FALSE) {
   rbind_score_list(list(...), idcol = idcol, allow_sample_clash = allow_sample_clash, fill = fill)
