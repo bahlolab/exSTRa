@@ -14,6 +14,7 @@ LazyData: true
 Collate: 
     'CLASS_exstra_db.R'
     'CLASS_exstra_score.R'
+    'CLASS_exstra_tsum.R'
     'GENERICS.R'
     'TRASH.R'
     'add_alpha_.R'
