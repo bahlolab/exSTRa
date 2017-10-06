@@ -5,17 +5,21 @@
 # old name: rbind.exstra_score.list
 #' Combine multiple exSTRa data objects.
 #' 
-#' @aliases rbind_score
+#' Allows data from multiple \code{exstra_score} objects to be combined, similarly to
+#' \code{\link[data.table]{rbindlist}} (data.table) and \code{\link[base]{rbind}}.
+#' The \code{exstra_score} objects may either be given directly to \code{rbind_score}, or
+#' as a list to \code{rbind_score_list} that is easier to use when the number of objects
+#' to combine is not known in advance. 
 #' 
-#' @param strscore_list A list containing exstra_score objects.
-#' @param ... exstra_score objects to combine.
-#' @param idcol The name of the column giving the names of strscore_list in the output.
+#' @param strscore_list A list containing \code{exstra_score} objects.
+#' @param ... \code{exstra_score} objects to combine.
+#' @param idcol The name of the column giving the names of \code{strscore_list} in the output.
 #' @param allow_sample_clash If TRUE, allows a sample name to occur multiple times in the 
-#'         exstra_score objects, otherwise duplicates cause an error.
+#'         \code{exstra_score} objects, otherwise duplicates cause an error.
 #' @param fill If TRUE, missing columns are filled with NAs. Default FALSE. 
 #' @return An exstra_score object.
 #' 
-#' @seealso \code{\link[data.table]{rbindlist}}
+#' @seealso \code{\link[data.table]{rbindlist}}, \code{\link[base]{rbind}}
 #' 
 #' @examples
 #' # create a list of distinct samples
