@@ -42,7 +42,7 @@ plot_many_str_score <- function(strscore, typename, plot_cols, loci = NULL,
     dir.create(paste0(dirbase, typename), recursive = TRUE)
   }
   if(is.null(loci)) {
-    loci <- strloci(strscore)
+    loci <- loci(strscore)
   }
   for(i in plottypes) {
     if(i == 2) { pdf(paste0(dirbase, typename, ".pdf"), useDingbats=FALSE) }
@@ -92,7 +92,7 @@ str_score_wmw <- function(strscore, quant = 0.5, B = NULL, loci = NULL, ncpus = 
   t.test = FALSE, seed = 8109587) {
   # B = NULL for no permutation testing
   if(is.null(loci)) {
-    loci <- strloci(strscore)
+    loci <- loci(strscore)
   }
   set.seed(seed)
   score_ps <- matrix(nrow = length(strscore$samples$sample), ncol = length(loci))
@@ -254,10 +254,10 @@ analyse_str_score_mw <- function(strscore, plot_cols, filebase = c(), actual = N
   score_p %>% as.vector %>% hist(20, main = "Histogram of all loci")
   dev.off()
   
-  for(loc in strloci(strscore)) {
+  for(loc in loci(strscore)) {
     pdf(paste0(dirbase_ext, "/histogram-", filebase, "-", loc, ".pdf"), useDingbats=FALSE)
     score_p[, loc] %>% as.vector %>% hist(20, 
-      main = paste("Histogram of", strloci_text_info(strscore, loc)),
+      main = paste("Histogram of", loci_text_info(strscore, loc)),
       cex.main = cex.main.hist)
     #abline(v = 0.05 / length(score_ps), col = "blue")
     dev.off()
@@ -588,7 +588,7 @@ generate_T_stat_performance <- function(strscore, actual, main = NULL, pdfout = 
   # main: title for the ROC curve
   # pdfout, if specified, the plot is written to this path in PDF format
   T_stats_list <- list()
-  for(loc in strloci(strscore)) {
+  for(loc in loci(strscore)) {
     qm <- make_quantiles_matrix(strscore, loc = loc, sample = NULL, read_count_quant = 1, 
       method = "quantile7", min.n = 3)
     T_stats_loc <- quant_statistic_sampp(qm, quant = quant, trim = trim) # quant at default of 0.5
@@ -857,7 +857,7 @@ midpoint_removal_imputing <- function(strscore, method, sort.in.original = TRUE,
   # before calculating differences
   assert("Not strdata", is.strdata(strscore))
   quantile_diff <- data.table()
-  for(loc in strloci(strscore)) {
+  for(loc in loci(strscore)) {
     for(samp in strscore$samples$sample) {
       loc_data <- strscore[loc, samp]
       if(loc_data$data[, .N] < 5) {
@@ -986,7 +986,7 @@ simulation_run <- function(data, B = 99, trim = 0.15, ...) {
   L <- data$db[, .N]
   p.matrix <- matrix(nrow = N, ncol = L)
   rownames(p.matrix) <- data$samples$sample
-  colnames(p.matrix) <- strloci(data)
+  colnames(p.matrix) <- loci(data)
   qmmats <- list()
   xecs <- list()
   for(loc in colnames(p.matrix)) {

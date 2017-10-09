@@ -1,20 +1,19 @@
-# Generate T sum statistic and associated p-values
-
+#' Generate T sum statistics and p-values from simulation. 
+#' 
+#' When applied to an exstra_score object, T sum statistics are calculated as described
+#' in Tankard et al. 
+#' May also be applied on a pre-existing exstra_tsum that will regenerate the values.
+#' 
 #' @import data.table
 #' @import stringr
 #' @import testit
 #' @import parallel
-
-#' Generate T sum statistics and p-values from simulation. 
-#' 
-#' When applied to an \code{exstra_score} object, T sum values are calculated. 
-#' May also be applied on a pre-existing \code{exstra_tsum} that will regenerate the values.
-#' 
 #' @export
 tsum_test <- function(strscore, give.pvalue = TRUE, B = 1000, 
   parallel = FALSE, # TRUE for cluster
   cluster = NULL,
-  trim = 0.15) 
+  trim = 0.15,
+  quant = 0.5) 
 {
   # Check inputs
   assert("strscore should be from class exstra_score", is.exstra_score(strscore))
@@ -23,7 +22,7 @@ tsum_test <- function(strscore, give.pvalue = TRUE, B = 1000,
   
   # Generate T sum statistic
   T_stats_list <- list()
-  for(loc in strloci(strscore)) {
+  for(loc in loci(strscore)) {
     qm <- make_quantiles_matrix(strscore, loc = loc, sample = NULL, read_count_quant = 1, 
       method = "quantile7", min.n = 3)
     T_stats_loc <- quant_statistic_sampp(qm, quant = quant, trim = trim) # quant at default of 0.5
@@ -56,3 +55,8 @@ tsum_test <- function(strscore, give.pvalue = TRUE, B = 1000,
   # Prepare output
   exstra_tsum_new_(strscore, T = T, pvals = pvals)
 }
+
+# test code:
+# tsum_test(exstra_wgs_pcr_2["HD"], give.pvalue = FALSE)
+
+
