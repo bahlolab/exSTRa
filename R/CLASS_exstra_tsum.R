@@ -49,26 +49,19 @@ print.exstra_tsum <- function(x, ...) {
 # brackets [, ]
 #' @export
 `[.exstra_tsum` <- function(x, loc, samp) {
-  assert("locus is not the key of x$data", key(x$data)[1] == "locus")
-  assert("locus is not the key of x$T", key(x$T)[1] == "locus")
-  assert("sample is not the key of x$samples", key(x$samples)[1] == "sample")
-  assert("locus not the key of x$db", key(x$db)[1] == "locus")
-  if(!missing(loc)) {
-    x$db <- x$db[eval(substitute(loc))]
-  }
-  if(!missing(samp)) {
-    x$samples <- x$samples[eval(substitute(samp))]
-  }
-  x$data <- x$data[x$db$locus][sample %in% x$samples$sample]
-  x$T <- x$T[x$db$locus][sample %in% x$samples$sample]
-  x
-}
-
-
-`[.exstra_tsum` <- function(x, loc, samp) {
   assert("locus is not the key of x$T", key(x$T)[1] == "locus")
   # recycle code for exstra_score:
-  x <- `[.exstra_score`(x, eval(substitute(loc)), eval(substitute(sample)))
+  if(missing(loc)) {
+    if(!missing(samp)) {
+      x <- `[.exstra_score`(x, , eval(substitute(samp)))
+    }
+  } else {
+    if(missing(samp)) {
+      x <- `[.exstra_score`(x, eval(substitute(loc)))
+    } else {
+      x <- `[.exstra_score`(x, eval(substitute(loc)), eval(substitute(samp)))
+    }
+  }
   x$T <- x$T[x$db$locus][sample %in% x$samples$sample]
   x
 }

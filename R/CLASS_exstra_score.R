@@ -91,7 +91,7 @@ print.exstra_score <- function(x, ...) {
   cat(class(x)[1], " object with ", dim(x$data)[1], " observations of type ",  x$input_type, " ($data),\n",
     "  for ", dim(x$samples)[1], " samples. ($samples)\n",
     "  Includes associated STR database of ", 
-       dim(x$db)[1], ifelse(dim(x$db)[1] == 1, "locus", "loci"), ". ($db)\n", 
+       dim(x$db)[1], ifelse(dim(x$db)[1] == 1, " locus", " loci"), ". ($db)\n", 
     sep = "")
 }
 
