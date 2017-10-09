@@ -33,3 +33,4 @@ Collate:
     'read_exstra_db.R'
     'read_score.R'
     'suggested_exstra_pipeline.R'
+    'tsum_test.R'

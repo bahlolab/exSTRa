@@ -6,16 +6,14 @@
 # Only subsetting may be done by locus. (TODO: maybe not so restrictive, but see what works best)
 
 
+#' Check if an object is an instance of the exstra_tsum class.
+#' 
+#' Checks for the class attribute only. 
+#' Does not check for correctness. 
+#' 
 #' @import data.table
 #' @import stringr
 #' @import testit
-#' 
-
-#' Check if an object is an instance of the exstra_tsum class.
-#' 
-#' Checks for the \code{class} attribute only. 
-#' Does not check for correctness. 
-#' 
 #' @export
 is.exstra_tsum <- function(x) inherits(x, "exstra_tsum")
 
@@ -34,4 +32,3 @@ exstra_tsum_new_ <- function(strscore, T, pvals) {
     ), 
     class = c("exstra_tsum", "exstra_score", "exstra_db"))
 }
-
