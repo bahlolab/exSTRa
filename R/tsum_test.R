@@ -13,7 +13,7 @@ tsum_test <- function(strscore, give.pvalue = TRUE, B = 1000,
   parallel = FALSE, # TRUE for cluster
   cluster = NULL,
   trim = 0.15,
-  quant = 0.5) 
+  min.quant = 0.5) 
 {
   # Check inputs
   assert("strscore should be from class exstra_score", is.exstra_score(strscore))
@@ -30,8 +30,6 @@ tsum_test <- function(strscore, give.pvalue = TRUE, B = 1000,
   }
   T_stats <- rbindlist(T_stats_list, idcol = "locus")
   
-  
-  T <- NULL
   # Generate p-values (if applicable)
   if(give.pvalue) {
     pvals <- tryCatch(
@@ -53,7 +51,7 @@ tsum_test <- function(strscore, give.pvalue = TRUE, B = 1000,
     pvals <- NULL
   }
   # Prepare output
-  exstra_tsum_new_(strscore, T = T, pvals = pvals)
+  exstra_tsum_new_(strscore, T = T_stats, p = pvals)
 }
 
 # test code:

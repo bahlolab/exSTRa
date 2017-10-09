@@ -21,6 +21,7 @@ is.exstra_tsum <- function(x) inherits(x, "exstra_tsum")
 #' Create a new exstra_tsum object.
 exstra_tsum_new_ <- function(strscore, T, pvals) {
   assert("strscore should be from class exstra_score", is.exstra_score(strscore))
+  setkey(T, locus, sample)
   structure(
     list(
       data = strscore$data, 
@@ -31,4 +32,43 @@ exstra_tsum_new_ <- function(strscore, T, pvals) {
       p.values = pvals
     ), 
     class = c("exstra_tsum", "exstra_score", "exstra_db"))
+}
+
+
+#' @export
+print.exstra_tsum <- function(x, ...) {
+  cat(class(x)[1], " object with ", 
+    dim(x$T)[1], " T sum statistics ($T),\n  ",
+    ifelse(is.null(x$p), "without p-values", "with p-values calculated ($p)"), ",\n",
+    "  over ", dim(x$db)[1], ifelse(dim(x$db)[1] == 1, "locus", "loci"), ". ($db)\n",
+    sep = "")
+}
+
+
+#TODO:
+# brackets [, ]
+#' @export
+`[.exstra_tsum` <- function(x, loc, samp) {
+  assert("locus is not the key of x$data", key(x$data)[1] == "locus")
+  assert("locus is not the key of x$T", key(x$T)[1] == "locus")
+  assert("sample is not the key of x$samples", key(x$samples)[1] == "sample")
+  assert("locus not the key of x$db", key(x$db)[1] == "locus")
+  if(!missing(loc)) {
+    x$db <- x$db[eval(substitute(loc))]
+  }
+  if(!missing(samp)) {
+    x$samples <- x$samples[eval(substitute(samp))]
+  }
+  x$data <- x$data[x$db$locus][sample %in% x$samples$sample]
+  x$T <- x$T[x$db$locus][sample %in% x$samples$sample]
+  x
+}
+
+
+`[.exstra_tsum` <- function(x, loc, samp) {
+  assert("locus is not the key of x$T", key(x$T)[1] == "locus")
+  # recycle code for exstra_score:
+  x <- `[.exstra_score`(x, eval(substitute(loc)), eval(substitute(sample)))
+  x$T <- x$T[x$db$locus][sample %in% x$samples$sample]
+  x
 }
