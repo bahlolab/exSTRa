@@ -8,6 +8,7 @@
 #' @import stringr
 #' @import testit
 #' @import parallel
+#' @import magrittr
 #' @export
 tsum_test <- function(strscore, 
   trim = 0.15,
@@ -15,7 +16,8 @@ tsum_test <- function(strscore,
   give.pvalue = TRUE, 
   B = 1000, 
   parallel = FALSE, # TRUE for cluster
-  cluster = NULL,
+  cluster = NULL, # a PSOCK cluster created by the parallel package. If NULL, then the
+                  # cluster is automatically created.
   cluster_n = NULL # cluster size if cluster == NULL, when NULL, #threads - 1 (but always at least 1)
   ) 
 {
@@ -37,8 +39,17 @@ tsum_test <- function(strscore,
   # Generate p-values (if applicable)
   if(give.pvalue) {
     if(parallel && is.null(cluster_n)) {
+      # Set the number of cores, max threads - 1 (but at least 1)
       cluster_n <- max(1, detectCores(all.tests = FALSE, logical = TRUE) - 1)
     }
+    if(parallel && is.null(cluster)) {
+      # create the cluster, just once
+      cluster <- makePSOCKcluster(cluster_n)
+      cluster_stop <- TRUE
+    } else {
+      cluster_stop <- FALSE
+    }
+    
     sim.results <- tryCatch(
       simulation_run(strscore, 
         B = B, 
@@ -60,16 +71,26 @@ tsum_test <- function(strscore,
         }
     )
     pvals <- sim.results$p.matrix
+    
+    if(parallel && cluster_stop) {
+      # stop the cluster that we created
+      stopCluster(cluster)
+    }
   } else {
     sim.results <- NULL
     pvals <- NULL
   }
   # Prepare output
-  exstra_tsum_new_(strscore, T = T_stats, p = pvals, 
+  exstra_tsum_new_(strscore, T = T_stats, p.values = pvals, 
     qmats = sim.results$qmmats, xecs = sim.results$xecs)
 }
 
 # test code:
-# tsum_test(exstra_wgs_pcr_2["HD"], give.pvalue = FALSE)
+# exp_test <- tsum_test(exstra_wgs_pcr_2[c("HD", "SCA6")], B = 50)
+#
+# exp_test_parallel <- tsum_test(exstra_wgs_pcr_2[c("HD", "SCA6")], parallel = TRUE)
+#
+# exp_test_parallel <- tsum_test(exstra_wgs_pcr_2, parallel = TRUE)
 
+# exp_test_all <- tsum_test(exstra_wgs_pcr_2)
 
