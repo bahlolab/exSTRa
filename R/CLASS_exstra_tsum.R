@@ -19,7 +19,7 @@ is.exstra_tsum <- function(x) inherits(x, "exstra_tsum")
 
 
 #' Create a new exstra_tsum object.
-exstra_tsum_new_ <- function(strscore, T, pvals) {
+exstra_tsum_new_ <- function(strscore, T, pvals = NULL, qmats = NULL, xecs = NULL) {
   assert("strscore should be from class exstra_score", is.exstra_score(strscore))
   setkey(T, locus, sample)
   structure(
@@ -29,7 +29,9 @@ exstra_tsum_new_ <- function(strscore, T, pvals) {
       input_type = strscore$input_type, 
       samples = strscore$samples,
       T = T,
-      p.values = pvals
+      p.values = pvals,
+      qmats = qmats, 
+      xecs = xecs
     ), 
     class = c("exstra_tsum", "exstra_score", "exstra_db"))
 }
@@ -39,7 +41,7 @@ exstra_tsum_new_ <- function(strscore, T, pvals) {
 print.exstra_tsum <- function(x, ...) {
   cat(class(x)[1], " object with ", 
     dim(x$T)[1], " T sum statistics ($T),\n  ",
-    ifelse(is.null(x$p), "without p-values", "with p-values calculated ($p)"), ",\n",
+    ifelse(is.null(x$p), "without p-values", "with p-values calculated ($p.values)"), ",\n",
     "  over ", dim(x$db)[1], ifelse(dim(x$db)[1] == 1, "locus", "loci"), ". ($db)\n",
     sep = "")
 }
