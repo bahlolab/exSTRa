@@ -69,7 +69,7 @@ plot_many_str_score <- function(strscore, typename, plot_cols, loci = NULL,
       leg_labels <- names(plot_cols_this)
       #if(length(plot_cols_this) != length(plot_cols)) {
       if(!is.null(alpha_case)) {
-        plot_cols_this <- strexpansion::add.alpha(plot_cols_this, alpha_case)
+        plot_cols_this <- exSTRa::add.alpha(plot_cols_this, alpha_case)
       }
       if(legend_control && length(plot_cols_this) != strscore[loc]$samples[, .N]) {
         leg_labels <- c(leg_labels , controls_label)
@@ -738,7 +738,7 @@ simulate_ecdf_quant_statistic <- function(qmmat, B = 9999, trim = 0.15,
     }
     # Load required functions onto cluster nodes
     clusterEvalQ(cluster, { 
-      library(strexpansion); 
+      library(exSTRa); 
       library(testit); 
       library(data.table);
       library(magrittr)

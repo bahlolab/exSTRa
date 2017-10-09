@@ -19,7 +19,7 @@ is.exstra_tsum <- function(x) inherits(x, "exstra_tsum")
 
 
 #' Create a new exstra_tsum object.
-exstra_tsum_new_ <- function(strscore, T, pvals = NULL, qmats = NULL, xecs = NULL) {
+exstra_tsum_new_ <- function(strscore, T, p.values = NULL, qmats = NULL, xecs = NULL) {
   assert("strscore should be from class exstra_score", is.exstra_score(strscore))
   setkey(T, locus, sample)
   structure(
@@ -29,7 +29,7 @@ exstra_tsum_new_ <- function(strscore, T, pvals = NULL, qmats = NULL, xecs = NUL
       input_type = strscore$input_type, 
       samples = strscore$samples,
       T = T,
-      p.values = pvals,
+      p.values = p.values,
       qmats = qmats, 
       xecs = xecs
     ), 
