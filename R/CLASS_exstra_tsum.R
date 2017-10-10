@@ -19,7 +19,8 @@ is.exstra_tsum <- function(x) inherits(x, "exstra_tsum")
 
 
 #' Create a new exstra_tsum object.
-exstra_tsum_new_ <- function(strscore, T, p.values = NULL, qmats = NULL, xecs = NULL) {
+exstra_tsum_new_ <- function(strscore, T, p.values = NULL, 
+    qmats = NULL, xecs = NULL, args = NULL) {
   assert("strscore should be from class exstra_score", is.exstra_score(strscore))
   setkey(T, locus, sample)
   structure(
@@ -31,7 +32,8 @@ exstra_tsum_new_ <- function(strscore, T, p.values = NULL, qmats = NULL, xecs = 
       T = T,
       p.values = p.values,
       qmats = qmats, 
-      xecs = xecs
+      xecs = xecs,
+      args = args
     ), 
     class = c("exstra_tsum", "exstra_score", "exstra_db"))
 }
@@ -41,9 +43,53 @@ exstra_tsum_new_ <- function(strscore, T, p.values = NULL, qmats = NULL, xecs = 
 print.exstra_tsum <- function(x, ...) {
   cat(class(x)[1], " object with ", 
     dim(x$T)[1], " T sum statistics ($T),\n  ",
-    ifelse(is.null(x$p), "without p-values", "with p-values calculated ($p.values)"), ",\n",
-    "  over ", dim(x$db)[1], ifelse(dim(x$db)[1] == 1, "locus", "loci"), ". ($db)\n",
+    ifelse(is.null(x$p.values), "without p-values", "with p-values calculated ($p.values)"), ",\n",
+    "  over ", dim(x$db)[1], ifelse(dim(x$db)[1] == 1, " locus", " loci"), ". ($db)\n",
     sep = "")
+  
+  if(! is.null(x$p.values)) {
+  # exSTRa T := sum of two sample t-tests
+  #        
+  #                  Raw           Bonferroni (sic) correction 
+  # N_p_0.0001:      8             5
+  # N_p_0.001:       4             6
+  # N_p_0.01:        20            5
+  # N_p_0.05:        45            10
+  # N_p_remainder:   280           320
+  # data: str_score
+  # N_samples = 18
+  # N_loci = 21
+  # N_statistics = 378 - N_NA = 370
+  # trim = 0.2
+  # 
+  cat("\n    T sum statistics summary:\n")
+  cat("    exSTRa T := sum of two sample t-tests\n\n")
+  
+  cat("Alternative hypotheses: subject sample has a larger allele than background samples.\n\n")
+  # not.signif <- matrix(TRUE, nrow = dim(x$p.values)[1], ncol = dim(x$p.values)[2])
+  # not.signif.bf <- matrix(TRUE, nrow = dim(x$p.values)[1], ncol = dim(x$p.values)[2])
+  # for(alpha in c(0.0001, 0.001, 0.01, 0.05)) {
+  #   is.sig.at.this.level <- not.signif & (x$p.values <= alpha)
+  #   is.sig.at.this.level.bf <- not.signif.bf & (x$p.values<= alpha / sum(!is.na(x$p.values)))
+  #   cat(alpha, "    ", sum(is.sig.at.this.level.bf, na.rm = TRUE), "    ", sum(is.sig.at.this.level, na.rm = TRUE), "\n") 
+  # }
+  summary_x <- tsum_p_value_summary(x)
+  cat("alpha  Bonferroni unadjusted\n")
+  for(i in seq_len(summary_x[, .N])) {
+    cat(sprintf("%-6g % 10d % 10d", summary_x[i, 1], as.integer(summary_x[i, 2]), as.integer(summary_x[i, 3])), "\n")
+  }
+  
+  # data: str_score
+  cat("\n")
+  cat("Number of samples:", x$samples[, .N], "\n")
+  cat("Number of loci:   ", x$db[, .N], "\n")
+  cat("Defined p-values: ", sum(!is.na(x$p.values)), "\n")
+  cat("NA p-values:      ", sum(is.na(x$p.values)), "\n")
+  cat("Function arguments: trim = ", x$args$trim, 
+    ", min.quant = ", x$args$min.quant, 
+    ", B = ", x$args$B, 
+    "\n", sep = "")
+  }
 }
 
 
