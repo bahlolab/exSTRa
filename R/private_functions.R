@@ -990,7 +990,7 @@ simulation_run <- function(data, B = 99, trim = 0.15, ...) {
   qmmats <- list()
   xecs <- list()
   for(loc in colnames(p.matrix)) {
-    cat("Simulating distribution for", loc, "\n")
+    message("Simulating distribution for ", loc)
     qm_loop <- make_quantiles_matrix(data, loc, read_count_quant = 1, 
       method = "quantile7", min.n = 3)
     xec <- simulate_ecdf_quant_statistic(qm_loop, B, ...)
