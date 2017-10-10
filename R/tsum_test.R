@@ -4,6 +4,39 @@
 #' in Tankard et al. 
 #' May also be applied on a pre-existing exstra_tsum that will regenerate the values.
 #' 
+#' @param strscore An exstra_score object.
+#' @param trim Trim this proportion of data points at each quantile 
+#'             level (rounded up). Must be at least 0 and less than 0.5, but values close
+#'             to 0.5 may remove all samples and hence result in an error.  
+#' @param min.quant Only quantiles above this value are used in constructing the statistic.  
+#' @param give.pvalue Whether to calculate the p-value. As this can be slow it can be
+#'                    useful to turn off if only the t sum statistics are required. 
+#' @param B Number of simulations in calculating null distributions. The denominator will
+#'          be B + 1, hence values of B = 10^i - 1 will result in p-values that are 
+#'          decimal fractions. 
+#' @param parallel Use the parallel package when simulating the distribution, creating the
+#'                 required cluster. 
+#'                 If cluster is specified then this option makes no difference. 
+#' @param cluster_n If parallel is TRUE, then the number of nodes in the cluster is 
+#'                  automatically set as 1 less than those available on your machine. 
+#'                  (but never less than 1). This option allows manual setting of the 
+#'                  number of nodes, either less to free up other resources, or more to 
+#'                  maximize available resources. 
+#'                 If cluster is specified then this option makes no difference.
+#' @param cluster  A cluster object from the parallel package. Use if you wish to set up 
+#'                 the cluster yourself or reuse an existing cluster. 
+#' @return An exstra_tsum object with T statistics and p-values (if calculated).
+#' 
+#' @seealso \code{\link{tsum_p_value_summary}}
+#' 
+#' 
+#' @examples 
+#' exp_test <- tsum_test(exstra_wgs_pcr_2[c("HD", "SCA6")], B = 50)
+#' exp_test
+#'
+#' exp_test_parallel <- tsum_test(exstra_wgs_pcr_2[c("HD", "SCA6")], parallel = TRUE, B = 999)
+#' exp_test_parallel
+#'
 #' @import data.table
 #' @import stringr
 #' @import testit
@@ -16,9 +49,9 @@ tsum_test <- function(strscore,
   give.pvalue = TRUE, 
   B = 9999, 
   parallel = FALSE, # TRUE for cluster
-  cluster = NULL, # a PSOCK cluster created by the parallel package. If NULL, then the
-                  # cluster is automatically created.
-  cluster_n = NULL # cluster size if cluster == NULL, when NULL, #threads - 1 (but always at least 1)
+  cluster_n = NULL, # cluster size if cluster == NULL, when NULL, #threads - 1 (but always at least 1)
+  cluster = NULL # a created by the parallel package. If NULL and parallel == TRUE, then a
+                  # PSOCK cluster is automatically created with the parallel package.
   ) 
 {
   # Check inputs
@@ -31,7 +64,7 @@ tsum_test <- function(strscore,
   assert("parallel should be logical.", is.logical(parallel), !is.na(parallel))
   assert("When specified, cluster should be a cluster object from the parallel package.", 
     is.null(cluster) || inherits(cluster, "cluster"))
-  assert("cluster_n should be at least 1 and a whole-number.", cluster_n >= 1)
+  assert("cluster_n should be at least 1 and a whole-number.", is.null(cluster_n) || cluster_n >= 1)
   
   if(parallel) {
     n_cores <- detectCores(all.tests = FALSE, logical = TRUE)
@@ -46,6 +79,11 @@ tsum_test <- function(strscore,
         message(warn.message)
       }
     }
+  }
+  
+  if(inherits(cluster, "cluster")) {
+    # as a cluster has been given, assume we actually do want to use the parallel package
+    parallel <- TRUE
   }
   
   # Generate T sum statistic
