@@ -29,19 +29,28 @@
 #' 
 #' @seealso \code{\link{tsum_p_value_summary}}
 #' 
+#' @references 
+#'         Rick M. Tankard, Martin B. Delatycki, Paul J. Lockhart, 
+#'         Melanie Bahlo. 
+#'         Detecting known repeat expansions with standard protocol next generation 
+#'         sequencing, towards developing a single screening test for neurological repeat 
+#'         expansion disorders. 
+#'         \emph{bioRxiv} 157792; 
+#'         doi: \url{https://doi.org/10.1101/157792}
 #' 
 #' @examples 
 #' exp_test <- tsum_test(exstra_wgs_pcr_2[c("HD", "SCA6")], B = 50)
 #' exp_test
 #'
+#' \dontrun{
 #' exp_test_parallel <- tsum_test(exstra_wgs_pcr_2[c("HD", "SCA6")], parallel = TRUE, B = 999)
 #' exp_test_parallel
-#'
+#' }
+#' 
 #' @import data.table
 #' @import stringr
 #' @import testit
 #' @import parallel
-#' @import magrittr
 #' @export
 tsum_test <- function(strscore, 
   trim = 0.15,
