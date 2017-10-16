@@ -9,7 +9,7 @@ At present, the pipeline requires:
 - Paired-end Illumina sequencing. Has been tested with some whole-exome sequencing, and whole-genome sequencing with and without PCR in the library preparation step. (Testing on single-end data has not occured, but we presume it would perform poorly due to the affect on alignment.)
 - Alignment with bowtie2 in local mode (may work for other aligners and settings, not extensively tested due to computational time)
 - Sorting 
-- PCR duplicate marking
+- PCR duplicate marking (recommended)
 
 A database of repeats is required, with known disorder loci included.
 

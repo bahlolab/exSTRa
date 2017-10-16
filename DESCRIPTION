@@ -24,6 +24,7 @@ Collate:
     'filter_sex.R'
     'loci_normal_expansion.R'
     'munoz_rueda_al1.R'
+    'plot_multi.R'
     'private_functions.R'
     'rbind_score_list.R'
     'read_exstra_db_txt_guesser.R'
