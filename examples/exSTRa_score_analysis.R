@@ -40,29 +40,9 @@ exstra_mass_plot(str_score, dir = "PLACEHOLDER", file.base = "HiSeqXTen_WGS_PCR_
 
 ## ---- Performing tests for expansions ----
 # here, the brackets mean the object is shown
-(Ts <- T_test(str_score))
-# or
-(tsum <- tsum_test(str_score))
-# output example (not implemented):
-# 
-# exSTRa T := sum of two sample t-tests
-#        
-#                  Raw           Bonferroni (sic) correction 
-# N_p_0.0001:      8             5
-# N_p_0.001:       4             6
-# N_p_0.01:        20            5
-# N_p_0.05:        45            10
-# N_p_remainder:   280           320
-# data: str_score
-# N_samples = 18
-# N_loci = 21
-# N_statistics = 378 - N_NA = 370
-# trim = 0.2
-# alternative hypotheses: subject sample has a larger allele than background samples
+# We use the parallel package to use threads up to one less than available.
+(tsum <- tsum_test(str_score_three, parallel = TRUE))
 
-summary(tsum) # maybe? Not sure what this would do. 
-#Maybe indication of significance? Samples that are significant? 
-# summarise each locus?
 # ideas for options:
 summary(tsum, fdr = 0.05)  # by false discovery rate
 summary(tsum, p = 0.05)    # by raw p-value
