@@ -70,6 +70,8 @@ rbind_score_list <- function(strscore_list, idcol = "data_group",
   new_strscore <- exstra_score_new_(data.new, db.new)
   new_strscore$samples <- rbindlist(lapply(strscore_list, function(x) { x$samples }), idcol = idcol, fill = TRUE)
   setkey(new_strscore$samples, sample)
+  setkey(new_strscore$data, locus, sample)
+  setkey(new_strscore$db, locus)
   if(!allow_sample_clash) {
     test <- table (new_strscore$samples$sample)
     if(max(test) > 1) {

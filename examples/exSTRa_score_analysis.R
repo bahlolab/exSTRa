@@ -34,7 +34,8 @@ plot(str_score, "HD", sample_col = c("WGSrpt_10" = "red", "WGSrpt_12" = "blue"))
 # Most options not shown here should be passed onto plot.exstra_score() (equivalent to plot() on str_score)
 # Without a file.base or directory, should just plot many ECDFs to the R device
 # also can take mfrow or mfcol (not both) to place plots in an nr-by-nc array
-exstra_mass_plot(str_score, dir = "PLACEHOLDER", file.base = "HiSeqXTen_WGS_PCR_2")
+par(mfrow = c(2,2))
+plot_multi(str_score_three, dir = "PLACEHOLDER", file.base = "HiSeqXTen_WGS_PCR_2")
 
 ( rbinding <- rbind_score_list(list(str_score[, 5], str_score[, 10])) )
 
