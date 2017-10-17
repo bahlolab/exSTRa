@@ -125,7 +125,7 @@ plot_names.exstra_score <- function(strscore, names) {
   }
   x$data <- x$data[x$db$locus][sample %in% x$samples$sample]
   setkey(x$data, locus, sample)
-  x
+  x[]
 }
 
 #' @export

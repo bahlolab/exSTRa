@@ -5,7 +5,8 @@
 * Plotting p-value distribution.
 * Plotting T statistic distribution.
 * Make qqplot method. 
+* tsum bracket method
 
 Low priority
-* Performance results of tsum_test when truth is known.
+* Performance results of tsum_test when truth is known. (make column: str_score$samples$pos_control)
 
