@@ -7,7 +7,7 @@ add_alpha_ <- function(col, alpha = 1){
   if(missing(col))
     stop("Please provide a vector of colours.")
   if(length(col) == 0) {
-    stop("col is of length 0")
+    return(col)
   }
   apply(sapply(col, col2rgb)/255, 2, 
     function(x) 

@@ -39,7 +39,10 @@ plot_many_str_score <- function(strscore, typename, plot_cols, loci = NULL,
   #TODO: check that sample names are correct
   # legend_custom, a named vector of colors for the legend
   if(any(is.element(plottypes, 2:3))) {
-    dir.create(paste0(dirbase, typename), recursive = TRUE)
+    # dir.create(paste0(dirbase, typename), recursive = TRUE)
+    # The version below is more intuitive for other users
+    dir.create(dirbase, recursive = TRUE)
+    
   }
   if(is.null(loci)) {
     loci <- loci(strscore)
@@ -69,7 +72,7 @@ plot_many_str_score <- function(strscore, typename, plot_cols, loci = NULL,
       leg_labels <- names(plot_cols_this)
       #if(length(plot_cols_this) != length(plot_cols)) {
       if(!is.null(alpha_case)) {
-        plot_cols_this <- exSTRa::add.alpha(plot_cols_this, alpha_case)
+        plot_cols_this <- add_alpha_(plot_cols_this, alpha_case)
       }
       if(legend_control && length(plot_cols_this) != strscore[loc]$samples[, .N]) {
         leg_labels <- c(leg_labels , controls_label)
