@@ -6,7 +6,7 @@
 #' @export
 plot_multi <- function(strscore,
   prefix = "exSTRa_plot",
-  dirbase = "images/", 
+  dir = "images/", 
   plot_cols = NULL, # list of the color of samples of each locus. Or just a named vector of colours to use for all loci. 
   color_only = NULL, # list (name = locus) of samples to color at each locus
   plottypes = 1, # 1 to current device, 2 to a single PDF file with multiple pages, 3 to individual PDF files per locus.
@@ -15,7 +15,7 @@ plot_multi <- function(strscore,
   legend = TRUE, 
   legend_control = TRUE, 
   controls_label = "controls", 
-  custom_legend = NULL, 
+  custom_legend = NULL, # a named (sample) vector of colors, for the legend
   ... # further plot arguments
 ) {
   
@@ -30,7 +30,7 @@ plot_multi <- function(strscore,
     loci = NULL, 
     color_only = color_only, 
     plottypes = plottypes, 
-    dirbase = dirbase, 
+    dirbase = paste0(dir, "/"), 
     alpha_control = alpha_control, 
     alpha_case = alpha_case,
     legend = legend, 

@@ -117,11 +117,14 @@ plot_names.exstra_score <- function(strscore, names) {
   assert("locus not the key of x$db", key(x$db)[1] == "locus")
   if(!missing(loc)) {
     x$db <- x$db[eval(substitute(loc))]
+    setkey(x$db, locus)
   }
   if(!missing(samp)) {
     x$samples <- x$samples[eval(substitute(samp))]
+    setkey(x$samples, sample)
   }
   x$data <- x$data[x$db$locus][sample %in% x$samples$sample]
+  setkey(x$data, locus, sample)
   x
 }
 
@@ -178,7 +181,7 @@ plot.exstra_score <- function(rsc, locus = NULL, sample_col = NULL, refline = TR
         names(sample_col) <- rsc$samples$sample
       } 
       if(!is.null(alpha_case)) {
-        sample_col <- add.alpha(sample_col, alpha_case)
+        sample_col <- add_alpha_(sample_col, alpha_case)
       }
       for(samp in c(setdiff(unique(plot_data$sample), names(sample_col)), intersect(unique(plot_data$sample), names(sample_col)))) {
         plot(ecdf(plot_data[sample == samp, rep]), add = T, col = replace(sample_col[samp], is.na(sample_col[samp]), black_trans), verticals = verticals,
