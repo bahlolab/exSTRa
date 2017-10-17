@@ -92,6 +92,54 @@ print.exstra_tsum <- function(x, ...) {
   }
 }
 
+#' Plot exstra_tsum, highlighting significant results
+#' 
+#' Plot the significant results of a tsum
+#' 
+#' @param tsum An exstra_tsum object.
+#' @param locus Character vector of locus or loci to plot.
+#' @param sample_col Named (samples) vector of charcters defining colors. 
+#' @param ... further arguments to plot.exstra_score
+#' 
+#' @seealso plot.exstra_score
+#' 
+#' @export
+plot.exstra_tsum <- function(tsum, locus = NULL, sample_col = NULL, 
+  correction = "bf", controls_label = "Not significant", ...) {
+  # check input
+  assert("tsum should be an exstra_tsum object.", is.exstra_tsum(tsum))
+  if(!is.null(locus)) {
+    assert("locus should be a character vector", is.vector(locus), is.character(locus))
+    # only work on loci we want to plot
+    tsum <- tsum[locus]
+  }
+  if(!is.null(sample_col)) {
+    assert("sample_col should be a character vector", is.vector(sample_col), 
+      is.character(sample_col))
+  }
+  
+  # construct colours
+  ps <- p_values(tsum, correction = correction, only.signif = TRUE)
+  significant_sample_colours <- list()
+  for(loc in loci(tsum)) {
+    # TODO
+    ps
+    if(is.null(sample_col)) {
+      
+    } else {
+      
+    }
+    significant_sample_colours[[loc]] <- NULL # TODO
+  }
+  
+  # Do the plot:
+  # TODO: as.exstra_score(tsum)
+  plot_many_str_score(as.exstra_score(tsum), locus = locus, 
+    sample_col = significant_sample_colours, 
+    controls_label = controls_label, ...)
+  # legend:
+  # TODO
+}
 
 #TODO:
 # brackets [, ]
@@ -99,6 +147,7 @@ print.exstra_tsum <- function(x, ...) {
 `[.exstra_tsum` <- function(x, loc, samp) {
   assert("locus is not the key of x$T", key(x$T)[1] == "locus")
   # recycle code for exstra_score:
+  stop("The square bracket function of exstra_tsum objects is not yet written.")
   if(missing(loc)) {
     if(!missing(samp)) {
       x <- `[.exstra_score`(x, , eval(substitute(samp)))
