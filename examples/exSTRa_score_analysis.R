@@ -48,25 +48,18 @@ data_13 <- str_score[, "WGSrpt_13"]
 # We use the parallel package to use threads up to one less than available.
 (tsum <- tsum_test(str_score_three, parallel = TRUE))
 
+# Plotting tsum only highlights significant samples
+# TODO:
+plot(tsum)
 
-# summarise each locus?
-# ideas for options:
-summary(tsum, fdr = 0.05)  # by false discovery rate
-summary(tsum, p = 0.05)    # by raw p-value
-summary(tsum, p_bf = 0.05) # by p-value with bonferroni correction
+# Give a table of each sample and locus with the p-value, and if it is significant:
+(ps <- p_values(tsum))
 
+# this may be acted on directly: 
+ps[identity(signif)]
+# or with the only.signif option:
+p_values(tsum, only.signif = TRUE)
 
-# if you have positive controls, then if these are specified in
-# str_score$samples$pos_control as:
-# "LOC" or "LOC1,LOC2,...": where LOC is the locus of a diagnosed expansion in that patient  
-#                           Use a comma delimited list for more than one locus
-# str_score$samples$neg_control
-# "-": confirmed as a negative control for all loci, or can refer to a specific list for
-#     all samples str_score$negative_control_loci
-# "LOC" or "LOC1,LOC2,...": where LOC[#] are negatively tested loci
-# NA for unknown samples
-# ROC curves, AUC:
-tsum_performance(tsum) 
-# restricting to common SCAs and the similar Freidrich (sic) ataxia, likely to have been tested in SCA patients
-tsum_performance(tsum, neg_loci = c( "DRPLA", "SCA1", "SCA2", "SCA3", "SCA6", "SCA7", "SCA17", "FRDA"))
-
+# Give the best hit(s) for each sample:
+# TODO:
+best_hits(tsum)
