@@ -72,5 +72,7 @@ ps[identity(signif)]
 p_values(tsum, only.signif = TRUE)
 
 # Give the best hit(s) for each sample:
-# TODO:
-best_hits(tsum)
+# TODO: what is best for display may not be the best for internal representation. 
+#       For now may keep this as best for display and inspection, while users who wish to 
+#       filter should use the p_values() function on an exstra_tsum object
+# best_hits(tsum)
