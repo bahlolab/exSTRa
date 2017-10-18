@@ -4,7 +4,8 @@
 #' 
 #' @param tsum An exstra_tsum object
 #' @param correction Correction method to use. Use "bf" or TRUE for Bonferroni correction, and 
-#'                   "uncorrected" or FALSE for no correction. ("bonferroni" is also acceptable). 
+#'                   "uncorrected" or FALSE for no correction. ("bonferroni" is also acceptable).
+#'                   "locus" is Bonferroni correction by locus.
 #'                   
 #' @param alpha Significance level alpha.
 #' @param only.sig If TRUE, only return significant results.
@@ -15,7 +16,7 @@
 #' @export
 p_values <- function(
   tsum, 
-  correction = c("bf", "uncorrected"),
+  correction = c("bf", "locus", "uncorrected"),
   alpha = 0.05,
   only.signif = FALSE
   ) {
@@ -37,6 +38,10 @@ p_values <- function(
     out.table[, signif := p.value <= alpha / tsum$n_tests ]
   } else if ((is.logical(correction[1]) && ! correction[1]) || correction[1] == "uncorrected") {
     out.table[, signif := p.value <= alpha ]
+  } else if (correction[1] == "locus") {
+    out.table[!is.na(p.value), N := .N, by = locus]
+    out.table[, signif := p.value <= alpha / N ]
+    out.table[, N := NULL]
   } else {
     stop("Unknown correction method ", correction[1])
   }

@@ -82,18 +82,17 @@ print.exstra_tsum <- function(x, ...) {
   
   # data: str_score
   cat("\n")
-  cat("Bonferroni n:     ", x$n_tests, "\n")
   cat("Number of samples:", x$samples[, .N], "\n")
   cat("Number of loci:   ", x$db[, .N], "\n")
   cat("Defined p-values: ", sum(!is.na(x$p.values)), "\n")
   cat("NA p-values:      ", sum(is.na(x$p.values)), "\n")
+  if(x$n_tests != sum(!is.na(x$p.values))) {
+    cat("Pre-extracted tests:", x$n_tests, "\n")
+  }
   cat("Function arguments: trim = ", x$args$trim, 
     ", min.quant = ", x$args$min.quant, 
     ", B = ", x$args$B, 
     "\n", sep = "")
-  if(x$n_tests != sum(!is.na(x$p.values))) {
-    cat('Note that "Bonferroni n" != "Defined p-values" due to extraction from a larger object.\n')
-  }
   }
 }
 
@@ -124,6 +123,7 @@ plot.exstra_tsum <- function(tsum, loci = NULL, sample_col = NULL,
   if(!is.null(sample_col)) {
     assert("sample_col should be a character vector", is.vector(sample_col), 
       is.character(sample_col))
+    assert("sample_col should be named", !is.null(names(sample_col)))
   }
   
   # construct colours
@@ -137,9 +137,10 @@ plot.exstra_tsum <- function(tsum, loci = NULL, sample_col = NULL,
       this.ps <- ps[loc][identity(signif)]
       this.sample_col[ this.ps[, sample]] <- rainbow(this.ps[, .N])
     } else {
-      this.sample_col <- sample_col
+      #this.sample_col <- sample_col
       # the following may not work due to factors of samples, check this!
       this.ps <- ps[loc][identity(signif)] # TODO: this may be repeated
+      # This is better:
       this.sample_col <- sample_col[this.ps[, sample]]
     }
     significant_sample_colours[[loc]] <- this.sample_col
