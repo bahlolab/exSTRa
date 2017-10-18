@@ -19,7 +19,7 @@ tsum_p_value_summary <- function(tsum,
   # 
   output <- data.table(alpha = c(p, 1, NA))
   ps <- c(-0.1, p, 1)
-  ps.bf <- c(-0.1, p / sum(!is.na(tsum$p.values)), 1)
+  ps.bf <- c(-0.1, p / tsum$n_tests, 1)
   if(bonferroni) {
     output$bf <- 0L
     tab <- table(.bincode(tsum$p.values, ps.bf), useNA = "always")

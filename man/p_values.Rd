@@ -10,8 +10,8 @@ p_values(tsum, correction = c("bf", "uncorrected"), alpha = 0.05,
 \arguments{
 \item{tsum}{An exstra_tsum object}
 
-\item{correction}{Correction method to use. Use "bf" for Bonferroni correction, and 
-"uncorrected" for no correction. ("bonferroni" is also acceptable)}
+\item{correction}{Correction method to use. Use "bf" or TRUE for Bonferroni correction, and 
+"uncorrected" or FALSE for no correction. ("bonferroni" is also acceptable).}
 
 \item{alpha}{Significance level alpha.}
 

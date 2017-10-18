@@ -20,7 +20,7 @@ str_score
 # plot(str_score)
 
 # restrict to only three interesting loci, for simplicity here:
-( str_score_three <- str_score[c("HD", "SCA6", "FRDA")] )
+( str_score_four <- str_score[c("HD", "SCA2", "SCA6", "FRDA")] )
 
 # Plot the HD locus only:
 plot(str_score["HD"])
@@ -46,11 +46,18 @@ data_13 <- str_score[, "WGSrpt_13"]
 ## ---- Performing tests for expansions ----
 # here, the brackets mean the object is shown
 # We use the parallel package to use threads up to one less than available.
-(tsum <- tsum_test(str_score_three, parallel = TRUE))
+(tsum <- tsum_test(str_score_four, parallel = TRUE))
 
 # Plotting tsum only highlights significant samples
-# TODO:
 plot(tsum)
+
+# You may fix the colours for each sample, as follows: 
+plot_cols <- c(RColorBrewer::brewer.pal(8, "Set2"), RColorBrewer::brewer.pal(8, "Dark2"), "orange", "blue")
+pie(rep(1, length(plot_cols)), col=plot_cols)
+names(plot_cols) <- str_score_four$samples[, sample]
+
+plot_cols
+plot(tsum, sample_col = plot_cols)
 
 # Give a table of each sample and locus with the p-value, and if it is significant:
 (ps <- p_values(tsum))

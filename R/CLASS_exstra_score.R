@@ -129,17 +129,17 @@ plot_names.exstra_score <- function(strscore, names) {
 }
 
 #' @export
-plot.exstra_score <- function(rsc, locus = NULL, sample_col = NULL, refline = TRUE, ylab="Fn(x)", verticals = TRUE,
+plot.exstra_score <- function(rsc, loci = NULL, sample_col = NULL, refline = TRUE, ylab="Fn(x)", verticals = TRUE,
   pch = 19, xlim, ylim = c(0,1), alpha_control = 0.5, alpha_case = NULL, 
   xlinked = "all", xlinked.safe = TRUE, ...) {
   # Plot ECDFs of rep score data
   # sample_col should be a named vector, sample names as the name and color as the value
   # refline: if TRUE, include reference
   # xlinked: For loci on X chromosome, "all" for all samples, "male" and "female" for only that sex
-  if(is.null(locus)) {
+  if(is.null(loci)) {
     strlocis <- loci(rsc)
   } else {
-    strlocis <- locus
+    strlocis <- loci
   }
   if(!missing(xlim)) {
     xlim_1 <- xlim

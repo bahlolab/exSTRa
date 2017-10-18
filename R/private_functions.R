@@ -66,7 +66,7 @@ plot_many_str_score <- function(strscore, typename, plot_cols, loci = NULL,
           stop("color_only should be list")
         }
       }
-      plot(strscore, locus = loc, sample_col = plot_cols_this, 
+      plot(strscore, loci = loc, sample_col = plot_cols_this, 
         alpha_control = alpha_control, alpha_case = alpha_case, ...)
       plot_cols_this <- plot_cols_this[names(plot_cols_this) %in% strscore$samples$sample] # don't add legend for samples not shown
       leg_labels <- names(plot_cols_this)
