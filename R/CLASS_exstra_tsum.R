@@ -127,20 +127,24 @@ plot.exstra_tsum <- function(tsum, loci = NULL, sample_col = NULL,
   }
   
   # construct colours
-  ps <- p_values(tsum, correction = correction, alpha = alpha)
+  ps <- p_values(tsum, correction = correction, alpha = alpha, only.signif = TRUE)
   significant_sample_colours <- list()
   for(loc in loci(tsum)) {
     # TODO
-    ps
+    this.ps <- ps[loc] 
     if(is.null(sample_col)) {
-      this.sample_col <- rep(rgb(0, 0, 0, alpha = alpha_nonsignif), tsum$samples[, .N])
-      this.ps <- ps[loc][identity(signif)]
-      this.sample_col[ this.ps[, sample]] <- rainbow(this.ps[, .N])
+      if(this.ps[, .N] > 8) {
+        warning("More than 8 significant samples for locus ", loc, 
+          ". It may be hard to distiguish samples.")
+        this.sample_col <- rainbow(this.ps[, .N])
+      } else {
+        # we have max() here as brewer.pal() requires at least 3
+        this.sample_col <- RColorBrewer::brewer.pal(max(this.ps[, .N], 3), "Set2")
+        this.sample_col <- this.sample_col[seq_len(this.ps[, .N])] # for when < 3 signficant samples
+      }
+      names(this.sample_col) <- this.ps[, sample]
     } else {
-      #this.sample_col <- sample_col
-      # the following may not work due to factors of samples, check this!
-      this.ps <- ps[loc][identity(signif)] # TODO: this may be repeated
-      # This is better:
+      # predefined colours
       this.sample_col <- sample_col[this.ps[, sample]]
     }
     significant_sample_colours[[loc]] <- this.sample_col
