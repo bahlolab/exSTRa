@@ -53,11 +53,15 @@ plot(tsum)
 
 # You may fix the colours for each sample, as follows: 
 plot_cols <- c(RColorBrewer::brewer.pal(8, "Set2"), RColorBrewer::brewer.pal(8, "Dark2"), "orange", "blue")
+par(mfrow = c(1, 1))
 pie(rep(1, length(plot_cols)), col=plot_cols)
 names(plot_cols) <- str_score_four$samples[, sample]
 
 plot_cols
-plot(tsum, sample_col = plot_cols)
+par(mfrow = c(2, 2))
+# Bonferroni correction is too severe here, so we use no correction, but set the level to 
+# 0.005
+plot(tsum, sample_col = plot_cols, correction = "locus")
 
 # Give a table of each sample and locus with the p-value, and if it is significant:
 (ps <- p_values(tsum))
