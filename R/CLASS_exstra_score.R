@@ -195,11 +195,14 @@ plot.exstra_score <- function(rsc, locus = NULL, sample_col = NULL, refline = TR
 
 # TODO: easy renaming of samples
 
+
+#' Copy an exstra_score object so referencing does not cause problems.  
 #' @export
 copy.exstra_score <- function(x) {
-  x$data <- copy(x$data)
-  x$db <- copy(x$db)
-  x$input_type <- copy(x$input_type)
+  x$data %<>% copy()
+  x$db %<>% copy()
+  x$samples %<>% copy()
+  x$input_type %<>% copy()
   x
 }
 
@@ -233,7 +236,7 @@ as.exstra_score <- function(x, copy = FALSE) {
   #
   assert("x should inherit from class exstra_score.", is.exstra_score(x))
   if(copy) {
-    x <- copy(x)
+    x <- copy.exstra_score(x)
   }
   structure(list(data = x$data, db = x$db, input_type = x$input_type, samples = x$samples), class = c("exstra_score", "exstra_db"))
 }

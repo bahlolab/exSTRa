@@ -33,7 +33,8 @@ exstra_tsum_new_ <- function(strscore, T, p.values = NULL,
       p.values = p.values,
       qmats = qmats, 
       xecs = xecs,
-      args = args
+      args = args,
+      n_tests = sum (!is.na (p.values))
     ), 
     class = c("exstra_tsum", "exstra_score", "exstra_db"))
 }
@@ -136,7 +137,7 @@ plot.exstra_tsum <- function(tsum, locus = NULL, sample_col = NULL,
   # Do the plot:
   # TODO: as.exstra_score(tsum)
   plot_many_str_score(as.exstra_score(tsum), locus = locus, 
-    sample_col = significant_sample_colours, 
+    plot_cols = significant_sample_colours, 
     controls_label = controls_label, ...)
   # legend:
   # TODO
@@ -161,5 +162,18 @@ plot.exstra_tsum <- function(tsum, locus = NULL, sample_col = NULL,
     }
   }
   x$T <- x$T[x$db$locus][sample %in% x$samples$sample]
+  x
+}
+
+
+#' Copy an exstra_tsum object
+#' 
+#' @export
+copy.exstra_tsum <- function(x) {
+  x <- copy.exstra_score(x)
+  x$T %<>% copy()
+  x$qmats %<>% copy()
+  x$xecs %<>% copy()
+  x$args %<>% copy()
   x
 }
