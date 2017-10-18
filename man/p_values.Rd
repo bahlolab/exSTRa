@@ -4,14 +4,15 @@
 \alias{p_values}
 \title{Return a data.table with p-values of a tsum_exstra object.}
 \usage{
-p_values(tsum, correction = c("bf", "uncorrected"), alpha = 0.05,
+p_values(tsum, correction = c("bf", "locus", "uncorrected"), alpha = 0.05,
   only.signif = FALSE)
 }
 \arguments{
 \item{tsum}{An exstra_tsum object}
 
 \item{correction}{Correction method to use. Use "bf" or TRUE for Bonferroni correction, and 
-"uncorrected" or FALSE for no correction. ("bonferroni" is also acceptable).}
+"uncorrected" or FALSE for no correction. ("bonferroni" is also acceptable).
+"locus" is Bonferroni correction by locus.}
 
 \item{alpha}{Significance level alpha.}
 
