@@ -204,8 +204,36 @@ copy.exstra_score <- function(x) {
 }
 
 
-#TODO length(exstra_score) =  number of data points = length(exstra_score$data)
+#' Length of an exstra_score object
+#' @export
+length.exstra_score <- function(x) {
+  x$data[, .N]
+}
+  
+  
+#' @export
+`length<-.exstra_score` <- function(x, value) {
+  stop("Cannot reassign length to exstra_score object.")
+}
 
-#TODO dim(exstra_score) = c(#loci, #samples)
+#' Dimension of exstra_score object
+#' @export
+dim.exstra_score <- function(x) {
+  c(exstra_wgs_pcr_2$db[, .N], exstra_wgs_pcr_2$samples[, .N])
+}
 
-
+#' Convert a compatable object to the exstra_score class
+#' 
+#' @param x An object with a class that inherits from exstra_score
+#' @param copy Should the object be copied? Slower if TRUE, but in-place data.table
+#'             operations will not change both objects. This option is here to remind 
+#'             users that this is normally copied by reference. 
+#' @export
+as.exstra_score <- function(x, copy = FALSE) {
+  #
+  assert("x should inherit from class exstra_score.", is.exstra_score(x))
+  if(copy) {
+    x <- copy(x)
+  }
+  structure(list(data = x$data, db = x$db, input_type = x$input_type, samples = x$samples), class = c("exstra_score", "exstra_db"))
+}

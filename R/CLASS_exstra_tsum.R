@@ -105,7 +105,8 @@ print.exstra_tsum <- function(x, ...) {
 #' 
 #' @export
 plot.exstra_tsum <- function(tsum, locus = NULL, sample_col = NULL, 
-  correction = "bf", controls_label = "Not significant", ...) {
+  correction = "bf", alpha = 0.05, 
+  controls_label = "Not significant", ...) {
   # check input
   assert("tsum should be an exstra_tsum object.", is.exstra_tsum(tsum))
   if(!is.null(locus)) {
@@ -119,7 +120,7 @@ plot.exstra_tsum <- function(tsum, locus = NULL, sample_col = NULL,
   }
   
   # construct colours
-  ps <- p_values(tsum, correction = correction, only.signif = TRUE)
+  ps <- p_values(tsum, correction = correction, alpha = alpha, only.signif = TRUE)
   significant_sample_colours <- list()
   for(loc in loci(tsum)) {
     # TODO
