@@ -3,8 +3,9 @@
 #' 
 #' 
 #' @param tsum An exstra_tsum object
-#' @param correction Correction method to use. Use "bf" for Bonferroni correction, and 
-#'                   "uncorrected" for no correction. ("bonferroni" is also acceptable)
+#' @param correction Correction method to use. Use "bf" or TRUE for Bonferroni correction, and 
+#'                   "uncorrected" or FALSE for no correction. ("bonferroni" is also acceptable). 
+#'                   
 #' @param alpha Significance level alpha.
 #' @param only.sig If TRUE, only return significant results.
 #' @return A data.table
@@ -20,7 +21,8 @@ p_values <- function(
   ) {
   # verify input
   assert("tsum should be an exstra_tsum object.", is.exstra_tsum(tsum))
-  assert("correction should be a character vector", is.character(correction), 
+  assert("correction should be a character or logical vector", 
+    is.character(correction) || is.logical(correction), 
     is.vector(correction))
   assert("alpha should be a probability value.", alpha >= 0, alpha <= 1)
   assert("only.signif should be a logical.", is.logical(only.signif))
@@ -29,12 +31,11 @@ p_values <- function(
   out.table <- tsum$p.values %>% 
     reshape2:::melt.matrix(value.name = "p.value", varnames = c("sample", "locus")) %>%
     data.table()
-  if(correction[1] == "bf" || correction[1] == "bonferroni") {
+  if((is.logical(correction[1]) && correction[1]) || correction[1] == "bf" || correction[1] == "bonferroni") {
     # Bonferroni correction.
     # only correct for tests we have performed:
-    n.tests <- out.table[!is.na(p.value), .N] 
-    out.table[, signif := p.value <= alpha / n.tests ]
-  } else if (correction[1] == "uncorrected") {
+    out.table[, signif := p.value <= alpha / tsum$n_tests ]
+  } else if ((is.logical(correction[1]) && ! correction[1]) || correction[1] == "uncorrected") {
     out.table[, signif := p.value <= alpha ]
   } else {
     stop("Unknown correction method ", correction[1])

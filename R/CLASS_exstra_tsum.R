@@ -82,6 +82,7 @@ print.exstra_tsum <- function(x, ...) {
   
   # data: str_score
   cat("\n")
+  cat("Bonferroni n:     ", x$n_tests, "\n")
   cat("Number of samples:", x$samples[, .N], "\n")
   cat("Number of loci:   ", x$db[, .N], "\n")
   cat("Defined p-values: ", sum(!is.na(x$p.values)), "\n")
@@ -90,6 +91,9 @@ print.exstra_tsum <- function(x, ...) {
     ", min.quant = ", x$args$min.quant, 
     ", B = ", x$args$B, 
     "\n", sep = "")
+  if(x$n_tests != sum(!is.na(x$p.values))) {
+    cat('Note that "Bonferroni n" != "Defined p-values" due to extraction from a larger object.\n')
+  }
   }
 }
 
@@ -98,22 +102,24 @@ print.exstra_tsum <- function(x, ...) {
 #' Plot the significant results of a tsum
 #' 
 #' @param tsum An exstra_tsum object.
-#' @param locus Character vector of locus or loci to plot.
+#' @param loci Character vector of locus or loci to plot.
 #' @param sample_col Named (samples) vector of charcters defining colors. 
 #' @param ... further arguments to plot.exstra_score
 #' 
 #' @seealso plot.exstra_score
 #' 
 #' @export
-plot.exstra_tsum <- function(tsum, locus = NULL, sample_col = NULL, 
+plot.exstra_tsum <- function(tsum, loci = NULL, sample_col = NULL, 
   correction = "bf", alpha = 0.05, 
-  controls_label = "Not significant", ...) {
+  controls_label = "Not significant", 
+  alpha_nonsignif = 0.25, 
+  ...) {
   # check input
   assert("tsum should be an exstra_tsum object.", is.exstra_tsum(tsum))
-  if(!is.null(locus)) {
-    assert("locus should be a character vector", is.vector(locus), is.character(locus))
+  if(!is.null(loci)) {
+    assert("loci should be a character vector", is.vector(loci), is.character(loci))
     # only work on loci we want to plot
-    tsum <- tsum[locus]
+    tsum <- tsum[loci]
   }
   if(!is.null(sample_col)) {
     assert("sample_col should be a character vector", is.vector(sample_col), 
@@ -121,24 +127,30 @@ plot.exstra_tsum <- function(tsum, locus = NULL, sample_col = NULL,
   }
   
   # construct colours
-  ps <- p_values(tsum, correction = correction, alpha = alpha, only.signif = TRUE)
+  ps <- p_values(tsum, correction = correction, alpha = alpha)
   significant_sample_colours <- list()
   for(loc in loci(tsum)) {
     # TODO
     ps
     if(is.null(sample_col)) {
-      
+      this.sample_col <- rep(rgb(0, 0, 0, alpha = alpha_nonsignif), tsum$samples[, .N])
+      this.ps <- ps[loc][identity(signif)]
+      this.sample_col[ this.ps[, sample]] <- rainbow(this.ps[, .N])
     } else {
-      
+      this.sample_col <- sample_col
+      # the following may not work due to factors of samples, check this!
+      this.ps <- ps[loc][identity(signif)] # TODO: this may be repeated
+      this.sample_col <- sample_col[this.ps[, sample]]
     }
-    significant_sample_colours[[loc]] <- NULL # TODO
+    significant_sample_colours[[loc]] <- this.sample_col
   }
   
   # Do the plot:
   # TODO: as.exstra_score(tsum)
-  plot_many_str_score(as.exstra_score(tsum), locus = locus, 
+  plot_many_str_score(as.exstra_score(tsum), loci = loci, 
     plot_cols = significant_sample_colours, 
-    controls_label = controls_label, ...)
+    controls_label = controls_label, 
+    alpha_control = alpha_nonsignif, ...)
   # legend:
   # TODO
 }
@@ -149,7 +161,6 @@ plot.exstra_tsum <- function(tsum, locus = NULL, sample_col = NULL,
 `[.exstra_tsum` <- function(x, loc, samp) {
   assert("locus is not the key of x$T", key(x$T)[1] == "locus")
   # recycle code for exstra_score:
-  stop("The square bracket function of exstra_tsum objects is not yet written.")
   if(missing(loc)) {
     if(!missing(samp)) {
       x <- `[.exstra_score`(x, , eval(substitute(samp)))
@@ -161,7 +172,14 @@ plot.exstra_tsum <- function(tsum, locus = NULL, sample_col = NULL,
       x <- `[.exstra_score`(x, eval(substitute(loc)), eval(substitute(samp)))
     }
   }
+  # cut class specific loci
   x$T <- x$T[x$db$locus][sample %in% x$samples$sample]
+  # matrix cut. We do not attempt to filter samples here as it is more complicated, and
+  # this is for diagnostics mostly. 
+  x$qmats <- x$qmats[x$db$locus]
+  x$xecs <- x$xecs[x$db$locus]
+  # Reduce the p-value matrix:
+  x$p.values <- x$p.values[x$samples$sample, x$db$locus, drop = FALSE]
   x
 }
 
@@ -172,8 +190,11 @@ plot.exstra_tsum <- function(tsum, locus = NULL, sample_col = NULL,
 copy.exstra_tsum <- function(x) {
   x <- copy.exstra_score(x)
   x$T %<>% copy()
+  # The following lines probably do nothing, but here in case we change implementation 
+  # later on. 
   x$qmats %<>% copy()
   x$xecs %<>% copy()
   x$args %<>% copy()
+  x$p.values %<>% copy()
   x
 }
