@@ -1,6 +1,6 @@
 # To do list
 
-* Why is the p-values not with $T ?
+* Stop sample no-data plotting bug
 * Plotting p-value distribution.
 * Plotting T statistic distribution.
 * Make qqplot method. 
