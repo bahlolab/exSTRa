@@ -117,26 +117,29 @@ plot_names.exstra_score <- function(strscore, names) {
   assert("locus not the key of x$db", key(x$db)[1] == "locus")
   if(!missing(loc)) {
     x$db <- x$db[eval(substitute(loc))]
+    setkey(x$db, locus)
   }
   if(!missing(samp)) {
     x$samples <- x$samples[eval(substitute(samp))]
+    setkey(x$samples, sample)
   }
   x$data <- x$data[x$db$locus][sample %in% x$samples$sample]
+  setkey(x$data, locus, sample)
   x
 }
 
 #' @export
-plot.exstra_score <- function(rsc, locus = NULL, sample_col = NULL, refline = TRUE, ylab="Fn(x)", verticals = TRUE,
+plot.exstra_score <- function(rsc, loci = NULL, sample_col = NULL, refline = TRUE, ylab="Fn(x)", verticals = TRUE,
   pch = 19, xlim, ylim = c(0,1), alpha_control = 0.5, alpha_case = NULL, 
-  xlinked = "all", xlinked.safe = TRUE, ...) {
+  xlinked = "all", xlinked.safe = TRUE, x_upper_missing = 150, ...) {
   # Plot ECDFs of rep score data
   # sample_col should be a named vector, sample names as the name and color as the value
   # refline: if TRUE, include reference
   # xlinked: For loci on X chromosome, "all" for all samples, "male" and "female" for only that sex
-  if(is.null(locus)) {
+  if(is.null(loci)) {
     strlocis <- loci(rsc)
   } else {
-    strlocis <- locus
+    strlocis <- loci
   }
   if(!missing(xlim)) {
     xlim_1 <- xlim
@@ -155,10 +158,14 @@ plot.exstra_score <- function(rsc, locus = NULL, sample_col = NULL, refline = TR
         plot_data <- str_filter_sex(rsc, xlinked, xlinked.safe)$data[locus == locus.name]
         main.title <- paste(main.title, paste0(xlinked, 's'))
       } else {
-        plot_data <- rsc$data[locus.name]
+        plot_data <- rsc$data[locus.name, nomatch = 0]
       }
       if(missing(xlim)) {
-        xlim_1 <- c(0, max(plot_data$mlength))
+        if(plot_data[, .N]) {
+          xlim_1 <- c(0, max(plot_data$mlength))
+        } else {
+          xlim_1 <- c(0, x_upper_missing)
+        }
       }
       plot(NA,
         xlim = xlim_1,
@@ -178,11 +185,14 @@ plot.exstra_score <- function(rsc, locus = NULL, sample_col = NULL, refline = TR
         names(sample_col) <- rsc$samples$sample
       } 
       if(!is.null(alpha_case)) {
-        sample_col <- add.alpha(sample_col, alpha_case)
+        sample_col <- add_alpha_(sample_col, alpha_case)
       }
       for(samp in c(setdiff(unique(plot_data$sample), names(sample_col)), intersect(unique(plot_data$sample), names(sample_col)))) {
         plot(ecdf(plot_data[sample == samp, rep]), add = T, col = replace(sample_col[samp], is.na(sample_col[samp]), black_trans), verticals = verticals,
           pch = pch, ...)
+      }
+      if(plot_data[, .N] == 0) {
+        text(x_upper_missing / 2, 0.5, "No data", cex = 2.5)
       }
     }
   }
@@ -192,17 +202,48 @@ plot.exstra_score <- function(rsc, locus = NULL, sample_col = NULL, refline = TR
 
 # TODO: easy renaming of samples
 
+
+#' Copy an exstra_score object so referencing does not cause problems.  
 #' @export
 copy.exstra_score <- function(x) {
-  x$data <- copy(x$data)
-  x$db <- copy(x$db)
-  x$input_type <- copy(x$input_type)
+  x$data %<>% copy()
+  x$db %<>% copy()
+  x$samples %<>% copy()
+  x$input_type %<>% copy()
   x
 }
 
 
-#TODO length(exstra_score) =  number of data points = length(exstra_score$data)
+#' Length of an exstra_score object
+#' @export
+length.exstra_score <- function(x) {
+  x$data[, .N]
+}
+  
+  
+#' @export
+`length<-.exstra_score` <- function(x, value) {
+  stop("Cannot reassign length to exstra_score object.")
+}
 
-#TODO dim(exstra_score) = c(#loci, #samples)
+#' Dimension of exstra_score object
+#' @export
+dim.exstra_score <- function(x) {
+  c(exstra_wgs_pcr_2$db[, .N], exstra_wgs_pcr_2$samples[, .N])
+}
 
-
+#' Convert a compatable object to the exstra_score class
+#' 
+#' @param x An object with a class that inherits from exstra_score
+#' @param copy Should the object be copied? Slower if TRUE, but in-place data.table
+#'             operations will not change both objects. This option is here to remind 
+#'             users that this is normally copied by reference. 
+#' @export
+as.exstra_score <- function(x, copy = FALSE) {
+  #
+  assert("x should inherit from class exstra_score.", is.exstra_score(x))
+  if(copy) {
+    x <- copy.exstra_score(x)
+  }
+  structure(list(data = x$data, db = x$db, input_type = x$input_type, samples = x$samples), class = c("exstra_score", "exstra_db"))
+}

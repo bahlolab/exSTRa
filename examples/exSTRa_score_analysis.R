@@ -1,7 +1,11 @@
 # An example of exSTRa usage, for known STR expansion disorder loci
 
 ## ---- strexpansion_prepare
+# best to load data.table before exSTRa if manipulation with data.table commands is required
+# library(data.table) 
 library(exSTRa)
+
+knitr::opts_chunk$set(fig.width=11, fig.height=11)
 
 # data.table() # handy if closer inspection of internal tables is required
 
@@ -20,7 +24,7 @@ str_score
 # plot(str_score)
 
 # restrict to only three interesting loci, for simplicity here:
-( str_score_three <- str_score[c("HD", "SCA6", "FRDA")] )
+( str_score_four <- str_score[c("HD", "SCA2", "SCA6", "FRDA")] )
 
 # Plot the HD locus only:
 plot(str_score["HD"])
@@ -34,32 +38,46 @@ plot(str_score, "HD", sample_col = c("WGSrpt_10" = "red", "WGSrpt_12" = "blue"))
 # Most options not shown here should be passed onto plot.exstra_score() (equivalent to plot() on str_score)
 # Without a file.base or directory, should just plot many ECDFs to the R device
 # also can take mfrow or mfcol (not both) to place plots in an nr-by-nc array
-exstra_mass_plot(str_score, dir = "PLACEHOLDER", file.base = "HiSeqXTen_WGS_PCR_2")
+par(mfrow = c(2, 2))
+plot_multi(str_score[c("HD", "SCA6", "FRDA", "SCA1")], dir = "example_images", prefix = "HiSeqXTen_WGS_PCR_2", 
+  plottypes = c(1, 2), alpha_case = 0.2)
 
-( rbinding <- rbind_score_list(list(str_score[, 5], str_score[, 10])) )
+# For combining data from multiple samples, but analysed in the Perl scripts separately.
+data_08 <- str_score[, "WGSrpt_08"]
+data_13 <- str_score[, "WGSrpt_13"]
+( combined_data <- rbind_score_list(list(data_08, data_13)) )
 
 ## ---- Performing tests for expansions ----
 # here, the brackets mean the object is shown
 # We use the parallel package to use threads up to one less than available.
-(tsum <- tsum_test(str_score_three, parallel = TRUE))
+(tsum <- tsum_test(str_score_four, parallel = TRUE))
 
-# ideas for options:
-summary(tsum, fdr = 0.05)  # by false discovery rate
-summary(tsum, p = 0.05)    # by raw p-value
-summary(tsum, p_bf = 0.05) # by p-value with bonferroni correction
+# Plotting tsum only highlights significant samples
+plot(tsum)
+
+# You may fix the colours for each sample, as follows: 
+plot_cols <- c(RColorBrewer::brewer.pal(8, "Set2"), RColorBrewer::brewer.pal(8, "Dark2"), "orange", "blue")
+par(mfrow = c(1, 1))
+names(plot_cols) <- str_score_four$samples[, sample]
+pie(rep(1, length(plot_cols)), col = plot_cols, labels = names(plot_cols))
 
 
-# if you have positive controls, then if these are specified in
-# str_score$samples$pos_control as:
-# "LOC" or "LOC1,LOC2,...": where LOC is the locus of a diagnosed expansion in that patient  
-#                           Use a comma delimited list for more than one locus
-# str_score$samples$neg_control
-# "-": confirmed as a negative control for all loci, or can refer to a specific list for
-#     all samples str_score$negative_control_loci
-# "LOC" or "LOC1,LOC2,...": where LOC[#] are negatively tested loci
-# NA for unknown samples
-# ROC curves, AUC:
-tsum_performance(tsum) 
-# restricting to common SCAs and the similar Freidrich (sic) ataxia, likely to have been tested in SCA patients
-tsum_performance(tsum, neg_loci = c( "DRPLA", "SCA1", "SCA2", "SCA3", "SCA6", "SCA7", "SCA17", "FRDA"))
+plot_cols
+par(mfrow = c(2, 2))
+# Bonferroni correction is too severe here, so we use Bonferroni correction only on each 
+# locus.
+plot(tsum, sample_col = plot_cols, correction = "locus")
 
+# Give a table of each sample and locus with the p-value, and if it is significant:
+(ps <- p_values(tsum, correction = "locus"))
+
+# this may be acted on directly: 
+ps[identity(signif)]
+# or with the only.signif option:
+p_values(tsum, only.signif = TRUE, correction = "locus")
+
+# Give the best hit(s) for each sample:
+# TODO: what is best for display may not be the best for internal representation. 
+#       For now may keep this as best for display and inspection, while users who wish to 
+#       filter should use the p_values() function on an exstra_tsum object
+# best_hits(tsum)

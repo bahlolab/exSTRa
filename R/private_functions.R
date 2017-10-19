@@ -30,7 +30,8 @@ remove_below_quant <- function(loc_data, quant = 0.5) {
 plot_many_str_score <- function(strscore, typename, plot_cols, loci = NULL, 
   color_only = NULL, plottypes = 1, dirbase = "images/", 
   alpha_control = 0.5, alpha_case = NULL,
-  legend = TRUE, legend_control = TRUE, controls_label = "controls", custom_legend = NULL,
+  legend = TRUE, legend_control = TRUE, controls_label = "controls", 
+  cases_label = NULL, custom_legend = NULL,
   ...) {
   # typename a non-empty character string
   # plottypes should be vector of 1 to 3 can be 1:3
@@ -39,7 +40,10 @@ plot_many_str_score <- function(strscore, typename, plot_cols, loci = NULL,
   #TODO: check that sample names are correct
   # legend_custom, a named vector of colors for the legend
   if(any(is.element(plottypes, 2:3))) {
-    dir.create(paste0(dirbase, typename), recursive = TRUE)
+    # dir.create(paste0(dirbase, typename), recursive = TRUE)
+    # The version below is more intuitive for other users
+    dir.create(dirbase, recursive = TRUE)
+    
   }
   if(is.null(loci)) {
     loci <- loci(strscore)
@@ -63,17 +67,21 @@ plot_many_str_score <- function(strscore, typename, plot_cols, loci = NULL,
           stop("color_only should be list")
         }
       }
-      plot(strscore, locus = loc, sample_col = plot_cols_this, 
+      plot(strscore, loci = loc, sample_col = plot_cols_this, 
         alpha_control = alpha_control, alpha_case = alpha_case, ...)
       plot_cols_this <- plot_cols_this[names(plot_cols_this) %in% strscore$samples$sample] # don't add legend for samples not shown
       leg_labels <- names(plot_cols_this)
       #if(length(plot_cols_this) != length(plot_cols)) {
       if(!is.null(alpha_case)) {
-        plot_cols_this <- exSTRa::add.alpha(plot_cols_this, alpha_case)
+        plot_cols_this <- add_alpha_(plot_cols_this, alpha_case)
       }
       if(legend_control && length(plot_cols_this) != strscore[loc]$samples[, .N]) {
-        leg_labels <- c(leg_labels , controls_label)
+        leg_labels <- c(leg_labels, controls_label)
         plot_cols_this <- c(plot_cols_this, rgb(0, 0, 0, alpha_control))
+      }
+      if(!is.null(cases_label)) {
+        leg_labels <- c(leg_labels, cases_label)
+        plot_cols_this <- c(plot_cols_this, rgb(1, 0, 0, alpha_case))
       }
       if(legend) {
         if(is.null(custom_legend)) {

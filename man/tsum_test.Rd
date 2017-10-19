@@ -5,7 +5,8 @@
 \title{Generate T sum statistics and p-values from simulation.}
 \usage{
 tsum_test(strscore, trim = 0.15, min.quant = 0.5, give.pvalue = TRUE,
-  B = 9999, parallel = FALSE, cluster_n = NULL, cluster = NULL)
+  B = 9999, correction = c("bf", "locus", "uncorrected"), alpha = 0.05,
+  parallel = FALSE, cluster_n = NULL, cluster = NULL)
 }
 \arguments{
 \item{strscore}{An exstra_score object.}
@@ -22,6 +23,10 @@ useful to turn off if only the t sum statistics are required.}
 \item{B}{Number of simulations in calculating null distributions. The denominator will
 be B + 1, hence values of B = 10^i - 1 will result in p-values that are 
 decimal fractions.}
+
+\item{correction}{Correction method of p_value() function.}
+
+\item{alpha}{Signficance level of p_value() function.}
 
 \item{parallel}{Use the parallel package when simulating the distribution, creating the
 required cluster. 

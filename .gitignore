@@ -2,3 +2,7 @@
 .Rhistory
 .RData
 *.swp
+local_saves/
+Bio_STR_exSTRa.tar.gz
+exSTRa_suggested_pipeline.svg
+example_images/
