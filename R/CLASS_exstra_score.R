@@ -131,7 +131,7 @@ plot_names.exstra_score <- function(strscore, names) {
 #' @export
 plot.exstra_score <- function(rsc, loci = NULL, sample_col = NULL, refline = TRUE, ylab="Fn(x)", verticals = TRUE,
   pch = 19, xlim, ylim = c(0,1), alpha_control = 0.5, alpha_case = NULL, 
-  xlinked = "all", xlinked.safe = TRUE, ...) {
+  xlinked = "all", xlinked.safe = TRUE, x_upper_missing = 150, ...) {
   # Plot ECDFs of rep score data
   # sample_col should be a named vector, sample names as the name and color as the value
   # refline: if TRUE, include reference
@@ -158,10 +158,14 @@ plot.exstra_score <- function(rsc, loci = NULL, sample_col = NULL, refline = TRU
         plot_data <- str_filter_sex(rsc, xlinked, xlinked.safe)$data[locus == locus.name]
         main.title <- paste(main.title, paste0(xlinked, 's'))
       } else {
-        plot_data <- rsc$data[locus.name]
+        plot_data <- rsc$data[locus.name, nomatch = 0]
       }
       if(missing(xlim)) {
-        xlim_1 <- c(0, max(plot_data$mlength))
+        if(plot_data[, .N]) {
+          xlim_1 <- c(0, max(plot_data$mlength))
+        } else {
+          xlim_1 <- c(0, x_upper_missing)
+        }
       }
       plot(NA,
         xlim = xlim_1,
@@ -186,6 +190,9 @@ plot.exstra_score <- function(rsc, loci = NULL, sample_col = NULL, refline = TRU
       for(samp in c(setdiff(unique(plot_data$sample), names(sample_col)), intersect(unique(plot_data$sample), names(sample_col)))) {
         plot(ecdf(plot_data[sample == samp, rep]), add = T, col = replace(sample_col[samp], is.na(sample_col[samp]), black_trans), verticals = verticals,
           pch = pch, ...)
+      }
+      if(plot_data[, .N] == 0) {
+        text(x_upper_missing / 2, 0.5, "No data", cex = 2.5)
       }
     }
   }
