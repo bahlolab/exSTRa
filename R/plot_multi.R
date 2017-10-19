@@ -15,11 +15,10 @@ plot_multi <- function(strscore,
   legend = TRUE, 
   legend_control = TRUE, 
   controls_label = "controls", 
+  cases_label = "cases",
   custom_legend = NULL, # a named (sample) vector of colors, for the legend
   ... # further plot arguments
 ) {
-  
-  
   
   # plot_many_str_score(mixed_cohorts_wgs, "STR-score-WGS-01-to-03", plot_cols, 
   # plottypes = 3, alpha_case = 0.5, alpha_control = 0.3, legend = FALSE)
@@ -36,6 +35,7 @@ plot_multi <- function(strscore,
     legend = legend, 
     legend_control = legend_control, 
     controls_label = controls_label, 
+    cases_label = cases_label,
     custom_legend = custom_legend, 
     ...)
   

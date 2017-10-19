@@ -15,5 +15,7 @@ read_score <- function(file, database, groups.regex = NULL, groups.samples = NUL
     # Filter low counts, assumed wanted by default
     strscore <- filter_low_scores(strscore)
   }
+  # Remove any loci without data:
+  strscore$db <- strscore$db[locus %in% strscore$data$locus]
   return(strscore)
 }

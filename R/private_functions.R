@@ -30,7 +30,8 @@ remove_below_quant <- function(loc_data, quant = 0.5) {
 plot_many_str_score <- function(strscore, typename, plot_cols, loci = NULL, 
   color_only = NULL, plottypes = 1, dirbase = "images/", 
   alpha_control = 0.5, alpha_case = NULL,
-  legend = TRUE, legend_control = TRUE, controls_label = "controls", custom_legend = NULL,
+  legend = TRUE, legend_control = TRUE, controls_label = "controls", 
+  cases_label = NULL, custom_legend = NULL,
   ...) {
   # typename a non-empty character string
   # plottypes should be vector of 1 to 3 can be 1:3
@@ -75,8 +76,12 @@ plot_many_str_score <- function(strscore, typename, plot_cols, loci = NULL,
         plot_cols_this <- add_alpha_(plot_cols_this, alpha_case)
       }
       if(legend_control && length(plot_cols_this) != strscore[loc]$samples[, .N]) {
-        leg_labels <- c(leg_labels , controls_label)
+        leg_labels <- c(leg_labels, controls_label)
         plot_cols_this <- c(plot_cols_this, rgb(0, 0, 0, alpha_control))
+      }
+      if(!is.null(cases_label)) {
+        leg_labels <- c(leg_labels, cases_label)
+        plot_cols_this <- c(plot_cols_this, rgb(1, 0, 0, alpha_case))
       }
       if(legend) {
         if(is.null(custom_legend)) {
