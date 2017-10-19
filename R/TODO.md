@@ -1,13 +1,15 @@
 # To do list
 
-* Plotting exstra_tsum highlights only significant (BF) samples by default.
-* Function to give significant results for a sample.
+* Why is the p-values not with $T ?
 * Plotting p-value distribution.
 * Plotting T statistic distribution.
 * Make qqplot method. 
-* tsum bracket method
-* copy() function is not working.
+* enable GRCh37 genome build (no "chr" at start)
 
 Low priority
 * Performance results of tsum_test when truth is known. (make column: str_score$samples$pos_control)
+* Function to give significant results for a sample.
 
+Done:
+* Plotting exstra_tsum highlights only significant (BF) samples by default.
+* tsum bracket method

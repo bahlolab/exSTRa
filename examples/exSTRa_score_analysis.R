@@ -3,6 +3,8 @@
 ## ---- strexpansion_prepare
 library(exSTRa)
 
+knitr::opts_chunk$set(fig.width=11, fig.height=11)
+
 # data.table() # handy if closer inspection of internal tables is required
 
 # Read score data and file with loci information
@@ -54,22 +56,23 @@ plot(tsum)
 # You may fix the colours for each sample, as follows: 
 plot_cols <- c(RColorBrewer::brewer.pal(8, "Set2"), RColorBrewer::brewer.pal(8, "Dark2"), "orange", "blue")
 par(mfrow = c(1, 1))
-pie(rep(1, length(plot_cols)), col=plot_cols)
 names(plot_cols) <- str_score_four$samples[, sample]
+pie(rep(1, length(plot_cols)), col = plot_cols, labels = names(plot_cols))
+
 
 plot_cols
 par(mfrow = c(2, 2))
-# Bonferroni correction is too severe here, so we use no correction, but set the level to 
-# 0.005
+# Bonferroni correction is too severe here, so we use Bonferroni correction only on each 
+# locus.
 plot(tsum, sample_col = plot_cols, correction = "locus")
 
 # Give a table of each sample and locus with the p-value, and if it is significant:
-(ps <- p_values(tsum))
+(ps <- p_values(tsum, correction = "locus"))
 
 # this may be acted on directly: 
 ps[identity(signif)]
 # or with the only.signif option:
-p_values(tsum, only.signif = TRUE)
+p_values(tsum, only.signif = TRUE, correction = "locus")
 
 # Give the best hit(s) for each sample:
 # TODO: what is best for display may not be the best for internal representation. 
