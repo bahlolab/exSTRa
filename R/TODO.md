@@ -1,6 +1,5 @@
 # To do list
 
-* Stop sample no-data plotting bug
 * Plotting p-value distribution.
 * Plotting T statistic distribution.
 * Make qqplot method. 
@@ -13,3 +12,4 @@ Low priority
 Done:
 * Plotting exstra_tsum highlights only significant (BF) samples by default.
 * tsum bracket method
+* Stop sample no-data plotting bug
