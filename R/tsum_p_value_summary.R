@@ -11,10 +11,10 @@ tsum_p_value_summary <- function(tsum,
   bonferroni.size = NULL) {
   # Check inputs, maybe...
   assert("tsum should be an exstra_tsum object", is.exstra_tsum(tsum))
-  if(sum(tsum$p.values > 1, na.rm = TRUE)) {
+  if(sum(tsum$stats$p.value > 1, na.rm = TRUE)) {
     stop("Some p-values appear to be above 1. This may be an exSTRa package bug.")
   }
-  if(sum(tsum$p.values < 0, na.rm = TRUE)) {
+  if(sum(tsum$stats$p.value < 0, na.rm = TRUE)) {
     stop("Some p-values appear to be below 0. This may be an exSTRa package bug.")
   }
   # 
@@ -23,7 +23,7 @@ tsum_p_value_summary <- function(tsum,
   if(bonferroni) {
     ps.bf <- c(-0.1, p / tsum$n_tests, 1)
     output$bf <- 0L
-    tab <- table(.bincode(tsum$p.values, ps.bf), useNA = "always")
+    tab <- table(.bincode(tsum$stats$p.value, ps.bf), useNA = "always")
     output[as.integer(names(tab)), bf := as.integer(tab)]
     output[.N, bf := as.integer(tab[length(tab)])]
   }
@@ -37,7 +37,7 @@ tsum_p_value_summary <- function(tsum,
   # }
   if(raw) {
     output$raw <- 0L
-    tab <- table(.bincode(tsum$p.values, ps), useNA = "always")
+    tab <- table(.bincode(tsum$stats$p.value, ps), useNA = "always")
     output[as.integer(names(tab)), raw := as.integer(tab)]
     output[.N, raw := as.integer(tab[length(tab)])]
   }

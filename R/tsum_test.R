@@ -14,6 +14,8 @@
 #' @param B Number of simulations in calculating null distributions. The denominator will
 #'          be B + 1, hence values of B = 10^i - 1 will result in p-values that are 
 #'          decimal fractions. 
+#' @param correction Correction method of p_value() function.
+#' @param alpha Signficance level of p_value() function.
 #' @param parallel Use the parallel package when simulating the distribution, creating the
 #'                 required cluster. 
 #'                 If cluster is specified then this option makes no difference. 
@@ -57,6 +59,8 @@ tsum_test <- function(strscore,
   min.quant = 0.5,
   give.pvalue = TRUE, 
   B = 9999, 
+  correction = c("bf", "locus", "uncorrected"),
+  alpha = 0.05,
   parallel = FALSE, # TRUE for cluster
   cluster_n = NULL, # cluster size if cluster == NULL, when NULL, #threads - 1 (but always at least 1)
   cluster = NULL # a created by the parallel package. If NULL and parallel == TRUE, then a
@@ -102,7 +106,7 @@ tsum_test <- function(strscore,
     qm <- make_quantiles_matrix(strscore, loc = loc, sample = NULL, read_count_quant = 1, 
       method = "quantile7", min.n = 3)
     T_stats_loc <- quant_statistic_sampp(qm, quant = min.quant, trim = trim) # quant at default of 0.5
-    T_stats_list[[loc]] <- data.table(sample = names(T_stats_loc), T = T_stats_loc)
+    T_stats_list[[loc]] <- data.table(sample = names(T_stats_loc), tsum = T_stats_loc)
   }
   T_stats <- rbindlist(T_stats_list, idcol = "locus")
   
@@ -147,8 +151,10 @@ tsum_test <- function(strscore,
     pvals <- NULL
   }
   # Prepare output
-  exstra_tsum_new_(strscore, T = T_stats, p.values = pvals, 
+  exstra_tsum_new_(strscore, tsum = T_stats, p.values = pvals, 
     qmats = sim.results$qmmats, xecs = sim.results$xecs,
+    correction = correction,
+    alpha = alpha, 
     args = list(trim = trim, min.quant = min.quant, B = B))
 }
 

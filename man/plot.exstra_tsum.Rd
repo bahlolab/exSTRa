@@ -5,7 +5,7 @@
 \title{Plot exstra_tsum, highlighting significant results}
 \usage{
 \method{plot}{exstra_tsum}(tsum, loci = NULL, sample_col = NULL,
-  correction = "bf", alpha = 0.05, controls_label = "Not significant",
+  correction = NULL, alpha = NULL, controls_label = "Not significant",
   alpha_nonsignif = 0.25, ...)
 }
 \arguments{

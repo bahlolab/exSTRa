@@ -5,16 +5,20 @@
 \title{Return a data.table with p-values of a tsum_exstra object.}
 \usage{
 p_values(tsum, correction = c("bf", "locus", "uncorrected"), alpha = 0.05,
-  only.signif = FALSE)
+  only.signif = FALSE, modify = FALSE, p.matrix = NULL)
 }
 \arguments{
-\item{tsum}{An exstra_tsum object}
+\item{tsum}{An exstra_tsum object.}
 
 \item{correction}{Correction method to use. Use "bf" or TRUE for Bonferroni correction, and 
 "uncorrected" or FALSE for no correction. ("bonferroni" is also acceptable).
 "locus" is Bonferroni correction by locus.}
 
 \item{alpha}{Significance level alpha.}
+
+\item{modify}{If TRUE, will modify the tsum$stats table. Effectively ignored if only.sig == TRUE.}
+
+\item{p.matrix}{Matrix of p-values for internal use. Should only be used without tsum.}
 
 \item{only.sig}{If TRUE, only return significant results.}
 }
