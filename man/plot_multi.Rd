@@ -8,7 +8,7 @@ plot_multi(strscore, prefix = "exSTRa_plot", dir = "images/",
   plot_cols = NULL, color_only = NULL, plottypes = 1,
   alpha_control = 0.5, alpha_case = NULL, legend = TRUE,
   legend_control = TRUE, controls_label = "controls",
-  custom_legend = NULL, ...)
+  cases_label = "cases", custom_legend = NULL, ...)
 }
 \description{
 Allows plotting the STR scores of many loci, including direct to files.
