@@ -2,18 +2,16 @@
 
 ## ---- strexpansion_prepare
 # best to load data.table before exSTRa if manipulation with data.table commands is required
-# library(data.table) 
+library(data.table)
 library(exSTRa)
 
 knitr::opts_chunk$set(fig.width=11, fig.height=11)
 
-# data.table() # handy if closer inspection of internal tables is required
-
 # Read score data and file with loci information
 str_score <- read_score (
   file = system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa"), 
-  database = system.file("extdata", "repeat_expansion_disorders.txt", package = "exSTRa"),  # for more control, use object from read_exstra_db() instead
-  groups.regex = c(control = "^WGSrpt_0[24]$", case = ""), # here, matches on successive patterns override previous matches
+  database = system.file("extdata", "repeat_expansion_disorders.txt", package = "exSTRa"),  # for greater control, use object from read_exstra_db() instead
+  groups.regex = c(control = "^WGSrpt_0[24]$", case = ""), # the group is the first regular expression (regex) to match
   filter.low.counts = TRUE
 )
 
@@ -23,7 +21,7 @@ str_score
 # Plot all loci:
 # plot(str_score)
 
-# restrict to only three interesting loci, for simplicity here:
+# restrict to only four interesting loci, for simplicity here:
 ( str_score_four <- str_score[c("HD", "SCA2", "SCA6", "FRDA")] )
 
 # Plot the HD locus only:
@@ -31,8 +29,6 @@ plot(str_score["HD"])
 
 # With custom colours:
 plot(str_score, "HD", sample_col = c("WGSrpt_10" = "red", "WGSrpt_12" = "blue"))
-# Add legend:
-# TODO
 
 # For many loci, plot to a file
 # Most options not shown here should be passed onto plot.exstra_score() (equivalent to plot() on str_score)
