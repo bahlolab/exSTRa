@@ -46,7 +46,10 @@ p_values <- function(
     assert("p.matrix is not a matrix", is.matrix(p.matrix))
     n_tests <- sum (!is.na(p.matrix))
     out.table <- p.matrix %>% 
-      reshape2:::melt.matrix(value.name = "p.value", varnames = c("sample", "locus")) %>%
+      reshape2:::melt.matrix(value.name = "p.value", 
+                             varnames = c("sample", "locus"), 
+                             as.is = TRUE
+        ) %>%
       data.table()
   }
   
