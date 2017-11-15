@@ -26,8 +26,8 @@
 #' @examples 
 #' str_score <- read_score (
 #'     file = system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa"), 
-#'     database = system.file("extdata", "repeat_expansion_disorders.txt", package = "exSTRa"),  # for greater control, use object from read_exstra_db() instead
-#'     groups.regex = c(control = "^WGSrpt_0[24]$", case = ""), # the group is the first regular expression (regex) to match
+#'     database = system.file("extdata", "repeat_expansion_disorders.txt", package = "exSTRa"), 
+#'     groups.regex = c(control = "^WGSrpt_0[24]$", case = ""), 
 #'     filter.low.counts = TRUE
 #' )
 #' str_score
@@ -48,6 +48,19 @@
 #' str_score_HD_cases$samples
 #' 
 #' plot(str_score_HD_cases["HD"])
+#' 
+#' # for greater control, use object from read_exstra_db() instead
+#' str_db <- read_exstra_db(
+#'             system.file("extdata", "repeat_expansion_disorders.txt", package = "exSTRa")
+#'           )
+#' str_score <- read_score (
+#'     file = system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa"), 
+#'     database = str_db, 
+#'     groups.regex = c(control = "^WGSrpt_0[24]$", case = ""), 
+#'     filter.low.counts = TRUE
+#' )
+#' str_score
+#' str_score$samples
 #' 
 #' @export
 read_score <- function(file, database, groups.regex = NULL, groups.samples = NULL, filter.low.counts = TRUE) {
