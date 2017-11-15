@@ -2,10 +2,10 @@
 % Please edit documentation in R/CLASS_exstra_score.R
 \name{length.exstra_score}
 \alias{length.exstra_score}
-\title{Length of an exstra_score object}
+\title{Number of data points in exstra_score object}
 \usage{
 \method{length}{exstra_score}(x)
 }
 \description{
-Length of an exstra_score object
+Number of data points in exstra_score object
 }

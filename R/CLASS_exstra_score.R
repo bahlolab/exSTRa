@@ -110,6 +110,42 @@ plot_names.exstra_score <- function(strscore, names) {
 
 # This function allows square brackets to be used to select out the locus and sample
 # BIG TODO: always list by locus, throughout the code!!!
+#' Extract loci or samples
+#' 
+#' Using \code{i} (select) syntax of data.table to extract loci and/or samples.
+#' The first index is the loci filter on x$db, and second sample filter on x$samples. 
+#' 
+#' @param x exstra_score object
+#' @param loc Select loci, using data.table filtering on x$db.
+#' @param samp Select samples, using data.table filtering on x$samples.
+#' 
+#' @return exstra_score object
+#' 
+#' @examples 
+#' 
+#' # All data:
+#' exstra_wgs_pcr_2
+#' 
+#' # Extract one locus:
+#' exstra_wgs_pcr_2["HD"]
+#' 
+#' # Extract one sample:
+#' exstra_wgs_pcr_2[, "WGSrpt_10"]
+#' 
+#' # Extract all triplet repeats
+#' exstra_wgs_pcr_2[unit_length == 3]
+#' exstra_wgs_pcr_2[unit_length == 3]$db$locus
+#' 
+#' # Extract all coding repeats
+#' exstra_wgs_pcr_2[gene_region == "coding"]
+#' exstra_wgs_pcr_2[gene_region == "coding"]$db$locus
+#' 
+#' # Extract all case samples:
+#' exstra_wgs_pcr_2[, group == "case"]
+#' 
+#' # Extract by index 
+#' exstra_wgs_pcr_2[2, 5]
+#' 
 #' @export
 `[.exstra_score` <- function(x, loc, samp) {
   assert("locus is not the key of x$data", key(x$data)[1] == "locus")
@@ -214,7 +250,8 @@ copy.exstra_score <- function(x) {
 }
 
 
-#' Length of an exstra_score object
+#' Number of data points in exstra_score object
+#' 
 #' @export
 length.exstra_score <- function(x) {
   x$data[, .N]
