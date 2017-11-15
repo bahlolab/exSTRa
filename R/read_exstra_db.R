@@ -1,3 +1,21 @@
+#' Read a file of known STR loci for analysis
+#' 
+#' Reads a file formatted for exSTRa that contains information of short-tandem repeat
+#' loci that may be expanded. 
+#' 
+#' Files are assumed to be tab-delimited unless the extension is xlsx in which case the 
+#' xlsx package is used (if installed).
+#' 
+#' @param file Path of the file to be read.
+#' @param ... Extra arguments to the functions \code{read.delim} (text) or \code{xlsx::read.xlsx} (for xlsx files).
+#' 
+#' @return An exstra_db object.
+#' 
+#' @seealso \code{\link{read_score}}
+#' 
+#' @examples
+#' read_exstra_db(system.file("extdata", "repeat_expansion_disorders.txt", package = "exSTRa")) 
+#' 
 #' @export
 #' @include read_exstra_db_xlsx.R
 #' @include read_exstra_db_ucsc.R
