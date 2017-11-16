@@ -3,10 +3,15 @@
 
 # TODO: inherit exstra_db, saving many rewriting of methods
 
+#' @title Test if object is an exstra_score object
+#' 
+#' @param x Object to be tested
+#' 
+#' @return Logical
+#' 
 #' @import data.table
 #' @import stringr
 #' @import testit
-#' 
 #' @export
 is.exstra_score <- function(x) inherits(x, "exstra_score")
 
@@ -164,8 +169,45 @@ plot_names.exstra_score <- function(strscore, names) {
   x
 }
 
+#' Plot ECDF curves from an exstra_score object
+#' 
+#' 
+#' @param rsc exstra_score object.
+#' @param loci character; Only plot at the loci specified/ 
+#'        No effect if NULL. 
+#' @param sample_col Specify the colours for the given samples as a named character vector.
+#'        names() are sample names, while the values are characters specifying colours.
+#'        If specified, other samples are black by default, but may have an alpha value
+#'        less than 1 for transparency. 
+#' @param refline logical; if TRUE, then vertical lines are drawn indicating the reference size. 
+#'        This does not take into account mismatches in the STR, or false repeat hits.
+#' @param ylab Label for the y-axis. 
+#' @param verticals logical; if TRUE, vertical lines are drawn at steps. See \code{\link{plot.stepfun}}.
+#' @param pch numeric; the plotting character size.
+#' @param xlim numeric of length 2; the x-limits for the plot. 
+#' @param ylim numeric of length 2; the y-limits for the plot.
+#' @param alpha_control Transparency alpha value for the control samples. 
+#' @param alpha_case Transparency alpha value for the case samples. No effect if NULL.
+#' @param xlinked If not "all", limits X chromosome loci to only "male" or "female" samples.
+#'        Can also filter on only samples with "known" or "missing" sex. 
+#' @param xlinked.safe logical; if TRUE when xlinked is filtering on "male" or "female", 
+#'        an error will be raised if any samples have an undefined sex. 
+#'        If FALSE, samples with missing sex will also be filtered when xlinked is "male" or "female". 
+#' @param x_upper_missing If xlim is not specified, then loci with no data will have this
+#'        upper x-axis limit. 
+#' @param ... Further arguments to the \code{plot.ecdf} function.
+#' 
+#' @examples 
+#' plot(exstra_wgs_pcr_2["HD"])
+#' 
+#' plot(exstra_wgs_pcr_2, "HD", sample_col = c("WGSrpt_10" = "red", "WGSrpt_12" = "blue"))
+#' 
+#' # X-linked disorder, show male samples only:
+#' plot(exstra_wgs_pcr_2, "SBMA", xlinked = "male")
+#' 
 #' @export
-plot.exstra_score <- function(rsc, loci = NULL, sample_col = NULL, refline = TRUE, ylab="Fn(x)", verticals = TRUE,
+plot.exstra_score <- function(rsc, loci = NULL, sample_col = NULL, 
+  refline = TRUE, ylab="Fn(x)", verticals = TRUE,
   pch = 19, xlim, ylim = c(0,1), alpha_control = 0.5, alpha_case = NULL, 
   xlinked = "all", xlinked.safe = TRUE, x_upper_missing = 150, ...) {
   # Plot ECDFs of rep score data
@@ -190,8 +232,8 @@ plot.exstra_score <- function(rsc, loci = NULL, sample_col = NULL, refline = TRU
     #strrir.trim <- trim.rep_in_read_data(strrir, trimming)
     for(xlinked in xlinked_loop) {
       main.title <- paste(loci_text_info(rsc, locus.name), "score ECDF")
-      if(xlinked != "all" && grepl("X", str_score_fil$db[locus.name]$Gene.location)) {
-        plot_data <- str_filter_sex(rsc, xlinked, xlinked.safe)$data[locus == locus.name]
+      if(xlinked != "all" && grepl("X", rsc$db[locus.name]$inheritance)) {
+        plot_data <- filter_sex(rsc, xlinked, xlinked.safe)$data[locus == locus.name]
         main.title <- paste(main.title, paste0(xlinked, 's'))
       } else {
         plot_data <- rsc$data[locus.name, nomatch = 0]
@@ -264,6 +306,11 @@ length.exstra_score <- function(x) {
 }
 
 #' Dimension of exstra_score object
+#' 
+#' @param x An exstra_score object.
+#' 
+#' @return Vector of length two, the number of loci and number of samples respectively.
+#' 
 #' @export
 dim.exstra_score <- function(x) {
   c(exstra_wgs_pcr_2$db[, .N], exstra_wgs_pcr_2$samples[, .N])
