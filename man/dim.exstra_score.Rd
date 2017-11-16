@@ -6,6 +6,12 @@
 \usage{
 \method{dim}{exstra_score}(x)
 }
+\arguments{
+\item{x}{An exstra_score object.}
+}
+\value{
+Vector of length two, the number of loci and number of samples respectively.
+}
 \description{
 Dimension of exstra_score object
 }
