@@ -281,7 +281,10 @@ plot.exstra_score <- function(rsc, loci = NULL, sample_col = NULL,
 # TODO: easy renaming of samples
 
 
-#' Copy an exstra_score object so referencing does not cause problems.  
+#' Copy an exstra_score object.
+#' 
+#' Prevents changing both objects on changes by reference, that do not copy on write. 
+#'   
 #' @export
 copy.exstra_score <- function(x) {
   x$data %<>% copy()
