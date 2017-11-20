@@ -7,5 +7,5 @@
 \method{copy}{exstra_tsum}(x)
 }
 \description{
-Copy an exstra_tsum object
+Prevents changing both objects on changes by reference, that do not copy on write.
 }

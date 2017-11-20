@@ -2,10 +2,10 @@
 % Please edit documentation in R/CLASS_exstra_score.R
 \name{copy.exstra_score}
 \alias{copy.exstra_score}
-\title{Copy an exstra_score object so referencing does not cause problems.}
+\title{Copy an exstra_score object.}
 \usage{
 \method{copy}{exstra_score}(x)
 }
 \description{
-Copy an exstra_score object so referencing does not cause problems.
+Prevents changing both objects on changes by reference, that do not copy on write.
 }
