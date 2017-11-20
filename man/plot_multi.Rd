@@ -40,11 +40,11 @@ Set to: 1 for current device,
 
 \item{controls_label}{character; a generic label in the legend for controls.}
 
+\item{cases_label}{character; a generic label for case samples in the legend.}
+
 \item{custom_legend}{A named (sample) vector of colors, for the legend.}
 
 \item{...}{Further arguments to \code{\link{plot.exstra_score}}}
-
-\item{case_label}{character; a generic label for case samples in the legend.}
 }
 \description{
 Allows plotting the STR scores of many loci with legend.

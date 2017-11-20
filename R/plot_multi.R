@@ -21,7 +21,7 @@
 #' @param legend logical; if TRUE, include a legend.
 #' @param legend_control logical; if TRUE, include generic control specification in legend.
 #' @param controls_label character; a generic label in the legend for controls. 
-#' @param case_label character; a generic label for case samples in the legend. 
+#' @param cases_label character; a generic label for case samples in the legend. 
 #' @param custom_legend A named (sample) vector of colors, for the legend.
 #' @param ... Further arguments to \code{\link{plot.exstra_score}}
 #' 

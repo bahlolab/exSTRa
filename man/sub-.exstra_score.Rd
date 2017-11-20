@@ -2,7 +2,7 @@
 % Please edit documentation in R/CLASS_exstra_score.R
 \name{[.exstra_score}
 \alias{[.exstra_score}
-\title{Extract loci or samples}
+\title{Extract loci or samples frome exstra_score object}
 \usage{
 \method{[}{exstra_score}(x, loc, samp)
 }

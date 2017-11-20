@@ -11,6 +11,10 @@
 #' Checks for the class attribute only. 
 #' Does not check for correctness. 
 #' 
+#' @param x Object to be tested
+#' 
+#' @return Logical
+#' 
 #' @import data.table
 #' @import stringr
 #' @import testit
@@ -108,9 +112,15 @@ print.exstra_tsum <- function(x, ...) {
 #' @param tsum An exstra_tsum object.
 #' @param loci Character vector of locus or loci to plot.
 #' @param sample_col Named (samples) vector of charcters defining colors. 
-#' @param ... further arguments to plot.exstra_score
+#' @param correction Apply this correction method from \code{\link{p_values}}. 
+#'            If NULL, then the correction already applied to tsum is used. 
+#' @param alpha Significance level. 
+#'            If NULL, then the significance already applied to tsum is used. (default 0.05)
+#' @param controls_label Generic label for all control samples.
+#' @param alpha_nonsignif Transparency alpha value for nonsignificant samples.
+#' @param ... further arguments to \code{\link{plot.exstra_score}}
 #' 
-#' @seealso plot.exstra_score
+#' @seealso \code{\link{plot.exstra_score}}
 #' 
 #' @export
 plot.exstra_tsum <- function(tsum, loci = NULL, sample_col = NULL, 
@@ -176,11 +186,51 @@ plot.exstra_tsum <- function(tsum, loci = NULL, sample_col = NULL,
   # TODO
 }
 
-#TODO:
-# brackets [, ]
+#' Extract loci or samples from exstra_tsum object
+#' 
+#' Using \code{i} (select) syntax of data.table to extract loci and/or samples.
+#' The first index is the loci filter on x$db, and second sample filter on x$samples. 
+#' 
+#' @param x exstra_score object
+#' @param loc Select loci, using data.table filtering on x$db.
+#' @param samp Select samples, using data.table filtering on x$samples.
+#' 
+#' @return exstra_tsum object
+#' 
+#' @examples 
+#' # Run tsum_test()
+#' (tsum <- tsum_test(exstra_wgs_pcr_2[c("HD", "SCA2", "SCA6", "FRDA")], B = 100))
+#' 
+#' # All data:
+#' tsum
+#' 
+#' # Extract one locus:
+#' tsum["HD"]
+#' 
+#' # Extract one sample:
+#' tsum[, "WGSrpt_10"]
+#' 
+#' # One sample at one locus:
+#' tsum["HD", "WGSrpt_10"]
+#' 
+#' # Extract by index 
+#' tsum[2, 5]
+#' 
+#' # The following are intended to work, but do not at present:
+#' # Extract all triplet repeats
+#' ## tsum[unit_length == 3]
+#' ## tsum[unit_length == 3]$db$locus
+#' 
+#' # Extract all coding repeats
+#' ## tsum[gene_region == "coding"]
+#' ## tsum[gene_region == "coding"]$db$locus
+#' 
+#' # Extract all case samples:
+#' ## tsum[, group == "case"]
+#' 
 #' @export
 `[.exstra_tsum` <- function(x, loc, samp) {
-  assert("locus is not the key of x$T", key(x$T)[1] == "locus")
+  assert("locus is not the key of x$db", key(x$db)[1] == "locus")
   # recycle code for exstra_score:
   if(missing(loc)) {
     if(!missing(samp)) {
@@ -194,7 +244,7 @@ plot.exstra_tsum <- function(tsum, loci = NULL, sample_col = NULL,
     }
   }
   # cut class specific loci
-  x$stats <- x$stats[x$db$locus][sample %in% x$samples$sample]
+  x$stats <- x$stats[x$db$locus, nomatch=0][sample %in% x$samples$sample, nomatch=0]
   # matrix cut. We do not attempt to filter samples here as it is more complicated, and
   # this is for diagnostics mostly. 
   x$qmats <- x$qmats[x$db$locus]

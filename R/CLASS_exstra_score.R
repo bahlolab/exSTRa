@@ -3,15 +3,16 @@
 
 # TODO: inherit exstra_db, saving many rewriting of methods
 
+#' @import data.table
+#' @import stringr
+#' @import testit
+#' 
 #' @title Test if object is an exstra_score object
 #' 
 #' @param x Object to be tested
 #' 
 #' @return Logical
 #' 
-#' @import data.table
-#' @import stringr
-#' @import testit
 #' @export
 is.exstra_score <- function(x) inherits(x, "exstra_score")
 
@@ -115,7 +116,7 @@ plot_names.exstra_score <- function(strscore, names) {
 
 # This function allows square brackets to be used to select out the locus and sample
 # BIG TODO: always list by locus, throughout the code!!!
-#' Extract loci or samples
+#' Extract loci or samples frome exstra_score object
 #' 
 #' Using \code{i} (select) syntax of data.table to extract loci and/or samples.
 #' The first index is the loci filter on x$db, and second sample filter on x$samples. 
@@ -157,11 +158,11 @@ plot_names.exstra_score <- function(strscore, names) {
   assert("sample is not the key of x$samples", key(x$samples)[1] == "sample")
   assert("locus not the key of x$db", key(x$db)[1] == "locus")
   if(!missing(loc)) {
-    x$db <- x$db[eval(substitute(loc))]
+    x$db <- x$db[eval(substitute(loc)), nomatch=0]
     setkey(x$db, locus)
   }
   if(!missing(samp)) {
-    x$samples <- x$samples[eval(substitute(samp))]
+    x$samples <- x$samples[eval(substitute(samp)), nomatch=0]
     setkey(x$samples, sample)
   }
   x$data <- x$data[x$db$locus][sample %in% x$samples$sample]

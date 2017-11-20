@@ -15,11 +15,21 @@
 
 \item{sample_col}{Named (samples) vector of charcters defining colors.}
 
-\item{...}{further arguments to plot.exstra_score}
+\item{correction}{Apply this correction method from \code{\link{p_values}}. 
+If NULL, then the correction already applied to tsum is used.}
+
+\item{alpha}{Significance level. 
+If NULL, then the significance already applied to tsum is used. (default 0.05)}
+
+\item{controls_label}{Generic label for all control samples.}
+
+\item{alpha_nonsignif}{Transparency alpha value for nonsignificant samples.}
+
+\item{...}{further arguments to \code{\link{plot.exstra_score}}}
 }
 \description{
 Plot the significant results of a tsum
 }
 \seealso{
-plot.exstra_score
+\code{\link{plot.exstra_score}}
 }

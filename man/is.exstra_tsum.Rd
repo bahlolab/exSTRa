@@ -6,6 +6,12 @@
 \usage{
 is.exstra_tsum(x)
 }
+\arguments{
+\item{x}{Object to be tested}
+}
+\value{
+Logical
+}
 \description{
 Checks for the class attribute only. 
 Does not check for correctness.
