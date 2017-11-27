@@ -1,0 +1,160 @@
+---
+title: "Plotting"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+### ExSTRa version 1.0
+
+Reading this will explain how to install, configure and use exSTRa to analyse WGS and WES data.
+
+
+## Configuration
+
+* exSTRa comes in three bits. The first part of exSTRa is alignment where we process .fastq files into .BAM files. The specifications of which aligner to use and the options that optimise the software can be found  [here](https://github.com/bahlolab/Bio-STR-exSTRa/blob/master/prepare_BAMs.md).
+
+* The second part of exSTRa is to use a perl module to extract the relevant information from the reads. This relies on software that can be downloaded from [github](https://github.com/bahlolab/Bio-STR-exSTRa). Installation is a breeze, after the setup and installation of the Bio-STR-exSTRa script which involves the following steps.
+
+```{r Bio-STR-exSTRa, include=TRUE}
+perl Build.PL
+./Build
+./Build test
+./Build install
+```
+
+Now that Bio-STR-exSTRa is installed find your way into the examples directory which can be navigated to from the github page of Bio-STR-exSTRa. In this directory is a file named run_strexpansion_score.sh this needs to be adapted to your system by specifying where on you filesystem the you have the human genome reference ("Reference"), which bam files you want to process (bam_glob), and finally the directory and name of the output file you want then use in exSTRa.
+
+* In the standard build of exSTRa this file finds its way into the folder named inst/exdata and in our example case this file is named _"HiSeqXTen\_WGS\_PCR\_2.txt"_. 
+
+The contents of the file should like similar to this. 
+
+```{r Bio-STR-exSTRa, include=TRUE}
+locus   sample  rep     mlength QNAME
+SCA3    WGSrpt_15       85      150     ST-E00152:258:H7F3MALXX:4:2110:21186:49971
+SCA3    WGSrpt_15       35      150     ST-E00152:258:H7F3MALXX:4:1104:7050:12578
+SCA3    WGSrpt_15       72      149     ST-E00118:309:HFVNHALXX:2:2207:19847:57424
+SCA3    WGSrpt_15       62      150     ST-E00118:309:HFVNHALXX:2:1103:13616:46806
+SCA3    WGSrpt_15       62      150     ST-E00118:309:HFVNHALXX:2:2211:14306:20577
+SCA3    WGSrpt_15       34      150     ST-E00118:309:HFVNHALXX:2:2220:2656:5317
+SCA3    WGSrpt_15       86      150     ST-E00118:309:HFVNHALXX:2:1205:23236:49197
+```
+
+
+
+
+
+## An exSTRa example for Whole Genome Sequencing 
+
+A key visual check which indicates if a STR locus is normal or expanded. Is to plot an [Empirical distribution function](https://www.rdocumentation.org/packages/Hmisc/versions/4.0-3/topics/Ecdf) (ECDF). This can be done like so.
+
+
+```{r ECDF plot HD}
+
+library(exSTRa)
+# Read score data and file with loci information
+str_score <- read_score (
+  file = system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa"), 
+  database = "./data/repeat_disorders_2017_06_10.xlsx",
+  groups.regex = c(control = "^WGSrpt_0[24]$", case = ""), 
+  filter.low.counts = TRUE
+)
+
+
+# Plot HD locus, With custom colours:
+plot(str_score, "HD", sample_col = c("WGSrpt_10" = "red", "WGSrpt_12" = "blue"))
+ex.cs1 <- expression(paste("WGSrpt_10"),paste("WGSrpt_12"))
+legend(80, 0.3, ex.cs1, lty = 1:1, col = c("blue","red"),  adj = c(0, 0.6),cex = .6)
+```
+
+It is as simple as that!
+
+The x-axis is number of bases in a given read which are assosiated with a given STR motif. For the particular technology used in this example project _Illumina HiSeqXTen_  the reads are of length 150 so the maximum number of basis assosiated with a STR in the read is 150.
+
+It is easy enough to plot other loci and place the emphasis on other individuals. For example here we will be looking at SCA1 locus for three samples WGSrpt 14,16 and 08. WGSrpt 14 and 16 have the expanded allel whilst WGSrpt_08 does not.
+
+```{r ECDF plot SCA1 }
+
+# Plot SCA1 locus, With custom colours:
+plot(str_score, "SCA1", sample_col = c("WGSrpt_14" = "red", "WGSrpt_16" = "blue","WGSrpt_08" = "pink"))
+ex.cs1 <- expression(paste("WGSrpt_14"),paste("WGSrpt_16"),paste("WGSrpt_08"))
+legend(80, 0.3, ex.cs1, lty = 1:1, col = c("blue","red","pink"),  adj = c(0, 0.6),cex = .6)
+```
+
+The visual inspection and comparison could be tiresome for large cohorts. For this reason, exSTRa is also able to provide statisitcal tests for each individual at each locus, the statisitcs can be found [here](http://www.biorxiv.org/content/early/2017/06/30/157792). 
+
+## Statistical test. 
+
+The statistics that is relevant to detecting a repeat expansion is a form of outlier detection. In order to get exSTRa to calculate the test statistic we need to define str_score, this is then passed into the function "Statistics" along with the values of *B* and *htresh*. *B* is the amount of times we resample our population and *htresh* is the treshold that we use when constructing quantiles. In other words htresh is the quantile where we truncate the ecdf in order to calculate out statistic. B should be of the order of 100 in order to sample the distribution sufficiently although it is a slow process so starting with a small number is a good idea. 
+
+
+
+```{r Test Statisitc, results="hide"}
+library(exSTRa)
+library(dplyr)
+source("R/Ttest.R")
+
+str_score_p <- Statistics(str_score,2,hthresh =.5)
+
+```
+
+Below we see the strucutre of str_score_p notice it is the same as str_score but with an extra pvalues column.
+
+```{r Test Statisitc sample}
+# Using dplyr pipes %>% to select for appropriate pvalues
+head(str_score_p$data)
+```
+
+For a specific example
+
+```{r Test Statisitc samplei1}
+# Using dplyr pipes %>% to select for appropriate pvalues
+print(str_score_p$data %>% group_by(locus,sample) %>% summarise(mean_p = (mean(pvalue))) %>% filter(sample== "WGSrpt_10" ))
+```
+
+In order to visualise this we can plot the pvalues
+
+
+
+
+```{r Test Statisitc Plot, echo=FALSE}
+### Plotting function  ##### 
+library(grid)
+library(gridBase)
+
+
+Loci_plot <- levels(factor(str_score_p$data$locus))
+#Loci_plot <- Loci_plot[-c(2,4)]
+
+
+#####
+DD1 <- str_score_p$data %>% group_by(locus,sample) %>% summarise(pmean=mean(pvalue))
+for (loci_plot in Loci_plot){
+  #jpeg(file = sprintf("/home/users/allstaff/degorski.p/exSTRa/plot_output/pvalues/pvalue%s.jpeg",loci_plot))
+  #print(loci_plot)
+ 
+  #DD <- unique(   str_score1$data[which(str_score1$data$locus == loci_plot),]$xSTAT)
+  #DD <- unique(   str_score_p$data[which(str_score_p$data$locus == loci_plot),]$pvalue)
+  
+  DD <- (DD1 %>% filter(locus==loci_plot))$pmean 
+  names(DD) <- (DD1 %>% filter(locus==loci_plot))$sample
+  #names(DD) <- levels(factor(str_score_p$data$sample))
+  ## Plot, but suppress the labels
+  midpts <- barplot(DD, col=rainbow(20), names.arg="", main = sprintf("P_values for locus %s",loci_plot) , ylab = "T_value")
+  
+  ## Use grid to add the labels    
+  vps <- baseViewports()
+  pushViewport(vps$inner, vps$figure, vps$plot)
+  
+  grid.text(names(DD),
+            x = unit(midpts, "native"), y=unit(-1, "lines"),
+            just="right", rot=50)
+  
+  popViewport(3)  
+  #dev.off()
+}
+```
+
+Clearly the statistical method is a little sensitive. 
+It is useful to look at ROC curves to make sense of this sensitivity. 
