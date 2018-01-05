@@ -210,7 +210,8 @@ plot_names.exstra_score <- function(strscore, names) {
 plot.exstra_score <- function(rsc, loci = NULL, sample_col = NULL, 
   refline = TRUE, ylab="Fn(x)", verticals = TRUE,
   pch = 19, xlim, ylim = c(0,1), alpha_control = 0.5, alpha_case = NULL, 
-  xlinked = "all", xlinked.safe = TRUE, x_upper_missing = 150, ...) {
+  xlinked = "all", xlinked.safe = TRUE, x_upper_missing = 150, 
+  main = NULL, ...) {
   # Plot ECDFs of rep score data
   # sample_col should be a named vector, sample names as the name and color as the value
   # refline: if TRUE, include reference
@@ -232,10 +233,16 @@ plot.exstra_score <- function(rsc, loci = NULL, sample_col = NULL,
   for(locus.name in strlocis) {
     #strrir.trim <- trim.rep_in_read_data(strrir, trimming)
     for(xlinked in xlinked_loop) {
-      main.title <- paste(loci_text_info(rsc, locus.name), "score ECDF")
+      if(is.null(main)) {
+        main.title <- paste(loci_text_info(rsc, locus.name), "score ECDF")
+      } else {
+        main.title <- main 
+      }
       if(xlinked != "all" && grepl("X", rsc$db[locus.name]$inheritance)) {
         plot_data <- filter_sex(rsc, xlinked, xlinked.safe)$data[locus == locus.name]
-        main.title <- paste(main.title, paste0(xlinked, 's'))
+        if(is.null(main)) {
+          main.title <- paste(main.title, paste0(xlinked, 's'))
+        }
       } else {
         plot_data <- rsc$data[locus.name, nomatch = 0]
       }
