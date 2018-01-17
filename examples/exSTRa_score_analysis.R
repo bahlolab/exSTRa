@@ -35,8 +35,8 @@ plot(str_score, "HD", sample_col = c("WGSrpt_10" = "red", "WGSrpt_12" = "blue"))
 # Without a file.base or directory, should just plot many ECDFs to the R device
 # also can take mfrow or mfcol (not both) to place plots in an nr-by-nc array
 par(mfrow = c(2, 2))
-plot_multi(str_score[c("HD", "SCA6", "FRDA", "SCA1")], dir = "example_images", prefix = "HiSeqXTen_WGS_PCR_2", 
-  plottypes = c(1, 2), alpha_case = 0.2)
+plot_multi(str_score[c("HD", "SCA6", "FRDA", "SCA1")], dir = "example_images", 
+  prefix = "HiSeqXTen_WGS_PCR_2", plot_types = c(1, 2), alpha_case = 0.2)
 
 # For combining data from multiple samples, but analysed in the Perl scripts separately.
 data_08 <- str_score[, "WGSrpt_08"]
