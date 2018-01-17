@@ -7,6 +7,12 @@
 #' @import stringr
 #' @import testit
 #' 
+#' @title Test if object is an exstra_score object
+#' 
+#' @param x Object to be tested
+#' 
+#' @return Logical
+#' 
 #' @export
 is.exstra_score <- function(x) inherits(x, "exstra_score")
 
@@ -110,17 +116,53 @@ plot_names.exstra_score <- function(strscore, names) {
 
 # This function allows square brackets to be used to select out the locus and sample
 # BIG TODO: always list by locus, throughout the code!!!
+#' Extract loci or samples frome exstra_score object
+#' 
+#' Using \code{i} (select) syntax of data.table to extract loci and/or samples.
+#' The first index is the loci filter on x$db, and second sample filter on x$samples. 
+#' 
+#' @param x exstra_score object
+#' @param loc Select loci, using data.table filtering on x$db.
+#' @param samp Select samples, using data.table filtering on x$samples.
+#' 
+#' @return exstra_score object
+#' 
+#' @examples 
+#' 
+#' # All data:
+#' exstra_wgs_pcr_2
+#' 
+#' # Extract one locus:
+#' exstra_wgs_pcr_2["HD"]
+#' 
+#' # Extract one sample:
+#' exstra_wgs_pcr_2[, "WGSrpt_10"]
+#' 
+#' # Extract all triplet repeats
+#' exstra_wgs_pcr_2[unit_length == 3]
+#' exstra_wgs_pcr_2[unit_length == 3]$db$locus
+#' 
+#' # Extract all coding repeats
+#' exstra_wgs_pcr_2[gene_region == "coding"]
+#' exstra_wgs_pcr_2[gene_region == "coding"]$db$locus
+#' 
+#' # Extract all case samples:
+#' exstra_wgs_pcr_2[, group == "case"]
+#' 
+#' # Extract by index 
+#' exstra_wgs_pcr_2[2, 5]
+#' 
 #' @export
 `[.exstra_score` <- function(x, loc, samp) {
   assert("locus is not the key of x$data", key(x$data)[1] == "locus")
   assert("sample is not the key of x$samples", key(x$samples)[1] == "sample")
   assert("locus not the key of x$db", key(x$db)[1] == "locus")
   if(!missing(loc)) {
-    x$db <- x$db[eval(substitute(loc))]
+    x$db <- x$db[eval(substitute(loc)), nomatch=0]
     setkey(x$db, locus)
   }
   if(!missing(samp)) {
-    x$samples <- x$samples[eval(substitute(samp))]
+    x$samples <- x$samples[eval(substitute(samp)), nomatch=0]
     setkey(x$samples, sample)
   }
   x$data <- x$data[x$db$locus][sample %in% x$samples$sample]
@@ -128,10 +170,48 @@ plot_names.exstra_score <- function(strscore, names) {
   x
 }
 
+#' Plot ECDF curves from an exstra_score object
+#' 
+#' 
+#' @param rsc exstra_score object.
+#' @param loci character; Only plot at the loci specified/ 
+#'        No effect if NULL. 
+#' @param sample_col Specify the colours for the given samples as a named character vector.
+#'        names() are sample names, while the values are characters specifying colours.
+#'        If specified, other samples are black by default, but may have an alpha value
+#'        less than 1 for transparency. 
+#' @param refline logical; if TRUE, then vertical lines are drawn indicating the reference size. 
+#'        This does not take into account mismatches in the STR, or false repeat hits.
+#' @param ylab Label for the y-axis. 
+#' @param verticals logical; if TRUE, vertical lines are drawn at steps. See \code{\link{plot.stepfun}}.
+#' @param pch numeric; the plotting character size.
+#' @param xlim numeric of length 2; the x-limits for the plot. 
+#' @param ylim numeric of length 2; the y-limits for the plot.
+#' @param alpha_control Transparency alpha value for the control samples. 
+#' @param alpha_case Transparency alpha value for the case samples. No effect if NULL.
+#' @param xlinked If not "all", limits X chromosome loci to only "male" or "female" samples.
+#'        Can also filter on only samples with "known" or "missing" sex. 
+#' @param xlinked.safe logical; if TRUE when xlinked is filtering on "male" or "female", 
+#'        an error will be raised if any samples have an undefined sex. 
+#'        If FALSE, samples with missing sex will also be filtered when xlinked is "male" or "female". 
+#' @param x_upper_missing If xlim is not specified, then loci with no data will have this
+#'        upper x-axis limit. 
+#' @param ... Further arguments to the \code{plot.ecdf} function.
+#' 
+#' @examples 
+#' plot(exstra_wgs_pcr_2["HD"])
+#' 
+#' plot(exstra_wgs_pcr_2, "HD", sample_col = c("WGSrpt_10" = "red", "WGSrpt_12" = "blue"))
+#' 
+#' # X-linked disorder, show male samples only:
+#' plot(exstra_wgs_pcr_2, "SBMA", xlinked = "male")
+#' 
 #' @export
-plot.exstra_score <- function(rsc, loci = NULL, sample_col = NULL, refline = TRUE, ylab="Fn(x)", verticals = TRUE,
+plot.exstra_score <- function(rsc, loci = NULL, sample_col = NULL, 
+  refline = TRUE, ylab="Fn(x)", verticals = TRUE,
   pch = 19, xlim, ylim = c(0,1), alpha_control = 0.5, alpha_case = NULL, 
-  xlinked = "all", xlinked.safe = TRUE, x_upper_missing = 150, ...) {
+  xlinked = "all", xlinked.safe = TRUE, x_upper_missing = 150, 
+  main = NULL, ...) {
   # Plot ECDFs of rep score data
   # sample_col should be a named vector, sample names as the name and color as the value
   # refline: if TRUE, include reference
@@ -153,10 +233,16 @@ plot.exstra_score <- function(rsc, loci = NULL, sample_col = NULL, refline = TRU
   for(locus.name in strlocis) {
     #strrir.trim <- trim.rep_in_read_data(strrir, trimming)
     for(xlinked in xlinked_loop) {
-      main.title <- paste(loci_text_info(rsc, locus.name), "score ECDF")
-      if(xlinked != "all" && grepl("X", str_score_fil$db[locus.name]$Gene.location)) {
-        plot_data <- str_filter_sex(rsc, xlinked, xlinked.safe)$data[locus == locus.name]
-        main.title <- paste(main.title, paste0(xlinked, 's'))
+      if(is.null(main)) {
+        main.title <- paste(loci_text_info(rsc, locus.name), "score ECDF")
+      } else {
+        main.title <- main 
+      }
+      if(xlinked != "all" && grepl("X", rsc$db[locus.name]$inheritance)) {
+        plot_data <- filter_sex(rsc, xlinked, xlinked.safe)$data[locus == locus.name]
+        if(is.null(main)) {
+          main.title <- paste(main.title, paste0(xlinked, 's'))
+        }
       } else {
         plot_data <- rsc$data[locus.name, nomatch = 0]
       }
@@ -203,7 +289,10 @@ plot.exstra_score <- function(rsc, loci = NULL, sample_col = NULL, refline = TRU
 # TODO: easy renaming of samples
 
 
-#' Copy an exstra_score object so referencing does not cause problems.  
+#' Copy an exstra_score object.
+#' 
+#' Prevents changing both objects on changes by reference, that do not copy on write. 
+#'   
 #' @export
 copy.exstra_score <- function(x) {
   x$data %<>% copy()
@@ -214,7 +303,8 @@ copy.exstra_score <- function(x) {
 }
 
 
-#' Length of an exstra_score object
+#' Number of data points in exstra_score object
+#' 
 #' @export
 length.exstra_score <- function(x) {
   x$data[, .N]
@@ -227,6 +317,11 @@ length.exstra_score <- function(x) {
 }
 
 #' Dimension of exstra_score object
+#' 
+#' @param x An exstra_score object.
+#' 
+#' @return Vector of length two, the number of loci and number of samples respectively.
+#' 
 #' @export
 dim.exstra_score <- function(x) {
   c(exstra_wgs_pcr_2$db[, .N], exstra_wgs_pcr_2$samples[, .N])

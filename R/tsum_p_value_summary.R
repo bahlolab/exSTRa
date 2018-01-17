@@ -2,6 +2,17 @@
 #' 
 #' Creates a data.table from the given p-values
 #' 
+#' @param tsum An exstra_tsum object. 
+#' @param p P-value thresholds
+#' @param bonferroni If TRUE, give Bonferroni corrected values.
+#' @param raw If TRUE, give raw p-values.
+#' @param bonferroni.size If not NULL, override the number of tests to correct for in the 
+#'            Bonferroni correction with this value.
+#' 
+#' @return A data.table
+#' 
+#' @seealso \code{\link{p_values}}
+#' 
 #' @export
 tsum_p_value_summary <- function(tsum, 
   p = c(0.0001, 0.001, 0.01, 0.05), 

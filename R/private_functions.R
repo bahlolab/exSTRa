@@ -28,18 +28,18 @@ remove_below_quant <- function(loc_data, quant = 0.5) {
 }
 
 plot_many_str_score <- function(strscore, typename, plot_cols, loci = NULL, 
-  color_only = NULL, plottypes = 1, dirbase = "images/", 
+  color_only = NULL, plot_types = 1, dirbase = "images/", 
   alpha_control = 0.5, alpha_case = NULL,
   legend = TRUE, legend_control = TRUE, controls_label = "controls", 
   cases_label = NULL, custom_legend = NULL,
   ...) {
   # typename a non-empty character string
-  # plottypes should be vector of 1 to 3 can be 1:3
+  # plot_types should be vector of 1 to 3 can be 1:3
   # plot_cols may be a list, named by loci
   # color_only is a list, each item indicating the items to be coloured
   #TODO: check that sample names are correct
   # legend_custom, a named vector of colors for the legend
-  if(any(is.element(plottypes, 2:3))) {
+  if(any(is.element(plot_types, 2:3))) {
     # dir.create(paste0(dirbase, typename), recursive = TRUE)
     # The version below is more intuitive for other users
     dir.create(dirbase, recursive = TRUE)
@@ -48,7 +48,7 @@ plot_many_str_score <- function(strscore, typename, plot_cols, loci = NULL,
   if(is.null(loci)) {
     loci <- loci(strscore)
   }
-  for(i in plottypes) {
+  for(i in plot_types) {
     if(i == 2) { pdf(paste0(dirbase, typename, ".pdf"), useDingbats=FALSE) }
     for(loc in loci) {
       if(i == 3) { 
@@ -253,7 +253,7 @@ analyse_str_score_mw <- function(strscore, plot_cols, filebase = c(), actual = N
   # ECDF plots
   #TODO: fix up for significance.threshold
   plot_many_str_score(strscore, paste0("STR-score-", filebase, bf_name), plot_cols, 
-    color_only = str_significant(score_p, significance.threshold), plottypes = 3, dirbase = dirbase)
+    color_only = str_significant(score_p, significance.threshold), plot_types = 3, dirbase = dirbase)
   
   # Histograms
   dirbase_ext <- paste0(dirbase, "STR-score-", filebase, "-histograms/")

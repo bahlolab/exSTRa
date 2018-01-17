@@ -5,11 +5,54 @@
 \title{Multiple STR score ECDF plots}
 \usage{
 plot_multi(strscore, prefix = "exSTRa_plot", dir = "images/",
-  plot_cols = NULL, color_only = NULL, plottypes = 1,
+  plot_cols = NULL, color_only = NULL, plot_types = 1,
   alpha_control = 0.5, alpha_case = NULL, legend = TRUE,
   legend_control = TRUE, controls_label = "controls",
   cases_label = "cases", custom_legend = NULL, ...)
 }
+\arguments{
+\item{strscore}{exstra_score object.}
+
+\item{prefix}{File name prefix.}
+
+\item{dir}{Output directory for PDF plots.}
+
+\item{plot_cols}{If a named vector, colours to use for each sample (names) for all loci. 
+Unspecified samples are treated as controls. 
+May be a named (loci) list with named vectors as above for specific
+locus colours.}
+
+\item{color_only}{List (named with loci) of a character vectors of samples to color at each locus.}
+
+\item{plot_types}{vector; Specify the plot output device. May have multiple of the 
+following options if these are desired. 
+Set to: 1 for current device, 
+2 for output to a single PDF file with multiple pages (when >1 locus), and
+3 for a PDF file per locus.}
+
+\item{alpha_control}{Transparency alpha value for control samples.}
+
+\item{alpha_case}{Transparency alpha value for case samples.}
+
+\item{legend}{logical; if TRUE, include a legend.}
+
+\item{legend_control}{logical; if TRUE, include generic control specification in legend.}
+
+\item{controls_label}{character; a generic label in the legend for controls.}
+
+\item{cases_label}{character; a generic label for case samples in the legend.}
+
+\item{custom_legend}{A named (sample) vector of colors, for the legend.}
+
+\item{...}{Further arguments to \code{\link{plot.exstra_score}}}
+}
 \description{
-Allows plotting the STR scores of many loci, including direct to files.
+Allows plotting the STR scores of many loci with legend.
+Plots may be written directly to PDF files.
+}
+\examples{
+# Plot 4 loci
+par(mfrow = c(2, 2))
+plot_multi(exstra_wgs_pcr_2[c("HD", "SCA6", "FRDA", "SCA1")], alpha_case = 0.2)
+
 }
