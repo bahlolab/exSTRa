@@ -21,7 +21,7 @@ Rick M. Tankard, Martin B. Delatycki, Paul J. Lockhart,
         doi: \url{https://doi.org/10.1101/157792}
 }
 \usage{
-exstra_wgs_pcr_2
+data(exstra_wgs_pcr_2)
 }
 \description{
 Table of known repeat expansion disorder loci.
