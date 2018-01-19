@@ -17,4 +17,8 @@
 #'         expansion disorders. 
 #'         \emph{bioRxiv} 157792; 
 #'         doi: \url{https://doi.org/10.1101/157792}
-"exstra_wgs_pcr_2"
+#' @docType data
+#' @keywords datasets
+#' @name exstra_wgs_pcr_2
+#' @usage data(exstra_wgs_pcr_2)
+NULL
