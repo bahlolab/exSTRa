@@ -16,8 +16,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-exSTRa is an R package for the detection of repeat expansions with Illumina next-generation sequencing data. 
-exSTRa supports both whole-genome and whole-exome sequencing (WGS and WES) data.
+exSTRa is an R package for the detection of repeat expansions with Illumina next-generation sequencing (NGS) data of cases and controls.
+exSTRa supports both whole-genome and whole-exome sequencing (WGS and WES).
+Only paired-end data is supported. 
 This package implements the algorithm as described by:
 
 > Rick M. Tankard, Martin B. Delatycki, Paul J. Lockhart, 
@@ -28,5 +29,79 @@ This package implements the algorithm as described by:
 >          *bioRxiv* 157792; 
 >          doi: https://doi.org/10.1101/157792
 
+Data sets for the human genome reference hg19 are included.
+Other references may be included in the future, or specified by the user.
+The use of GRCh37, that does not include the 'chr' prefix in chromosome names, has not been tested, but this is intended for the near future. 
+
 # Data preparation
+
+This section describes the steps required to process your own data. 
+If you wish to try exSTRa with our example data, you may skip to the next section.
+
+## Standard NGS steps
+
+Data should be aligned to the hg19 reference genome. 
+We recommend this is performed in a *local alignment* mode, that allows more bases to be soft-clipped, hence more tolerant of repeat expansions.
+We have also had success finding expansions in data aligned in a non-local mode.
+
+Optionally, duplicate marking may be performed.
+We have tested this with Picard tools. 
+The effect of omitting this duplicate marking step has not been assessed. 
+
+Both BAM and CRAM formats are supported. 
+The resulting BAM/CRAM file should be sorted and indexed, with each representing exactly one individual.
+
+## Repeat content collection with Perl package
+
+At present, BAM/CRAM files are summarised by an external Perl package, [Bio::STR::exSTRa](https://github.com/bahlolab/Bio-STR-exSTRa). 
+Future verions of exSTRa may include this within the R package.
+For installation instructions, see the package page https://github.com/bahlolab/Bio-STR-exSTRa. 
+
+The [README.md](https://github.com/bahlolab/Bio-STR-exSTRa/blob/master/README.md) file, describes the steps to process the BAM/CRAM files. 
+This will produce a tab-delimted file that is ready for analysis with the R exSTRa package.
+The R exSTRa package includes an example of this output; assuming exSTRa is installed, this can be found on your system with
+```
+system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa")
+```
+or online at
+https://github.com/bahlolab/exSTRa/blob/master/inst/extdata/HiSeqXTen_WGS_PCR_2.txt.
+
+# Using the R exSTRa package
+
+The following describes the analysis of the WGS_PCR_2 data from the exSTRa publication described at the top of this vignette.
+WGS_PCR_2 is a data set of 16 case and 2 control individuals, sequenced 
+to 60x depth (mostly, with 2 cases at 30x) on an Illumina HiSeq X Ten system. 
+A PCR library preparation protocol with Illumina TruSeq Nano was used. 
+
+Firstly, if not already, the exSTRa package should be installed:
+```
+  # install.packages("devtools") # if devtools is not already installed
+  # install.packages("data.table") # if data.table is not already installed
+    devtools::install_github("bahlolab/exSTRa")
+```
+
+We load required packages.
+The data.table package should be loaded first, as 
+exSTRa must redefine it's copy() function as a generic function. 
+```{r}
+library(data.table)
+library(exSTRa)
+```
+
+Data output from Bio::STR::exSTRa is read, along with the specification of repeat
+expansion loci.
+When reading your own data, system.file(...) can be replaced with a string of the path to your data.
+```{r}
+str_score <- read_score (
+  file = system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa"), 
+  database = system.file("extdata", "repeat_expansion_disorders.txt", package = "exSTRa"),  # for greater control, use object from read_exstra_db() instead
+  groups.regex = c(control = "^WGSrpt_0[24]$", case = "") # the group is the first regular expression (regex) to match
+)
+
+str_score
+```
+
+Note the above function automatically filters low repeat content scores according to the length of the repeat motif; 
+shorter repeat motifs are more likely to appear by chance and hence have a higher threshold than longer repeat motifs, that are less likely to appear in a sequence by chance.
+
 
