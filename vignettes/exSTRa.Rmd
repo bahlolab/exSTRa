@@ -1,0 +1,32 @@
+---
+title: "Expanded STR algorithm (exSTRa)"
+author: "Rick Tankard"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+exSTRa is an R package for the detection of repeat expansions with Illumina next-generation sequencing data. 
+exSTRa supports both whole-genome and whole-exome sequencing (WGS and WES) data.
+This package implements the algorithm as described by:
+
+> Rick M. Tankard, Martin B. Delatycki, Paul J. Lockhart, 
+>          Melanie Bahlo. 
+>          **Detecting known repeat expansions with standard protocol next generation 
+>          sequencing, towards developing a single screening test for neurological repeat 
+>          expansion disorders**. 
+>          *bioRxiv* 157792; 
+>          doi: https://doi.org/10.1101/157792
+
+# Data preparation
+
