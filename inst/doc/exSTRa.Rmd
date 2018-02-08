@@ -1,0 +1,274 @@
+---
+title: "Expanded STR algorithm (exSTRa)"
+author: "Rick Tankard"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 6,
+  fig.height = 6,
+  dev = "png",
+  fig.retina = 2
+)
+```
+
+**exSTRa** is an R package for the detection of repeat expansions with Illumina next-generation sequencing (NGS) data of cases and controls.
+exSTRa supports both whole-genome and whole-exome sequencing (WGS and WES).
+Only paired-end data is supported. 
+This package implements the algorithm as described in:
+
+> Rick M. Tankard, Martin B. Delatycki, Paul J. Lockhart, 
+>          Melanie Bahlo. 
+>          **Detecting known repeat expansions with standard protocol next generation 
+>          sequencing, towards developing a single screening test for neurological repeat 
+>          expansion disorders**. 
+>          *bioRxiv* 157792; 
+>          doi: https://doi.org/10.1101/157792
+
+A table of repeat expansion disorders for the human genome reference hg19 is included.
+Other references may be provided in the future, or these may be created by the user.
+The use of GRCh37, that does not include the 'chr' prefix in chromosome names, has not yet 
+been tested, but this is intended for the near future. 
+
+# Data preparation
+
+This section describes the steps required to process your own data. 
+If you wish to try exSTRa with our example data, you may skip to the next section, 
+"Using the R exSTRa package".
+
+## Standard NGS steps
+
+Data should be aligned to the hg19 reference genome. 
+We recommend this is performed in *local alignment* mode, whicih allows more bases to be 
+soft-clipped, and hence more tolerant of repeat expansions.
+We have had success finding expansions in data aligned in a non-local mode.
+
+Optionally, duplicate marking may be performed.
+We have tested this with [Picard tools](https://broadinstitute.github.io/picard/).
+The effect of omitting this duplicate marking step has not been assessed. 
+
+Both BAM and CRAM formats are supported. 
+The resulting BAM/CRAM file should be sorted and indexed, with each representing exactly one individual.
+
+## Repeat content collection with Perl package
+
+At present, BAM/CRAM files are summarized by an external Perl package, [Bio::STR::exSTRa](https://github.com/bahlolab/Bio-STR-exSTRa). 
+Future versions of exSTRa may include this within the R package.
+For installation instructions, see the package page https://github.com/bahlolab/Bio-STR-exSTRa. 
+
+The [README.md](https://github.com/bahlolab/Bio-STR-exSTRa/blob/master/README.md) file of 
+Bio::STR::exSTRa, describes the steps to process the BAM/CRAM files. 
+This will produce a tab-delimited file that is ready for analysis with the R exSTRa package.
+The R exSTRa package includes an example of this output; assuming exSTRa is installed, this can be found on your system with
+```
+system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa")
+```
+or online at
+https://github.com/bahlolab/exSTRa/blob/master/inst/extdata/HiSeqXTen_WGS_PCR_2.txt.
+
+# Using the R exSTRa package
+
+The following describes the analysis of the WGS_PCR_2 data from the exSTRa publication described at the top of this vignette.
+WGS_PCR_2 is a data set of 16 case and 2 control individuals, sequenced 
+to 60x and 30x depth (16 (14 cases) and 2 (case) samples, respectively) on an Illumina HiSeq X Ten system. 
+A PCR library preparation protocol with Illumina TruSeq Nano was used. 
+
+Firstly, if not already, the exSTRa package should be installed:
+```
+  # install.packages("devtools") # if devtools is not already installed
+  # install.packages("data.table") # if data.table is not already installed
+    devtools::install_github("bahlolab/exSTRa")
+```
+
+We load required packages.
+The data.table package should be loaded first, as 
+exSTRa must redefine it's copy() function as a generic function. 
+```{r}
+library(data.table)
+library(exSTRa)
+```
+
+Data output from Bio::STR::exSTRa is read, along with the specification of repeat
+expansion loci.
+This results in an `exstra_score` object.
+```{r}
+str_score <- read_score (
+  file = system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa"), 
+  database = system.file("extdata", "repeat_expansion_disorders.txt", package = "exSTRa"),
+  groups.regex = c(control = "^WGSrpt_0[24]$", case = "")
+)
+
+# an exstra_score object:
+str_score
+```
+When reading your own data, `system.file(...)` should be replaced with a string of the path to your data.
+The `groups.regex` vector does not currently impact the detection of repeat expansions, 
+but does affect plotting.
+`groups.regex` should contain regular expressions to match sample names. 
+The order of groups.regex matters, such that the first match will determine the grouping;
+this is why the "case" regular expression is an empty string that matches anything, hence
+specifying any non-control sample as a case. 
+
+
+Note the `read_score()` function automatically filters low repeat content scores according to the length of the repeat motif; 
+shorter repeat motifs are more likely to appear by chance and hence have a higher threshold than longer repeat motifs, that are less likely to appear in a sequence by chance.
+
+The loci are specified in `str_score$db` as a `data.table`. 
+```{r}
+str_score$db$locus
+```
+
+
+## ECDF plotting
+We can plot an empirical distribution function (ECDF) of repeat scores for a chosen locus.
+This example is of theHuntington disease (HD) locus.
+Here, all case samples, including those for other loci, are colored red.
+```{r}
+plot(str_score["HD"])
+```
+
+We may also choose a locus directly from the `plot()` function. 
+Here, we additionally set the color of two known HD cases.
+All other samples are automatically colored a transparent black.
+```{r}
+plot(str_score, "HD", sample_col = c("WGSrpt_10" = "red", "WGSrpt_12" = "blue"))
+```
+
+More information on the plot function on exstra_score objects can be accessed with 
+```{}
+?`[.exstra_score`
+```
+
+For convenience and speed in this vignette, we only assess expansions for the
+Huntington disease, spinocerebellar ataxias 2 and 6, and Friedreich's ataxia loci. 
+```{r}
+( str_score_four <- str_score[c("HD", "SCA2", "SCA6", "FRDA")] )
+```
+
+For creating multiple ECDF curves, with legends, you may use the `plot_multi()` function. 
+Here, four ECDFs are created both to the R session (plot_type 1) and to a single PDF file
+`example_images/HiSeqXTen_WGS_PCR_2.pdf`.
+```{r, out.width = '82%', fig.width=12, fig.height=12}
+par(mfrow = c(2, 2))
+plot_multi(str_score_four, dir = "example_images", 
+  prefix = "HiSeqXTen_WGS_PCR_2", plot_types = c(1, 2), alpha_case = 0.2)
+```
+
+# Testing for significant expansions
+
+Here, we calculate an aggregated T statistic over quantiles as described in the exSTRa paper. 
+By default, p-values are calculated with a simulation procedure. 
+With default settings, this may take several minutes to complete.
+We use the parallel package to speed this up; by default this uses 1 less thread than 
+available on your system. 
+This creates an `exstra_tsum` object.
+```{r}
+( tsum <- tsum_test(str_score_four, parallel = TRUE) )
+```
+
+Plotting an exstra_tsum object highlights significant samples, after Bonferroni correction
+by default.
+```{r, out.width = '82%', fig.width=12, fig.height=12}
+par(mfrow = c(2, 2))
+plot(tsum)
+```
+
+
+You may manually set the colors each sample will use with a vector of colors, with names
+the corresponding sample name. 
+```{r, fig.width=6, fig.height=6}
+plot_cols <- c(RColorBrewer::brewer.pal(8, "Set2"), RColorBrewer::brewer.pal(8, "Dark2"), "orange", "blue")
+names(plot_cols) <- str_score_four$samples[, sample]
+plot_cols
+# To demonstrate the colours used:
+par(mfrow = c(1, 1))
+pie(rep(1, length(plot_cols)), col = plot_cols, labels = names(plot_cols), cex = 0.7)
+```
+
+Note that some data sets may not be able to reach significant levels after correction 
+with the default number of simulations (9999).
+This can be adjusted with the `B` parameter of `tsum_test()`, or a less stringent
+threshold can be used.
+Bonferroni correction is too severe here, so we can specify Bonferroni correction only 
+on each locus.
+```{r, out.width = '82%', fig.width=12, fig.height=12}
+par(mfrow = c(2, 2))
+plot(tsum, sample_col = plot_cols, correction = "locus")
+```
+
+
+You may obtain a data.table of each sample and locus with the p-value, and if it is significant
+with the correction method applied.
+Here, the correction method is Bonferroni per locus.
+```{r}
+(ps <- p_values(tsum, correction = "locus"))
+```
+
+To obtain only the significant samples, you can either use data.table subsetting:
+```{r}
+ps[identity(signif)]
+```
+
+or when retrieving the data.table from p_values():
+```{r}
+p_values(tsum, only.signif = TRUE, correction = "locus")
+```
+
+
+# Other useful functions
+
+
+## Subsetting
+We may subset the exstra_score object by locus or samples.
+This is performed by x[loci] or x[loci, samples]. 
+
+For a single locus:
+```{r}
+exstra_wgs_pcr_2["HD"]
+```
+
+A single sample:
+```{r}
+exstra_wgs_pcr_2[, "WGSrpt_10"]
+```
+
+The square brackets also allow filtering loci or samples with data.table syntax, on the x\$db and x\$samples.
+For example, we can extract all triplet repeats:
+```{r}
+exstra_wgs_pcr_2[unit_length == 3]
+exstra_wgs_pcr_2[unit_length == 3]$db$locus
+```
+
+or extract all coding repeats:
+```{r}
+exstra_wgs_pcr_2[gene_region == "coding"]
+exstra_wgs_pcr_2[gene_region == "coding"]$db$locus
+```
+
+Similarly, this may be performed on sample information:
+```{r}
+exstra_wgs_pcr_2[, group == "case"]
+```
+
+
+## Combining data
+
+For combining exstra_score objects. 
+This may be useful if the BAM/CRAM files are analysed separately, but then are required to
+be analysed together in R. 
+In the following dummy example, we split up the str_score variable into two samples, 
+then recombine them.
+```{r}
+data_08 <- str_score[, "WGSrpt_08"]
+data_13 <- str_score[, "WGSrpt_13"]
+( combined_data <- rbind_score_list(list(data_08, data_13)) )
+```
+

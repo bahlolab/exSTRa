@@ -15,14 +15,15 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.width = 6,
   fig.height = 6,
-  dev = "svg"
+  dev = "png",
+  fig.retina = 2
 )
 ```
 
-exSTRa is an R package for the detection of repeat expansions with Illumina next-generation sequencing (NGS) data of cases and controls.
+**exSTRa** is an R package for the detection of repeat expansions with Illumina next-generation sequencing (NGS) data of cases and controls.
 exSTRa supports both whole-genome and whole-exome sequencing (WGS and WES).
 Only paired-end data is supported. 
-This package implements the algorithm as described by:
+This package implements the algorithm as described in:
 
 > Rick M. Tankard, Martin B. Delatycki, Paul J. Lockhart, 
 >          Melanie Bahlo. 
@@ -32,23 +33,26 @@ This package implements the algorithm as described by:
 >          *bioRxiv* 157792; 
 >          doi: https://doi.org/10.1101/157792
 
-Data sets for the human genome reference hg19 are included.
-Other references may be included in the future, or specified by the user.
-The use of GRCh37, that does not include the 'chr' prefix in chromosome names, has not been tested, but this is intended for the near future. 
+A table of repeat expansion disorders for the human genome reference hg19 is included.
+Other references may be provided in the future, or these may be created by the user.
+The use of GRCh37, that does not include the 'chr' prefix in chromosome names, has not yet 
+been tested, but this is intended for the near future. 
 
 # Data preparation
 
 This section describes the steps required to process your own data. 
-If you wish to try exSTRa with our example data, you may skip to the next section.
+If you wish to try exSTRa with our example data, you may skip to the next section, 
+"Using the R exSTRa package".
 
 ## Standard NGS steps
 
 Data should be aligned to the hg19 reference genome. 
-We recommend this is performed in *local alignment* mode, that allows more bases to be soft-clipped, hence more tolerant of repeat expansions.
-We have also had success finding expansions in data aligned in a non-local mode.
+We recommend this is performed in *local alignment* mode, whicih allows more bases to be 
+soft-clipped, and hence more tolerant of repeat expansions.
+We have had success finding expansions in data aligned in a non-local mode.
 
 Optionally, duplicate marking may be performed.
-We have tested this with Picard tools. 
+We have tested this with [Picard tools](https://broadinstitute.github.io/picard/).
 The effect of omitting this duplicate marking step has not been assessed. 
 
 Both BAM and CRAM formats are supported. 
@@ -60,7 +64,8 @@ At present, BAM/CRAM files are summarized by an external Perl package, [Bio::STR
 Future versions of exSTRa may include this within the R package.
 For installation instructions, see the package page https://github.com/bahlolab/Bio-STR-exSTRa. 
 
-The [README.md](https://github.com/bahlolab/Bio-STR-exSTRa/blob/master/README.md) file, describes the steps to process the BAM/CRAM files. 
+The [README.md](https://github.com/bahlolab/Bio-STR-exSTRa/blob/master/README.md) file of 
+Bio::STR::exSTRa, describes the steps to process the BAM/CRAM files. 
 This will produce a tab-delimited file that is ready for analysis with the R exSTRa package.
 The R exSTRa package includes an example of this output; assuming exSTRa is installed, this can be found on your system with
 ```
@@ -73,7 +78,7 @@ https://github.com/bahlolab/exSTRa/blob/master/inst/extdata/HiSeqXTen_WGS_PCR_2.
 
 The following describes the analysis of the WGS_PCR_2 data from the exSTRa publication described at the top of this vignette.
 WGS_PCR_2 is a data set of 16 case and 2 control individuals, sequenced 
-to 60x depth (mostly, with 2 cases at 30x) on an Illumina HiSeq X Ten system. 
+to 60x and 30x depth (16 (14 cases) and 2 (case) samples, respectively) on an Illumina HiSeq X Ten system. 
 A PCR library preparation protocol with Illumina TruSeq Nano was used. 
 
 Firstly, if not already, the exSTRa package should be installed:
@@ -104,33 +109,33 @@ str_score <- read_score (
 # an exstra_score object:
 str_score
 ```
-When reading your own data, `system.file(...)` can be replaced with a string of the path to your data.
-The groups.regex vector does not currently impact the detection of repeat expansions, 
+When reading your own data, `system.file(...)` should be replaced with a string of the path to your data.
+The `groups.regex` vector does not currently impact the detection of repeat expansions, 
 but does affect plotting.
-The groups.regex should contain regular expressions to match sample names. 
+`groups.regex` should contain regular expressions to match sample names. 
 The order of groups.regex matters, such that the first match will determine the grouping;
-this is why the "case" group corresponds to an empty string, that matches anything, hence
+this is why the "case" regular expression is an empty string that matches anything, hence
 specifying any non-control sample as a case. 
 
 
 Note the `read_score()` function automatically filters low repeat content scores according to the length of the repeat motif; 
 shorter repeat motifs are more likely to appear by chance and hence have a higher threshold than longer repeat motifs, that are less likely to appear in a sequence by chance.
 
-The loci are specified in `str_score$db`. 
+The loci are specified in `str_score$db` as a `data.table`. 
 ```{r}
 str_score$db$locus
 ```
 
 
 ## ECDF plotting
-We can plot an empirical distribution function (ECDF) of repeat scores for the
-Huntington disease (HD) locus.
+We can plot an empirical distribution function (ECDF) of repeat scores for a chosen locus.
+This example is of theHuntington disease (HD) locus.
 Here, all case samples, including those for other loci, are colored red.
 ```{r}
 plot(str_score["HD"])
 ```
 
-We may also choose a locus directly from the plot() function. 
+We may also choose a locus directly from the `plot()` function. 
 Here, we additionally set the color of two known HD cases.
 All other samples are automatically colored a transparent black.
 ```{r}
@@ -148,7 +153,7 @@ Huntington disease, spinocerebellar ataxias 2 and 6, and Friedreich's ataxia loc
 ( str_score_four <- str_score[c("HD", "SCA2", "SCA6", "FRDA")] )
 ```
 
-For creating multiple ECDF curves to files, you may use the `plot_multi()` function. 
+For creating multiple ECDF curves, with legends, you may use the `plot_multi()` function. 
 Here, four ECDFs are created both to the R session (plot_type 1) and to a single PDF file
 `example_images/HiSeqXTen_WGS_PCR_2.pdf`.
 ```{r, out.width = '82%', fig.width=12, fig.height=12}
@@ -166,7 +171,7 @@ We use the parallel package to speed this up; by default this uses 1 less thread
 available on your system. 
 This creates an `exstra_tsum` object.
 ```{r}
-(tsum <- tsum_test(str_score_four, parallel = TRUE))
+( tsum <- tsum_test(str_score_four, parallel = TRUE) )
 ```
 
 Plotting an exstra_tsum object highlights significant samples, after Bonferroni correction
