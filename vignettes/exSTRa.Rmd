@@ -44,7 +44,7 @@ If you wish to try exSTRa with our example data, you may skip to the next sectio
 ## Standard NGS steps
 
 Data should be aligned to the hg19 reference genome. 
-We recommend this is performed in a *local alignment* mode, that allows more bases to be soft-clipped, hence more tolerant of repeat expansions.
+We recommend this is performed in *local alignment* mode, that allows more bases to be soft-clipped, hence more tolerant of repeat expansions.
 We have also had success finding expansions in data aligned in a non-local mode.
 
 Optionally, duplicate marking may be performed.
@@ -56,12 +56,12 @@ The resulting BAM/CRAM file should be sorted and indexed, with each representing
 
 ## Repeat content collection with Perl package
 
-At present, BAM/CRAM files are summarised by an external Perl package, [Bio::STR::exSTRa](https://github.com/bahlolab/Bio-STR-exSTRa). 
-Future verions of exSTRa may include this within the R package.
+At present, BAM/CRAM files are summarized by an external Perl package, [Bio::STR::exSTRa](https://github.com/bahlolab/Bio-STR-exSTRa). 
+Future versions of exSTRa may include this within the R package.
 For installation instructions, see the package page https://github.com/bahlolab/Bio-STR-exSTRa. 
 
 The [README.md](https://github.com/bahlolab/Bio-STR-exSTRa/blob/master/README.md) file, describes the steps to process the BAM/CRAM files. 
-This will produce a tab-delimted file that is ready for analysis with the R exSTRa package.
+This will produce a tab-delimited file that is ready for analysis with the R exSTRa package.
 The R exSTRa package includes an example of this output; assuming exSTRa is installed, this can be found on your system with
 ```
 system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa")
@@ -142,8 +142,8 @@ More information on the plot function on exstra_score objects can be accessed wi
 ?`[.exstra_score`
 ```
 
-For convience and speed in this vignette, we only assess expansions for the
-Huntington disease, spinocerebellar ataxias 2 and 6, and Friedrich's ataxia loci. 
+For convenience and speed in this vignette, we only assess expansions for the
+Huntington disease, spinocerebellar ataxias 2 and 6, and Friedreich's ataxia loci. 
 ```{r}
 ( str_score_four <- str_score[c("HD", "SCA2", "SCA6", "FRDA")] )
 ```
@@ -177,7 +177,7 @@ plot(tsum)
 ```
 
 
-You may manually set the colours each sample will use with a vector of colors, with names
+You may manually set the colors each sample will use with a vector of colors, with names
 the corresponding sample name. 
 ```{r, fig.width=5.5, fig.height=5.5}
 plot_cols <- c(RColorBrewer::brewer.pal(8, "Set2"), RColorBrewer::brewer.pal(8, "Dark2"), "orange", "blue")
