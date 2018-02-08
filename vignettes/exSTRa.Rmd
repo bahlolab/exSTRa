@@ -151,7 +151,7 @@ Huntington disease, spinocerebellar ataxias 2 and 6, and Friedreich's ataxia loc
 For creating multiple ECDF curves to files, you may use the `plot_multi()` function. 
 Here, four ECDFs are created both to the R session (plot_type 1) and to a single PDF file
 `example_images/HiSeqXTen_WGS_PCR_2.pdf`.
-```{r, out.width = 6, out.height = 6, fig.width=12, fig.height=12}
+```{r, out.width = '82%', fig.width=12, fig.height=12}
 par(mfrow = c(2, 2))
 plot_multi(str_score_four, dir = "example_images", 
   prefix = "HiSeqXTen_WGS_PCR_2", plot_types = c(1, 2), alpha_case = 0.2)
@@ -171,7 +171,7 @@ This creates an `exstra_tsum` object.
 
 Plotting an exstra_tsum object highlights significant samples, after Bonferroni correction
 by default.
-```{r, out.width = 6, out.height = 6, fig.width=12, fig.height=12}
+```{r, out.width = '82%', fig.width=12, fig.height=12}
 par(mfrow = c(2, 2))
 plot(tsum)
 ```
@@ -179,7 +179,7 @@ plot(tsum)
 
 You may manually set the colors each sample will use with a vector of colors, with names
 the corresponding sample name. 
-```{r, fig.width=5.5, fig.height=5.5}
+```{r, fig.width=6, fig.height=6}
 plot_cols <- c(RColorBrewer::brewer.pal(8, "Set2"), RColorBrewer::brewer.pal(8, "Dark2"), "orange", "blue")
 names(plot_cols) <- str_score_four$samples[, sample]
 plot_cols
@@ -194,7 +194,7 @@ This can be adjusted with the `B` parameter of `tsum_test()`, or a less stringen
 threshold can be used.
 Bonferroni correction is too severe here, so we can specify Bonferroni correction only 
 on each locus.
-```{r, out.width = 6, out.height = 6, fig.width=12, fig.height=12}
+```{r, out.width = '82%', fig.width=12, fig.height=12}
 par(mfrow = c(2, 2))
 plot(tsum, sample_col = plot_cols, correction = "locus")
 ```
