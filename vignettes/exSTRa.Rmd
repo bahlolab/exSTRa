@@ -185,7 +185,7 @@ names(plot_cols) <- str_score_four$samples[, sample]
 plot_cols
 # To demonstrate the colours used:
 par(mfrow = c(1, 1))
-pie(rep(1, length(plot_cols)), col = plot_cols, labels = names(plot_cols))
+pie(rep(1, length(plot_cols)), col = plot_cols, labels = names(plot_cols), cex = 0.7)
 ```
 
 Note that some data sets may not be able to reach significant levels after correction 
