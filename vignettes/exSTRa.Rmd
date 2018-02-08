@@ -12,7 +12,10 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 7,
+  dev = "svg"
 )
 ```
 
@@ -91,6 +94,7 @@ library(exSTRa)
 Data output from Bio::STR::exSTRa is read, along with the specification of repeat
 expansion loci.
 When reading your own data, system.file(...) can be replaced with a string of the path to your data.
+This results in an `exstra_score` object.
 ```{r}
 str_score <- read_score (
   file = system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa"), 
@@ -98,10 +102,160 @@ str_score <- read_score (
   groups.regex = c(control = "^WGSrpt_0[24]$", case = "") # the group is the first regular expression (regex) to match
 )
 
+# an exstra_score object:
 str_score
 ```
 
 Note the above function automatically filters low repeat content scores according to the length of the repeat motif; 
 shorter repeat motifs are more likely to appear by chance and hence have a higher threshold than longer repeat motifs, that are less likely to appear in a sequence by chance.
 
+The loci are specified in `str_score$db`. 
+```{r}
+str_score$db$locus
+```
+
+
+## ECDF plotting
+We can plot an empirical distribution function (ECDF) of repeat scores for the
+Huntington disease (HD) locus:
+```{r}
+plot(str_score["HD"])
+```
+
+We may also choose a locus directly from the plot() function. 
+Here, we additionally set the color of two known HD cases.
+All other samples are automatically colored a transparent black.
+```{r}
+plot(str_score, "HD", sample_col = c("WGSrpt_10" = "red", "WGSrpt_12" = "blue"))
+```
+
+More information on the plot function on exstra_score objects can be accessed with 
+```{}
+?`[.exstra_score`
+```
+
+For convience and speed in this vignette, we only assess expansions for the
+Huntington disease, spinocerebellar ataxias 2 and 6, and Friedrich's ataxia loci. 
+```{r}
+( str_score_four <- str_score[c("HD", "SCA2", "SCA6", "FRDA")] )
+```
+
+For creating multiple ECDF curves to files, you may use the `plot_multi()` function. 
+Here, four ECDFs are created both to the R session (plot_type 1) and to a single PDF file
+`example_images/HiSeqXTen_WGS_PCR_2.pdf`.
+```{r}
+par(mfrow = c(2, 2))
+plot_multi(str_score_four, dir = "example_images", 
+  prefix = "HiSeqXTen_WGS_PCR_2", plot_types = c(1, 2), alpha_case = 0.2)
+```
+
+# Testing for significant expansions
+
+Here, we calculate an aggregated T statistic over quantiles as described in the exSTRa paper. 
+By default, p-values are calculated with a simulation procedure. 
+With default settings, this may take several minutes to complete.
+We use the parallel package to speed this up; by default this uses 1 less thread than 
+available on your system. 
+This creates an `exstra_tsum` object.
+```{r}
+(tsum <- tsum_test(str_score_four, parallel = TRUE))
+```
+
+Plotting an exstra_tsum object highlights significant samples, after Bonferroni correction
+by default.
+```{r}
+par(mfrow = c(2, 2))
+plot(tsum)
+```
+
+
+You may manually set the colours each sample will use with a vector of colors, with names
+the corresponding sample name. 
+```{r, fig.width=4, fig.height=4}
+plot_cols <- c(RColorBrewer::brewer.pal(8, "Set2"), RColorBrewer::brewer.pal(8, "Dark2"), "orange", "blue")
+names(plot_cols) <- str_score_four$samples[, sample]
+plot_cols
+# To demonstrate the colours used:
+par(mfrow = c(1, 1))
+pie(rep(1, length(plot_cols)), col = plot_cols, labels = names(plot_cols))
+```
+
+Note that some data sets may not be able to reach significant levels after correction 
+with the default number of simulations (9999).
+This can be adjusted with the `B` parameter of `tsum_test()`, or a less stringent
+threshold can be used.
+Bonferroni correction is too severe here, so we can specify Bonferroni correction only 
+on each locus.
+```{r}
+par(mfrow = c(2, 2))
+plot(tsum, sample_col = plot_cols, correction = "locus")
+```
+
+
+You may obtain a data.table of each sample and locus with the p-value, and if it is significant
+with the correction method applied.
+Here, the correction method is Bonferroni per locus.
+```{r}
+(ps <- p_values(tsum, correction = "locus"))
+```
+
+To obtain only the significant samples, you can either use data.table subsetting:
+```{r}
+ps[identity(signif)]
+```
+
+or when retrieving the data.table from p_values():
+```{r}
+p_values(tsum, only.signif = TRUE, correction = "locus")
+```
+
+
+# Other useful functions
+
+
+## Subsetting
+We may subset the exstra_score object by locus or samples.
+This is performed by x[loci] or x[loci, samples]. 
+
+For a single locus:
+```{r}
+exstra_wgs_pcr_2["HD"]
+```
+
+A single sample:
+```{r}
+exstra_wgs_pcr_2[, "WGSrpt_10"]
+```
+
+The square brackets also allow filtering loci or samples with data.table syntax, on the x\$db and x\$samples.
+For example, we can extract all triplet repeats:
+```{r}
+exstra_wgs_pcr_2[unit_length == 3]
+exstra_wgs_pcr_2[unit_length == 3]$db$locus
+```
+
+or extract all coding repeats:
+```{r}
+exstra_wgs_pcr_2[gene_region == "coding"]
+exstra_wgs_pcr_2[gene_region == "coding"]$db$locus
+```
+
+Similarly, this may be performed on sample information:
+```{r}
+exstra_wgs_pcr_2[, group == "case"]
+```
+
+
+## Combining data
+
+For combining exstra_score objects. 
+This may be useful if the BAM/CRAM files are analysed separately, but then are required to
+be analysed together in R. 
+In the following dummy example, we split up the str_score variable into two samples, 
+then recombine them.
+```{r}
+data_08 <- str_score[, "WGSrpt_08"]
+data_13 <- str_score[, "WGSrpt_13"]
+( combined_data <- rbind_score_list(list(data_08, data_13)) )
+```
 
