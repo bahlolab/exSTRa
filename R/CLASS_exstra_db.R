@@ -30,7 +30,7 @@ exstra_db_new_ <- function(strd, input_type = NULL) {
 
 #' @export
 print.exstra_db <- function(x, ...) {
-  cat(class(x)[1], " object with ", dim(x$db)[1], ifelse(dim(x$db)[1] == 1, "locus", "loci"), " ($db) of type ",  x$input_type, "\n",
+  cat(class(x)[1], " object with ", dim(x$db)[1], ifelse(dim(x$db)[1] == 1, " locus", " loci"), " ($db) of type ",  x$input_type, "\n",
     sep = "")
 }
 

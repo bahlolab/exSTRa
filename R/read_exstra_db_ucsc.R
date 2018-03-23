@@ -1,12 +1,24 @@
 #' @export
-read_exstra_db_ucsc <- function(file, header = F, ...) {
+read_exstra_db_ucsc <- function(file, header, ...) {
   if (!is.character(file)) stop("file must be character")
   header.names <- c("X.bin", "chrom", "chromStart", "chromEnd", "name", "period", "copyNum", "consensusSize", "perMatch", "perIndel", "score", "A", "C", "G", "T", "entropy", "sequence")
   col.classes <- c("integer", "factor", "integer", "integer", "factor", 
     "integer", "numeric", "integer", "integer", "integer", "integer", 
     "integer", "integer", "integer", "integer", "numeric", "character"
   )
+  
+  # Try to work out if this is a table browser downloaded file with a header
+  if(missing(header)) {
+    filefirst <- read.table(file, nrows = 1, comment.char = "")
+    if(filefirst[1, 1] == "#bin") {
+      header <- TRUE 
+    } else {
+      header <- FALSE
+    }
+  }
+  
   data <- read.delim(file, header, colClasses = col.classes, ...)
+  # Check if a header line is probably present
   if(header) {
     assert("When reading UCSC files with a header, the header lines must be: '#bin' (converted to 'X.bin' by R), 'chrom', 'chromStart', 'chromEnd', 'name', 'period', 'copyNum', 'consensusSize', 'perMatch', 'perIndel', 'score', 'A', 'C', 'G', 'T', 'entropy', 'sequence'", 
       identical(names(data), header.names))
