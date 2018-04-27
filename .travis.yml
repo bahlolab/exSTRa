@@ -16,4 +16,3 @@ r_packages:
 r_github_packages:
   - rich-iannone/DiagrammeRsvg
 
-r_build_args: --no-build-vignettes
