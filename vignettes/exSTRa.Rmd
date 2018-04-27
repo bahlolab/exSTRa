@@ -38,6 +38,14 @@ Other references may be provided in the future, or these may be created by the u
 The use of GRCh37, that does not include the 'chr' prefix in chromosome names, has not yet 
 been tested, but this is intended for the near future. 
 
+For general repeat loci, exSTRa can read from the UCSC Simple Repeats Track;
+either from the UCSC table browser or downloads page 
+(although we recommend not providing the entire file due to current computational limitations). 
+Text files without a header line are assumed to be from the Simple Repeats track, such
+that you may easily provide a subset of the file.
+By default, only STRs with 2 to 6 bp length repeat motifs will be analysed, with others filtered.
+
+
 # Data preparation
 
 This section describes the steps required to process your own data. 
@@ -79,9 +87,14 @@ https://github.com/bahlolab/exSTRa/blob/master/inst/extdata/HiSeqXTen_WGS_PCR_2.
 The following describes the analysis of the WGS_PCR_2 data from the exSTRa publication described at the top of this vignette.
 WGS_PCR_2 is a data set of 16 case and 2 control individuals, sequenced 
 to 60x and 30x depth (16 (14 cases) and 2 (case) samples, respectively) on an Illumina HiSeq X Ten system. 
-A PCR library preparation protocol with Illumina TruSeq Nano was used. 
+A PCR library preparation protocol with Illumina TruSeq Nano was used.
+Data was aligned to the hg19 human genome reference sequence with Bowtie2 in very 
+sensitive local mode, with maximum insert size 1000. 
+The data underwent PCR duplicate marking.
+Repeat content of reads was obtained with
+[Bio::STR::exSTRa](https://github.com/bahlolab/Bio-STR-exSTRa).
 
-Firstly, if not already, the exSTRa package should be installed:
+Firstly the exSTRa package and dependencies should be installed:
 ```
   # install.packages("devtools") # if devtools is not already installed
   # install.packages("data.table") # if data.table is not already installed
@@ -92,7 +105,7 @@ We load required packages.
 The data.table package should be loaded first, as 
 exSTRa must redefine it's copy() function as a generic function. 
 ```{r}
-library(data.table)
+library(data.table) # should be loaded before exSTRa
 library(exSTRa)
 ```
 
@@ -167,11 +180,11 @@ plot_multi(str_score_four, dir = "example_images",
 Here, we calculate an aggregated T statistic over quantiles as described in the exSTRa paper. 
 By default, p-values are calculated with a simulation procedure. 
 With default settings, this may take several minutes to complete.
-We use the parallel package to speed this up; by default this uses 1 less thread than 
-available on your system. 
+You may use the parallel package to speed this up (parallel = TRUE); by default this uses 
+1 less thread than available on your system. 
 This creates an `exstra_tsum` object.
 ```{r}
-( tsum <- tsum_test(str_score_four, parallel = TRUE) )
+( tsum <- tsum_test(str_score_four, parallel = FALSE) )
 ```
 
 Plotting an exstra_tsum object highlights significant samples, after Bonferroni correction
