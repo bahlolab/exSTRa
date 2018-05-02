@@ -184,7 +184,7 @@ You may use the parallel package to speed this up (parallel = TRUE); by default 
 1 less thread than available on your system. 
 This creates an `exstra_tsum` object.
 ```{r}
-( tsum <- tsum_test(str_score_four, parallel = FALSE) )
+( tsum <- tsum_test(str_score_four, parallel = TRUE) )
 ```
 
 Plotting an exstra_tsum object highlights significant samples, after Bonferroni correction
