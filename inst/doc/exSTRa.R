@@ -9,7 +9,7 @@ knitr::opts_chunk$set(
 )
 
 ## ------------------------------------------------------------------------
-library(data.table)
+library(data.table) # should be loaded before exSTRa
 library(exSTRa)
 
 ## ------------------------------------------------------------------------
