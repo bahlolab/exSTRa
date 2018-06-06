@@ -1,10 +1,10 @@
 ---
-title: "Using USCS Simple Repeats"
+title: "Using UCSC Simple Repeats"
 author: "Rick Tankard"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Using USCS Simple Repeats}
+  %\VignetteIndexEntry{Using UCSC Simple Repeats}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
