@@ -592,8 +592,9 @@ quant_statistic_sampp <- function(qmmat, sample = NULL, qs = NULL,
       #TODO: get only the correct qmmat columns
       qmmat0 <- qmmat
       t_out[ti] <- quant_statistic(qmmat0, sample = samp, qs = qs, 
-        subject_in_background = FALSE, ...)
+        subject_in_background = FALSE, ...) # TODO: maybe trim = 0?
     }
+    names(t_out) <- sample
   } else {
     # No samples marked explicitly as cases
     if(is.null(sample)) {
@@ -604,8 +605,8 @@ quant_statistic_sampp <- function(qmmat, sample = NULL, qs = NULL,
       ti <- ti + 1
       t_out[ti] <- quant_statistic(qmmat, sample = samp, qs = qs, ...)
     }
+    names(t_out) <- rownames(qmmat) # may be a bug if only some samples are required
   }
-  names(t_out) <- sample
   t_out
 }
 
