@@ -6,3 +6,4 @@ local_saves/
 Bio_STR_exSTRa.tar.gz
 exSTRa_suggested_pipeline.svg
 example_images/
+#inst/doc # may ignore in the future if this package in included in CRAN
