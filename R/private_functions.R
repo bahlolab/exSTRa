@@ -558,11 +558,15 @@ quant_statistic <- function(qmmat, sample = 1, quant = 0.5, trim = 0.15,
   cumsum(rev(ts))[qs] / qs # we divide by the number of t statistics being summed
 }
 
-quant_statistic_sampp <- function(qmmat, sample = NULL, qs = NULL, ...) {
+quant_statistic_sampp <- function(qmmat, sample = NULL, qs = NULL, 
+  case_samples = NULL,
+  ...) {
   # get the quantile statistic for multiple samples
   # qmmat: a quantile matrix from the make_quantiles_matrix() function
   # sample: samples to get the statistic of. If NULL, give all samples in qmmat
   # qs: keeps the top number of quantiles, you probably do not want to use this
+  # case_samples: if not NULL, only calculate for these samples in case-control setting.
+  #               Other cases are excluded in each calculation.
   # ... further arguments to quant_statistic(), most interesting is:
   #     quant keeps quantiles above its value only when qs is not specified. The default 
   #         keeps all values above the median (quant = 0.5)
@@ -575,16 +579,33 @@ quant_statistic_sampp <- function(qmmat, sample = NULL, qs = NULL, ...) {
   assert("sample is not a character, numeric or null", is.null(sample) || is.character(sample) || is.numeric(sample))
   assert("qs is not numeric", is.null(qs) || is.numeric(qs))
   assert("qs is not single", is.null(qs) || length(qs) == 1)
-  if(is.null(sample)) {
-    sample <- seq_len(dim(qmmat)[1])
-  }
-  t_out <- rep(NA, length(sample))
+  
   ti <- 0
-  for(samp in sample) {
-    ti <- ti + 1
-    t_out[ti] <- quant_statistic(qmmat, sample = samp, qs = qs, ...)
+  if(!is.null(case_samples)) {
+    if(is.null(sample)) {
+      sample <- case_samples
+    }
+    assert("All case samples should be in qmmat", all(case_samples %in% rownames(qmmat)))
+    t_out <- rep(NA, length(sample) - length(case_samples))
+    for(samp in sample) {
+      ti <- ti + 1
+      #TODO: get only the correct qmmat columns
+      qmmat0 <- qmmat
+      t_out[ti] <- quant_statistic(qmmat0, sample = samp, qs = qs, 
+        subject_in_background = FALSE, ...)
+    }
+  } else {
+    # No samples marked explicitly as cases
+    if(is.null(sample)) {
+      sample <- seq_len(dim(qmmat)[1])
+    }
+    t_out <- rep(NA, length(sample))
+    for(samp in sample) {
+      ti <- ti + 1
+      t_out[ti] <- quant_statistic(qmmat, sample = samp, qs = qs, ...)
+    }
   }
-  names(t_out) <- rownames(qmmat)
+  names(t_out) <- sample
   t_out
 }
 
