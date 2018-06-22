@@ -56,9 +56,8 @@ plot_cols <- c(RColorBrewer::brewer.pal(8, "Set2"), RColorBrewer::brewer.pal(8, 
 par(mfrow = c(1, 1))
 names(plot_cols) <- str_score_four$samples[, sample]
 pie(rep(1, length(plot_cols)), col = plot_cols, labels = names(plot_cols))
-
-
 plot_cols
+
 par(mfrow = c(2, 2))
 # Bonferroni correction is too severe here, so we use Bonferroni correction only on each 
 # locus.

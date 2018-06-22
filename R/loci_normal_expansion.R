@@ -20,9 +20,8 @@ loci_normal_exp <- function(x, locus) {
     #TODO: this is wrong
     assert(paste("The locus", locus, "was not found"), dim(x.info)[1] >= 1)
     assert(paste("There were multiple entries for locus", locus), dim(x.info)[1] <= 1)
-    stop("Not programmed for UCSC input")
-    return(NULL
-    )
+    normal.size.bp <- with(x.info, chromEnd - chromStart)
+    return(c(normal.size.bp, NA))
   } else {
     stop("Unrecognised input_type in exstra_db. Got ", x$input_type)
   }
