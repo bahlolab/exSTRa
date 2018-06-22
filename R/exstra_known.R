@@ -15,4 +15,8 @@
 #'         expansion disorders. 
 #'         \emph{bioRxiv} 157792; 
 #'         doi: \url{https://doi.org/10.1101/157792}
-"exstra_known"
+#' @docType data
+#' @keywords datasets
+#' @name exstra_known
+#' @usage data(exstra_known)
+NULL
