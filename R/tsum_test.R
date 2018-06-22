@@ -62,8 +62,8 @@ tsum_test <- function(strscore,
   correction = c("bf", "locus", "uncorrected"),
   alpha = 0.05,
   parallel = FALSE, # TRUE for cluster
-  cluster_n = NULL, # cluster size if cluster == NULL, when NULL, #threads - 1 (but always at least 1)
-  cluster = NULL # a created by the parallel package. If NULL and parallel == TRUE, then a
+  cluster_n = NULL, # Cluster size if cluster == NULL. When NULL, #threads - 1 (but always at least 1)
+  cluster = NULL # As created by the parallel package. If cluster == NULL and parallel == TRUE, then a
                   # PSOCK cluster is automatically created with the parallel package.
   ) 
 {
