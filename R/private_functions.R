@@ -587,10 +587,11 @@ quant_statistic_sampp <- function(qmmat, sample = NULL, qs = NULL,
     }
     assert("All case samples should be in qmmat", all(case_samples %in% rownames(qmmat)))
     t_out <- rep(NA, length(sample) - length(case_samples))
+    control_samples <- rownames(qmmat)[! rownames(qmmat) %in% case_samples]
     for(samp in sample) {
       ti <- ti + 1
-      #TODO: get only the correct qmmat columns
-      qmmat0 <- qmmat
+      # Get only the correct qmmat columns
+      qmmat0 <- qmmat[c(samp, control_samples),]
       t_out[ti] <- quant_statistic(qmmat0, sample = samp, qs = qs, 
         subject_in_background = FALSE, ...) # TODO: maybe trim = 0?
     }
