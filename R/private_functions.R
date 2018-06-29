@@ -789,6 +789,7 @@ simulate_ecdf_quant_statistic <- function(qmmat, B = 9999, trim = 0.15,
         "sort_sim_qm", 
         "N", "M", "mu_vec", "se_vec", 
         "simulate_quant_statistic",
+        "simulate_quant_statistic_sampp",
         "simulate_quantile_matrix", 
         "quant_statistic",
         "trim_vector",
@@ -798,7 +799,9 @@ simulate_ecdf_quant_statistic <- function(qmmat, B = 9999, trim = 0.15,
       envir = environment()
     )
     # Run replicate
-    sim_T <- parReplicate(cluster, B, simulate_quant_statistic())
+    sim_T <- as.vector(
+            parReplicate(cluster, B, simulate_quant_statistic_sampp())
+    )
     if(cluster_stop) {
       stopCluster(cluster)
     }
