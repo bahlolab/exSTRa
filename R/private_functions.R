@@ -751,8 +751,10 @@ simulate_ecdf_quant_statistic <- function(qmmat, B = 9999, trim = 0.15,
   }
   simulate_quant_statistic <- function() {
     simu <- simulate_quantile_matrix()
-    # Devel: this next line change completely changes the output here, for efficiency
-    # do.call(quant_statistic, c(list(simu), triple_dots))
+    do.call(quant_statistic, c(list(simu), triple_dots))
+  }
+  simulate_quant_statistic_sampp <- function() {
+    simu <- simulate_quantile_matrix()
     do.call(quant_statistic_sampp, c(list(simu), triple_dots))
   }
   
@@ -805,14 +807,14 @@ simulate_ecdf_quant_statistic <- function(qmmat, B = 9999, trim = 0.15,
     # TODO here:
     sim_T <- rep(0, B*N) # Don't let p-value get to zero
     for(i in seq_len(B)) {
-      sim_T[((i-1)*N + 1) : (i*N) ] <- simulate_quant_statistic()
+      sim_T[((i-1)*N + 1) : (i*N) ] <- simulate_quant_statistic_sampp()
       # TODO: insert stopping-code here
     }
   }
   
   
-  
-  comp_p_function <- ecdf(sim_T)
+  # Following is not relevant to output
+  # comp_p_function <- ecdf(sim_T)
   
   # p-values
   if(is.null(T_stat)) {
@@ -822,12 +824,13 @@ simulate_ecdf_quant_statistic <- function(qmmat, B = 9999, trim = 0.15,
   p <- rep(1.1, N)
   # calculate p-values
   for(i in seq_len(N)) {
-    p[i] = c(sum(sim_T > T_stat[i]) + 1) / (length(sim_T) + 1)
+    p[i] = (sum(sim_T > T_stat[i]) + 1) / (length(sim_T) + 1)
   }
   names(p) <- names(T_stat)
   
   # generate ECDF and output
-  list(ecdf = comp_p_function, p = p, sim_T = sim_T, T_stat = T_stat)
+  # list(ecdf = comp_p_function, p = p, sim_T = sim_T, T_stat = T_stat)
+  list(p = p, sim_T = sim_T, T_stat = T_stat)
 }
 
 
