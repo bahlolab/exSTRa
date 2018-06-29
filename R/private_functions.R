@@ -666,6 +666,7 @@ simulate_ecdf_quant_statistic <- function(qmmat, B = 9999, trim = 0.15,
   parallel = FALSE, # perform in parallel
   cluster = NULL, # cluster for parallel. If NULL, then make one
   cluster_n = 4, # cluster size if cl is NULL
+  T_stat = NULL, # T_stat named vector precomputed
   ...) {
   # Derive a simulated ECDF, and return an "ecdf" class object
   # qmmat: a quantile matrix from the make_quantiles_matrix() function
@@ -750,7 +751,9 @@ simulate_ecdf_quant_statistic <- function(qmmat, B = 9999, trim = 0.15,
   }
   simulate_quant_statistic <- function() {
     simu <- simulate_quantile_matrix()
-    do.call(quant_statistic, c(list(simu), triple_dots))
+    # Devel: this next line change completely changes the output here, for efficiency
+    # do.call(quant_statistic, c(list(simu), triple_dots))
+    do.call(quant_statistic_sampp, c(list(simu), triple_dots))
   }
   
   triple_dots <- c(list(...), list(subject_in_background = subject_in_background, 
@@ -799,9 +802,11 @@ simulate_ecdf_quant_statistic <- function(qmmat, B = 9999, trim = 0.15,
     }
   } else {
     # not performing in parallel
-    sim_T <- rep(0, B) # Don't let p-value get to zero
+    # TODO here:
+    sim_T <- rep(0, B*N) # Don't let p-value get to zero
     for(i in seq_len(B)) {
-      sim_T[i] <- simulate_quant_statistic()
+      sim_T[((i-1)*N + 1) : (i*N) ] <- simulate_quant_statistic()
+      # TODO: insert stopping-code here
     }
   }
   
@@ -810,12 +815,14 @@ simulate_ecdf_quant_statistic <- function(qmmat, B = 9999, trim = 0.15,
   comp_p_function <- ecdf(sim_T)
   
   # p-values
-  T_stat <- quant_statistic_sampp(qmmat, trim = trim, subject_in_background = subject_in_background, use_truncated = use_truncated_sd_in_quant_statistic) # TODO add ...
+  if(is.null(T_stat)) {
+    T_stat <- quant_statistic_sampp(qmmat, trim = trim, subject_in_background = subject_in_background, use_truncated = use_truncated_sd_in_quant_statistic) # TODO add ...
+  }
   # p <- 1 - comp_p_function(T_stat) + 1 / (B + 1)
   p <- rep(1.1, N)
   # calculate p-values
   for(i in seq_len(N)) {
-    p[i] = c(sum(sim_T > T_stat[i]) + 1) / (B + 1)
+    p[i] = c(sum(sim_T > T_stat[i]) + 1) / (length(sim_T) + 1)
   }
   names(p) <- names(T_stat)
   
@@ -1012,7 +1019,8 @@ sd_of_trimmed <- function(...) {
 # This runs the simulation with the given paramets
 # Use ... to pass options to simulate_ecdf_quant_statistic()
 # This also passes remaining options onto quant_statistic() and quant_statistic_sampp()
-simulation_run <- function(data, B = 99, trim = 0.15, ...) {
+simulation_run <- function(data, B = 99, trim = 0.15,
+    T_stats = NULL, ...) {
   N <- data$samples[, .N]
   L <- data$db[, .N]
   p.matrix <- matrix(nrow = N, ncol = L)
@@ -1024,7 +1032,11 @@ simulation_run <- function(data, B = 99, trim = 0.15, ...) {
     message("Simulating distribution for ", loc)
     qm_loop <- make_quantiles_matrix(data, loc, read_count_quant = 1, 
       method = "quantile7", min.n = 3)
-    xec <- simulate_ecdf_quant_statistic(qm_loop, B, ...)
+    T_stat_loc <- T_stats[locus == loc, ]
+    T_stat <- T_stat_loc[, tsum]
+    names(T_stat) <- T_stat_loc[, sample]
+    xec <- simulate_ecdf_quant_statistic(qm_loop, B, 
+      T_stat = T_stat, ...)
     p.matrix[names(xec$p), loc] <- xec$p
     qmmats[[loc]] <- qm_loop
     xecs[[loc]] <- xec

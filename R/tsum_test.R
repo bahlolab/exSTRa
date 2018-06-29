@@ -144,7 +144,8 @@ tsum_test <- function(strscore,
         parallel = parallel, # TRUE for cluster
         cluster = cluster,
         cluster_n = cluster_n,
-        trim = trim
+        trim = trim,
+        T_stats = T_stats
       ),
       error = function(x) { 
           # list(cohort = this.cohort, p.matrix = c(0, 1), error = x)
