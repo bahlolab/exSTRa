@@ -164,11 +164,15 @@ tsum_test <- function(strscore,
     pvals <- NULL
   }
   # Prepare output
-  exstra_tsum_new_(strscore, tsum = T_stats, p.values = pvals, 
+  outtsum <- exstra_tsum_new_(strscore, tsum = T_stats, p.values = pvals, 
     qmats = sim.results$qmmats, xecs = sim.results$xecs,
     correction = correction,
     alpha = alpha, 
     args = list(trim = trim, min.quant = min.quant, B = B))
+  if(give.pvalue) {
+    outtsum$stats[, p.value.sd := sqrt(p.value * (1 - p.value) / (B * strscore$samples[, .N]))]
+  }
+  outtsum
 }
 
 # test code:
