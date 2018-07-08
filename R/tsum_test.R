@@ -170,7 +170,10 @@ tsum_test <- function(strscore,
     alpha = alpha, 
     args = list(trim = trim, min.quant = min.quant, B = B))
   if(give.pvalue) {
-    outtsum$stats[, p.value.sd := sqrt(p.value * (1 - p.value) / (B * strscore$samples[, .N]))]
+    Nsim <- B * strscore$samples[, .N]
+    outtsum$stats[, p.value.sd := 
+        sqrt(p.value * ((Nsim + 2)/(Nsim + 1) - p.value) / Nsim)
+      ]
   }
   outtsum
 }
