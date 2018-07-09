@@ -5,7 +5,7 @@
 \title{Generate T sum statistics and p-values from simulation.}
 \usage{
 tsum_test(strscore, trim = 0.15, trim.cc = 0, min.quant = 0.5,
-  give.pvalue = TRUE, B = 9999, correction = c("bf", "locus",
+  give.pvalue = TRUE, B = 999, correction = c("bf", "loci", "samples",
   "uncorrected"), alpha = 0.05, case_control = FALSE, parallel = FALSE,
   cluster_n = NULL, cluster = NULL)
 }

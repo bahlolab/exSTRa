@@ -211,18 +211,23 @@ with the default number of simulations (9999).
 This can be adjusted with the `B` parameter of `tsum_test()`, or a less stringent
 threshold can be used.
 Bonferroni correction is too severe here, so we can specify Bonferroni correction only 
-on each locus.
+on each locus for the number of samples tested.
 ```{r, out.width = '82%', fig.width=12, fig.height=12}
 par(mfrow = c(2, 2))
-plot(tsum, sample_col = plot_cols, correction = "locus")
+plot(tsum, sample_col = plot_cols, correction = "samples")
 ```
 
+Or Bonferroni correction may be applied for the number of loci tested.
+```{r, out.width = '82%', fig.width=12, fig.height=12}
+par(mfrow = c(2, 2))
+plot(tsum, sample_col = plot_cols, correction = "loci")
+```
 
 You may obtain a data.table of each sample and locus with the p-value, and if it is significant
 with the correction method applied.
 Here, the correction method is Bonferroni per locus.
 ```{r}
-(ps <- p_values(tsum, correction = "locus"))
+(ps <- p_values(tsum, correction = "samples"))
 ```
 
 To obtain only the significant samples, you can either use data.table subsetting:
@@ -232,7 +237,7 @@ ps[identity(signif)]
 
 or when retrieving the data.table from p_values():
 ```{r}
-p_values(tsum, only.signif = TRUE, correction = "locus")
+p_values(tsum, only.signif = TRUE, correction = "samples")
 ```
 
 

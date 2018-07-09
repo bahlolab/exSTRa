@@ -12,7 +12,8 @@ p_values(tsum, correction = c("bf", "locus", "uncorrected"), alpha = 0.05,
 
 \item{correction}{Correction method to use. Use "bf" or TRUE for Bonferroni correction, and 
 "uncorrected" or FALSE for no correction. ("bonferroni" is also acceptable).
-"locus" is Bonferroni correction by locus.}
+"samples" is Bonferroni correction by the number of tests (samples) at each locus.
+"loci" is Bonferroni correction by the number of loci.}
 
 \item{alpha}{Significance level alpha.}
 
