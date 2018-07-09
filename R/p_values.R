@@ -5,7 +5,8 @@
 #' @param tsum An exstra_tsum object. 
 #' @param correction Correction method to use. Use "bf" or TRUE for Bonferroni correction, and 
 #'                   "uncorrected" or FALSE for no correction. ("bonferroni" is also acceptable).
-#'                   "locus" is Bonferroni correction by locus.
+#'                   "samples" is Bonferroni correction by the number of tests (samples) at each locus.
+#'                   "loci" is Bonferroni correction by the number of loci.
 #'                   
 #' @param alpha Significance level alpha.
 #' @param only.sig If TRUE, only return significant results.
@@ -60,8 +61,12 @@ p_values <- function(
     out.table[, signif := p.value <= alpha / n_tests ]
   } else if ((is.logical(correction[1]) && ! correction[1]) || correction[1] == "uncorrected") {
     out.table[, signif := p.value <= alpha ]
-  } else if (correction[1] == "locus") {
+  } else if (correction[1] == "samples") {
     out.table[!is.na(p.value), N := .N, by = locus]
+    out.table[, signif := p.value <= alpha / N ]
+    out.table[, N := NULL]
+  } else if (correction[1] == "loci") {
+    out.table[!is.na(p.value), N := .N, by = sample]
     out.table[, signif := p.value <= alpha / N ]
     out.table[, N := NULL]
   } else {
