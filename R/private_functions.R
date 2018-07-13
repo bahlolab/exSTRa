@@ -558,11 +558,15 @@ quant_statistic <- function(qmmat, sample = 1, quant = 0.5, trim = 0.15,
   cumsum(rev(ts))[qs] / qs # we divide by the number of t statistics being summed
 }
 
-quant_statistic_sampp <- function(qmmat, sample = NULL, qs = NULL, ...) {
+quant_statistic_sampp <- function(qmmat, sample = NULL, qs = NULL, 
+  case_samples = NULL,
+  ...) {
   # get the quantile statistic for multiple samples
   # qmmat: a quantile matrix from the make_quantiles_matrix() function
   # sample: samples to get the statistic of. If NULL, give all samples in qmmat
   # qs: keeps the top number of quantiles, you probably do not want to use this
+  # case_samples: if not NULL, only calculate for these samples in case-control setting.
+  #               Other cases are excluded in each calculation.
   # ... further arguments to quant_statistic(), most interesting is:
   #     quant keeps quantiles above its value only when qs is not specified. The default 
   #         keeps all values above the median (quant = 0.5)
@@ -575,16 +579,35 @@ quant_statistic_sampp <- function(qmmat, sample = NULL, qs = NULL, ...) {
   assert("sample is not a character, numeric or null", is.null(sample) || is.character(sample) || is.numeric(sample))
   assert("qs is not numeric", is.null(qs) || is.numeric(qs))
   assert("qs is not single", is.null(qs) || length(qs) == 1)
-  if(is.null(sample)) {
-    sample <- seq_len(dim(qmmat)[1])
-  }
-  t_out <- rep(NA, length(sample))
+  
   ti <- 0
-  for(samp in sample) {
-    ti <- ti + 1
-    t_out[ti] <- quant_statistic(qmmat, sample = samp, qs = qs, ...)
+  if(!is.null(case_samples)) {
+    if(is.null(sample)) {
+      sample <- case_samples
+    }
+    assert("All case samples should be in qmmat", all(case_samples %in% rownames(qmmat)))
+    t_out <- rep(NA, length(sample) - length(case_samples))
+    control_samples <- rownames(qmmat)[! rownames(qmmat) %in% case_samples]
+    for(samp in sample) {
+      ti <- ti + 1
+      # Get only the correct qmmat columns
+      qmmat0 <- qmmat[c(samp, control_samples),]
+      t_out[ti] <- quant_statistic(qmmat0, sample = samp, qs = qs, 
+        subject_in_background = FALSE, ...) # TODO: maybe trim = 0?
+    }
+    names(t_out) <- sample
+  } else {
+    # No samples marked explicitly as cases
+    if(is.null(sample)) {
+      sample <- seq_len(dim(qmmat)[1])
+    }
+    t_out <- rep(NA, length(sample))
+    for(samp in sample) {
+      ti <- ti + 1
+      t_out[ti] <- quant_statistic(qmmat, sample = samp, qs = qs, ...)
+    }
+    names(t_out) <- rownames(qmmat) # may be a bug if only some samples are required
   }
-  names(t_out) <- rownames(qmmat)
   t_out
 }
 
@@ -643,6 +666,7 @@ simulate_ecdf_quant_statistic <- function(qmmat, B = 9999, trim = 0.15,
   parallel = FALSE, # perform in parallel
   cluster = NULL, # cluster for parallel. If NULL, then make one
   cluster_n = 4, # cluster size if cl is NULL
+  T_stat = NULL, # T_stat named vector precomputed
   ...) {
   # Derive a simulated ECDF, and return an "ecdf" class object
   # qmmat: a quantile matrix from the make_quantiles_matrix() function
@@ -729,6 +753,10 @@ simulate_ecdf_quant_statistic <- function(qmmat, B = 9999, trim = 0.15,
     simu <- simulate_quantile_matrix()
     do.call(quant_statistic, c(list(simu), triple_dots))
   }
+  simulate_quant_statistic_sampp <- function() {
+    simu <- simulate_quantile_matrix()
+    do.call(quant_statistic_sampp, c(list(simu), triple_dots))
+  }
   
   triple_dots <- c(list(...), list(subject_in_background = subject_in_background, 
     use_truncated_sd = use_truncated_sd_in_quant_statistic, 
@@ -761,6 +789,7 @@ simulate_ecdf_quant_statistic <- function(qmmat, B = 9999, trim = 0.15,
         "sort_sim_qm", 
         "N", "M", "mu_vec", "se_vec", 
         "simulate_quant_statistic",
+        "simulate_quant_statistic_sampp",
         "simulate_quantile_matrix", 
         "quant_statistic",
         "trim_vector",
@@ -770,34 +799,41 @@ simulate_ecdf_quant_statistic <- function(qmmat, B = 9999, trim = 0.15,
       envir = environment()
     )
     # Run replicate
-    sim_T <- parReplicate(cluster, B, simulate_quant_statistic())
+    sim_T <- as.vector(
+            parReplicate(cluster, B, simulate_quant_statistic_sampp())
+    )
     if(cluster_stop) {
       stopCluster(cluster)
     }
   } else {
     # not performing in parallel
-    sim_T <- rep(0, B) # Don't let p-value get to zero
+    # TODO here:
+    sim_T <- rep(0, B*N) # Don't let p-value get to zero
     for(i in seq_len(B)) {
-      sim_T[i] <- simulate_quant_statistic()
+      sim_T[((i-1)*N + 1) : (i*N) ] <- simulate_quant_statistic_sampp()
+      # TODO: insert stopping-code here
     }
   }
   
   
-  
-  comp_p_function <- ecdf(sim_T)
+  # Following is not relevant to output
+  # comp_p_function <- ecdf(sim_T)
   
   # p-values
-  T_stat <- quant_statistic_sampp(qmmat, trim = trim, subject_in_background = subject_in_background, use_truncated = use_truncated_sd_in_quant_statistic) # TODO add ...
+  if(is.null(T_stat)) {
+    T_stat <- quant_statistic_sampp(qmmat, trim = trim, subject_in_background = subject_in_background, use_truncated = use_truncated_sd_in_quant_statistic) # TODO add ...
+  }
   # p <- 1 - comp_p_function(T_stat) + 1 / (B + 1)
   p <- rep(1.1, N)
   # calculate p-values
   for(i in seq_len(N)) {
-    p[i] = c(sum(sim_T > T_stat[i]) + 1) / (B + 1)
+    p[i] = (sum(sim_T > T_stat[i]) + 1) / (length(sim_T) + 1)
   }
   names(p) <- names(T_stat)
   
   # generate ECDF and output
-  list(ecdf = comp_p_function, p = p, sim_T = sim_T, T_stat = T_stat)
+  # list(ecdf = comp_p_function, p = p, sim_T = sim_T, T_stat = T_stat)
+  list(p = p, sim_T = sim_T, T_stat = T_stat)
 }
 
 
@@ -989,7 +1025,8 @@ sd_of_trimmed <- function(...) {
 # This runs the simulation with the given paramets
 # Use ... to pass options to simulate_ecdf_quant_statistic()
 # This also passes remaining options onto quant_statistic() and quant_statistic_sampp()
-simulation_run <- function(data, B = 99, trim = 0.15, ...) {
+simulation_run <- function(data, B = 99, trim = 0.15,
+    T_stats = NULL, ...) {
   N <- data$samples[, .N]
   L <- data$db[, .N]
   p.matrix <- matrix(nrow = N, ncol = L)
@@ -1001,7 +1038,11 @@ simulation_run <- function(data, B = 99, trim = 0.15, ...) {
     message("Simulating distribution for ", loc)
     qm_loop <- make_quantiles_matrix(data, loc, read_count_quant = 1, 
       method = "quantile7", min.n = 3)
-    xec <- simulate_ecdf_quant_statistic(qm_loop, B, ...)
+    T_stat_loc <- T_stats[locus == loc, ]
+    T_stat <- T_stat_loc[, tsum]
+    names(T_stat) <- T_stat_loc[, sample]
+    xec <- simulate_ecdf_quant_statistic(qm_loop, B, 
+      T_stat = T_stat, ...)
     p.matrix[names(xec$p), loc] <- xec$p
     qmmats[[loc]] <- qm_loop
     xecs[[loc]] <- xec

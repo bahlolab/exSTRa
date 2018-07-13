@@ -39,7 +39,7 @@ strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NUL
     }
   }
   if(!is.null(groups.samples)) {
-    # using regex for groups
+    # Specify the group of samples directly via groups.samples
     assert("groups.samples must be a list if used, with vectors with names of at least one of 'case', 'control' or 'null'.", 
       is.list(groups.samples), 
       length(groups.samples) > 0,
@@ -55,7 +55,7 @@ strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NUL
         groups_all[sample == counts$sample] <- "case"
       }      
     } else {
-      groups_all <- factor(rep(NA, dim(counts)[1]), levels = names(groups.regex))
+      groups_all <- factor(rep(NA, dim(counts)[1]), levels = names(groups.samples))
       for(group.name in names(groups.samples)) {
         for(sample in groups.samples[[group.name]]) {
           groups_all[sample == counts$sample] <- group.name

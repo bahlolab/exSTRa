@@ -5,13 +5,18 @@
 #' @param tsum An exstra_tsum object. 
 #' @param correction Correction method to use. Use "bf" or TRUE for Bonferroni correction, and 
 #'                   "uncorrected" or FALSE for no correction. ("bonferroni" is also acceptable).
-#'                   "locus" is Bonferroni correction by locus.
+#'                   "samples" is Bonferroni correction by the number of tests (samples) at each locus.
+#'                   "loci" is Bonferroni correction by the number of loci.
 #'                   
 #' @param alpha Significance level alpha.
 #' @param only.sig If TRUE, only return significant results.
 #' @param modify If TRUE, will modify the tsum$stats table. Effectively ignored if only.sig == TRUE.
 #' @param p.matrix Matrix of p-values for internal use. Should only be used without tsum. 
-#' @return A data.table
+#' @return A \code{data.table} keyed by "locus" then "sample". 
+#'         Other columns are \code{tsum} as calculated by \code{\link{tsum_test}}, \code{p.value} (uncorrected),
+#'         \code{signif} (TRUE if significant after given correction), and 
+#'         \code{p.value.sd}, giving the standard deviation of the p-value estimate from the 
+#'         simulation.
 #' 
 #' @import magrittr
 #' @import testit
@@ -60,8 +65,12 @@ p_values <- function(
     out.table[, signif := p.value <= alpha / n_tests ]
   } else if ((is.logical(correction[1]) && ! correction[1]) || correction[1] == "uncorrected") {
     out.table[, signif := p.value <= alpha ]
-  } else if (correction[1] == "locus") {
+  } else if (correction[1] == "samples") {
     out.table[!is.na(p.value), N := .N, by = locus]
+    out.table[, signif := p.value <= alpha / N ]
+    out.table[, N := NULL]
+  } else if (correction[1] == "loci") {
+    out.table[!is.na(p.value), N := .N, by = sample]
     out.table[, signif := p.value <= alpha / N ]
     out.table[, N := NULL]
   } else {

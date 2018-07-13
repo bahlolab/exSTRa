@@ -4,9 +4,10 @@
 \alias{tsum_test}
 \title{Generate T sum statistics and p-values from simulation.}
 \usage{
-tsum_test(strscore, trim = 0.15, min.quant = 0.5, give.pvalue = TRUE,
-  B = 9999, correction = c("bf", "locus", "uncorrected"), alpha = 0.05,
-  parallel = FALSE, cluster_n = NULL, cluster = NULL)
+tsum_test(strscore, trim = 0.15, trim.cc = 0, min.quant = 0.5,
+  give.pvalue = TRUE, B = 999, correction = c("bf", "loci", "samples",
+  "uncorrected"), alpha = 0.05, case_control = FALSE, parallel = FALSE,
+  cluster_n = NULL, cluster = NULL, keep.sim.tsum = FALSE)
 }
 \arguments{
 \item{strscore}{An exstra_score object.}
@@ -14,6 +15,8 @@ tsum_test(strscore, trim = 0.15, min.quant = 0.5, give.pvalue = TRUE,
 \item{trim}{Trim this proportion of data points at each quantile 
 level (rounded up). Must be at least 0 and less than 0.5, but values close
 to 0.5 may remove all samples and hence result in an error.}
+
+\item{trim.cc}{Trim value used in case-control analysis. Default of 0.}
 
 \item{min.quant}{Only quantiles above this value are used in constructing the statistic.}
 
@@ -28,6 +31,9 @@ decimal fractions.}
 
 \item{alpha}{Signficance level of p_value() function.}
 
+\item{case_control}{If TRUE, only calculate for samples designated cases. Otherwise
+all samples are used to calculate the background distribution.}
+
 \item{parallel}{Use the parallel package when simulating the distribution, creating the
 required cluster. 
 If cluster is specified then this option makes no difference.}
@@ -41,6 +47,9 @@ If cluster is specified then this option makes no difference.}
 
 \item{cluster}{A cluster object from the parallel package. Use if you wish to set up 
 the cluster yourself or reuse an existing cluster.}
+
+\item{keep.sim.tsum}{For inspection of simulations. 
+If TRUE, keep all simulation Tsum statistics in output$xecs (default FALSE).}
 }
 \value{
 An exstra_tsum object with T statistics and p-values (if calculated).

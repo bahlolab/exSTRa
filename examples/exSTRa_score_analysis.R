@@ -60,16 +60,19 @@ plot_cols
 
 par(mfrow = c(2, 2))
 # Bonferroni correction is too severe here, so we use Bonferroni correction only on each 
-# locus.
-plot(tsum, sample_col = plot_cols, correction = "locus")
+# locus for the number of samples.
+plot(tsum, sample_col = plot_cols, correction = "samples")
+
+# Or Bonferroni correction for the number of loci tested:
+plot(tsum, sample_col = plot_cols, correction = "loci")
 
 # Give a table of each sample and locus with the p-value, and if it is significant:
-(ps <- p_values(tsum, correction = "locus"))
+(ps <- p_values(tsum, correction = "samples"))
 
 # this may be acted on directly: 
 ps[identity(signif)]
 # or with the only.signif option:
-p_values(tsum, only.signif = TRUE, correction = "locus")
+p_values(tsum, only.signif = TRUE, correction = "samples")
 
 # Give the best hit(s) for each sample:
 # TODO: what is best for display may not be the best for internal representation. 
