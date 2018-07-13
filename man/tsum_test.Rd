@@ -7,7 +7,7 @@
 tsum_test(strscore, trim = 0.15, trim.cc = 0, min.quant = 0.5,
   give.pvalue = TRUE, B = 999, correction = c("bf", "loci", "samples",
   "uncorrected"), alpha = 0.05, case_control = FALSE, parallel = FALSE,
-  cluster_n = NULL, cluster = NULL)
+  cluster_n = NULL, cluster = NULL, keep.sim.tsum = FALSE)
 }
 \arguments{
 \item{strscore}{An exstra_score object.}
@@ -47,6 +47,9 @@ If cluster is specified then this option makes no difference.}
 
 \item{cluster}{A cluster object from the parallel package. Use if you wish to set up 
 the cluster yourself or reuse an existing cluster.}
+
+\item{keep.sim.tsum}{For inspection of simulations. 
+If TRUE, keep all simulation Tsum statistics in output$xecs (default FALSE).}
 }
 \value{
 An exstra_tsum object with T statistics and p-values (if calculated).

@@ -30,6 +30,9 @@
 #'                 If cluster is specified then this option makes no difference.
 #' @param cluster  A cluster object from the parallel package. Use if you wish to set up 
 #'                 the cluster yourself or reuse an existing cluster. 
+#' @param keep.sim.tsum For inspection of simulations. 
+#'                      If TRUE, keep all simulation Tsum statistics in output$xecs (default FALSE).
+#'                      
 #' @return An exstra_tsum object with T statistics and p-values (if calculated).
 #' 
 #' @seealso \code{\link{tsum_p_value_summary}}
@@ -68,8 +71,9 @@ tsum_test <- function(strscore,
   case_control = FALSE, 
   parallel = FALSE, # TRUE for cluster
   cluster_n = NULL, # Cluster size if cluster == NULL. When NULL, #threads - 1 (but always at least 1)
-  cluster = NULL # As created by the parallel package. If cluster == NULL and parallel == TRUE, then a
+  cluster = NULL, # As created by the parallel package. If cluster == NULL and parallel == TRUE, then a
                   # PSOCK cluster is automatically created with the parallel package.
+  keep.sim.tsum = FALSE
   ) 
 {
   # Check inputs
@@ -174,6 +178,11 @@ tsum_test <- function(strscore,
     outtsum$stats[, p.value.sd := 
         sqrt(p.value * ((Nsim + 2)/(Nsim + 1) - p.value) / Nsim)
       ]
+  }
+  if(! keep.sim.tsum) {
+    for(i in seq_along(tsum$xecs)) {
+      tsum$xecs[[i]]$sim_T <- NULL
+    }
   }
   outtsum
 }

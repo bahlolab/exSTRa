@@ -12,7 +12,11 @@
 #' @param only.sig If TRUE, only return significant results.
 #' @param modify If TRUE, will modify the tsum$stats table. Effectively ignored if only.sig == TRUE.
 #' @param p.matrix Matrix of p-values for internal use. Should only be used without tsum. 
-#' @return A data.table
+#' @return A \code{data.table} keyed by "locus" then "sample". 
+#'         Other columns are \code{tsum} as calculated by \code{\link{tsum_test}}, \code{p.value} (uncorrected),
+#'         \code{signif} (TRUE if significant after given correction), and 
+#'         \code{p.value.sd}, giving the standard deviation of the p-value estimate from the 
+#'         simulation.
 #' 
 #' @import magrittr
 #' @import testit

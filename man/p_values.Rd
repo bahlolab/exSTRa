@@ -24,7 +24,11 @@ p_values(tsum, correction = c("bf", "locus", "uncorrected"), alpha = 0.05,
 \item{only.sig}{If TRUE, only return significant results.}
 }
 \value{
-A data.table
+A \code{data.table} keyed by "locus" then "sample". 
+        Other columns are \code{tsum} as calculated by \code{\link{tsum_test}}, \code{p.value} (uncorrected),
+        \code{signif} (TRUE if significant after given correction), and 
+        \code{p.value.sd}, giving the standard deviation of the p-value estimate from the 
+        simulation.
 }
 \description{
 Return a data.table with p-values of a tsum_exstra object.
