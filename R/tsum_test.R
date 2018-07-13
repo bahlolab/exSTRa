@@ -88,6 +88,11 @@ tsum_test <- function(strscore,
     is.null(cluster) || inherits(cluster, "cluster"))
   assert("cluster_n should be at least 1 and a whole-number.", is.null(cluster_n) || cluster_n >= 1)
   
+  # temp code until this is developed
+  if(case_control && give.pvalue) {
+    stop("tsum_test() cannot yet use cases and controls to generate p-values from simulation.") 
+  }
+  
   if(parallel) {
     n_cores <- detectCores(all.tests = FALSE, logical = TRUE)
     if(is.null(cluster_n)) {
