@@ -180,7 +180,7 @@ tsum_test <- function(strscore,
       ]
   }
   if(! keep.sim.tsum) {
-    for(i in seq_along(tsum$xecs)) {
+    for(i in seq_along(outtsum$xecs)) {
       outtsum$xecs[[i]]$sim_T <- NULL
     }
   }
