@@ -12,7 +12,8 @@ p_values(tsum, correction = c("bf", "locus", "uncorrected"), alpha = 0.05,
 
 \item{correction}{Correction method to use. Use "bf" or TRUE for Bonferroni correction, and 
 "uncorrected" or FALSE for no correction. ("bonferroni" is also acceptable).
-"locus" is Bonferroni correction by locus.}
+"samples" is Bonferroni correction by the number of tests (samples) at each locus.
+"loci" is Bonferroni correction by the number of loci.}
 
 \item{alpha}{Significance level alpha.}
 
@@ -23,7 +24,11 @@ p_values(tsum, correction = c("bf", "locus", "uncorrected"), alpha = 0.05,
 \item{only.sig}{If TRUE, only return significant results.}
 }
 \value{
-A data.table
+A \code{data.table} keyed by "locus" then "sample". 
+        Other columns are \code{tsum} as calculated by \code{\link{tsum_test}}, \code{p.value} (uncorrected),
+        \code{signif} (TRUE if significant after given correction), and 
+        \code{p.value.sd}, giving the standard deviation of the p-value estimate from the 
+        simulation.
 }
 \description{
 Return a data.table with p-values of a tsum_exstra object.
