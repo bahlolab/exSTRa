@@ -73,9 +73,3 @@ plot(tsum, sample_col = plot_cols, correction = "loci")
 ps[identity(signif)]
 # or with the only.signif option:
 p_values(tsum, only.signif = TRUE, correction = "samples")
-
-# Give the best hit(s) for each sample:
-# TODO: what is best for display may not be the best for internal representation. 
-#       For now may keep this as best for display and inspection, while users who wish to 
-#       filter should use the p_values() function on an exstra_tsum object
-# best_hits(tsum)
