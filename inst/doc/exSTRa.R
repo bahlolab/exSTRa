@@ -56,16 +56,20 @@ pie(rep(1, length(plot_cols)), col = plot_cols, labels = names(plot_cols), cex =
 
 ## ---- out.width = '82%', fig.width=12, fig.height=12---------------------
 par(mfrow = c(2, 2))
-plot(tsum, sample_col = plot_cols, correction = "locus")
+plot(tsum, sample_col = plot_cols, correction = "samples")
+
+## ---- out.width = '82%', fig.width=12, fig.height=12---------------------
+par(mfrow = c(2, 2))
+plot(tsum, sample_col = plot_cols, correction = "loci")
 
 ## ------------------------------------------------------------------------
-(ps <- p_values(tsum, correction = "locus"))
+(ps <- p_values(tsum, correction = "samples"))
 
 ## ------------------------------------------------------------------------
 ps[identity(signif)]
 
 ## ------------------------------------------------------------------------
-p_values(tsum, only.signif = TRUE, correction = "locus")
+p_values(tsum, only.signif = TRUE, correction = "samples")
 
 ## ------------------------------------------------------------------------
 exstra_wgs_pcr_2["HD"]
