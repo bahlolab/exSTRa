@@ -28,7 +28,7 @@ This package implements the algorithm as described in:
 > Rick M. Tankard, Mark F Bennett, Peter Degorski, Martin B. Delatycki, 
 >         Paul J. Lockhart, Melanie Bahlo 
 >          **Detecting tandem repeat expansions in cohorts sequenced with short-read sequencing data**. 
->          *bioRxiv* (2017, updated July 2018) 157792;
+>          *bioRxiv* 157792 (2018);
 >          doi: https://doi.org/10.1101/157792
 
 A table of repeat expansion disorders for the human genome reference hg19 is included.

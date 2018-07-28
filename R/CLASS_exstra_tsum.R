@@ -122,6 +122,9 @@ print.exstra_tsum <- function(x, ...) {
 #' 
 #' @seealso \code{\link{plot.exstra_score}}
 #' 
+#' @import data.table
+#' @import stringr
+#' @import testit
 #' @export
 plot.exstra_tsum <- function(tsum, loci = NULL, sample_col = NULL, 
   correction = NULL, alpha = NULL, # when NULL, use significance as-is
