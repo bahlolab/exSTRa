@@ -33,16 +33,20 @@ Currently makes extensive use of the data.table package, and understanding its u
 
 # Examples
 
-Please see the included `examples/exSTRa_score_analysis.R` script for a example analysis. 
-Other datasets should be analysed in a similar way after processing with the Perl 
+Please see the exSTRa vignette for a workable example; 
+this can be viewed in R after installation of the package with
+```
+vignette("exSTRa")
+```
+or can be downloaded in the repository from [inst/doc/exSTRa.html](inst/doc/exSTRa.html) (in Github, the vignette cannot be viewed directly and should be downloaded).
+ 
+Other datasets in BAM/CRAM format can be analysed in a similar way after processing with the Perl 
 [Bio::STR::exSTRa](https://github.com/bahlolab/Bio-STR-exSTRa) package. 
 
 # Citation
 
-Rick M. Tankard, Martin B. Delatycki, Paul J. Lockhart, 
-         Melanie Bahlo. 
-         **Detecting known repeat expansions with standard protocol next generation 
-         sequencing, towards developing a single screening test for neurological repeat 
-         expansion disorders**. 
-         *bioRxiv* 157792; 
+Rick M. Tankard, Mark F Bennett, Peter Degorski, Martin B. Delatycki, 
+        Paul J. Lockhart, Melanie Bahlo 
+         **Detecting tandem repeat expansions in cohorts sequenced with short-read sequencing data**. 
+         *bioRxiv* 157792 (2018);
          doi: https://doi.org/10.1101/157792
