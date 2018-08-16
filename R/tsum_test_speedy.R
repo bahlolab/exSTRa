@@ -61,7 +61,8 @@
 #' @import parallel
 #' @export
 tsum_test <- function(strscore, 
-  trim = 0.15,
+  trim = ifelse(case_control, trim.cc, trim.all),
+  trim.all = 0.15,
   trim.cc = 0,
   min.quant = 0.5,
   give.pvalue = TRUE, 
@@ -117,17 +118,21 @@ tsum_test <- function(strscore,
   T_stats_list <- list()
   for(loc in loci(strscore)) {
     # message("Generating T sum statistics for ", loc)
-    qm <- make_quantiles_matrix(strscore, loc = loc, sample = NULL, read_count_quant = 1, 
-      method = "quantile7", min.n = 3)
-    if(case_control) {
-      # Only calculating for case samples
-      T_stats_loc <- quant_statistic_sampp(qm, quant = min.quant, trim = trim.cc,
-        case_samples = strscore$samples[group == "case", sample]) 
-    } else {
-      # Using all samples as the background:
-      T_stats_loc <- quant_statistic_sampp(qm, quant = min.quant, trim = trim) # quant at default of 0.5
-    }
-    T_stats_list[[loc]] <- data.table(sample = names(T_stats_loc), tsum = T_stats_loc)
+    strscore_loc <- strscore[loc]
+    T_stats_loc <- tsum_statistic_1locus(strscore_loc, quant = min.quant,
+      case_control = case_control, trim = trim)
+    
+    #### qm <- make_quantiles_matrix(strscore, loc = loc, sample = NULL, read_count_quant = 1, 
+    ####   method = "quantile7", min.n = 3)
+    #### if(case_control) {
+    ####   # Only calculating for case samples
+    ####   T_stats_loc <- quant_statistic_sampp(qm, quant = min.quant, trim = trim.cc,
+    ####     case_samples = strscore$samples[group == "case", sample]) 
+    #### } else {
+    ####   # Using all samples as the background:
+    ####   T_stats_loc <- quant_statistic_sampp(qm, quant = min.quant, trim = trim) # quant at default of 0.5
+    #### }
+    #### T_stats_list[[loc]] <- data.table(sample = names(T_stats_loc), tsum = T_stats_loc)
   }
   T_stats <- rbindlist(T_stats_list, idcol = "locus")
   
@@ -202,3 +207,67 @@ tsum_test <- function(strscore,
 # exp_test_all <- tsum_test(exstra_wgs_pcr_2)
 
 # exp_test_parallel_big <- tsum_test(exstra_wgs_pcr_2, parallel = TRUE, B = 9999, cluster_n = 4)
+
+#' Determine tsum_statistic_1locus assuming input data is for only one locus
+#' 
+#' Private function
+#' 
+#' @import data.table
+#' @import stringr
+#' @import testit
+#' @import parallel
+#' @export
+tsum_statistic_1locus <- function(strscore_loc, case_control = FALSE) {
+    
+  qm <- make_quantiles_matrix(strscore, sample = NULL, 
+    method = "quantile7")
+  
+  tsum <- quant_statistic_sampp(strscore_loc, qm, min.quant = min.quant, trim = trim.cc,
+    case_control = case_control) 
+  
+  
+}
+
+
+qm_tsum_stat_ <- function(qm) {
+  
+  bmu <- colMeans(qm)
+  # sum((qm[,1] - bmu[1]) ^ 2 / (nrow(qm) - 1))
+  # TODO: may need correction as used in t.test?
+  bvar <- colMeans(qm ^ 2) - bmu ^ 2
+  # possibly slower?
+  ## bvar <- colSums(sweep(qm, 2, bmu) ^ 2) / nrow(qm)
+  # in case a different denominator is required:
+  # bvar <- colSums(sweep(qm, 2, bmu) ^ 2) / (nrow(qm) - 1)
+  
+  list(bmu, bvar)
+}
+
+#' simple tsum statistic by known 
+#' 
+#' Assume input has been checked, distribution trimming, and minimum quant chopped.
+#' Background mu and variance is given for each quantile.
+#' 
+#' @param qm Quantile matrix (must be a matrix)
+#' @param bmu Background mu vector
+#' @param bvar Background variance vector
+#' 
+#' @export
+qm_tsum_stat_bare_ <- function(
+  qm,
+  bmu,
+  bvar
+)
+{
+  tsums <- rep(NA_real_, nrow(qm))
+  names(tsums) <- rownames(qm)
+  for(i in seq_len(length(tsums))) {
+    tsums[i] <- mean((qm[i,] - bmu) / bvar)
+  }
+  # This is slower:
+  # For one sample: tsum = (mu0 - mu) / S
+  # tsums <- rowMeans(sweep(sweep(qm, 2, bmu), 2, bvar, "/"))
+  
+  tsums
+}
+
