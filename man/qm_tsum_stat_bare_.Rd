@@ -4,7 +4,7 @@
 \alias{qm_tsum_stat_bare_}
 \title{simple tsum statistic by known}
 \usage{
-qm_tsum_stat_bare_(qm, bmu, bvar)
+qm_tsum_stat_bare_(qm, bmu, bstde)
 }
 \arguments{
 \item{qm}{Quantile matrix (must be a matrix)}

@@ -94,6 +94,12 @@ tsum_test_speedy <- function(strscore,
     stop("tsum_test() cannot yet use cases and controls to generate p-values from simulation.") 
   }
   
+  # trim too high?
+  if (trim > 0.3) {
+    #TODO: make this a better test, such as the number of samples left (maybe I've already done this?) - Rick
+    warning("trim is set to ", trim, ", removing ", trim * 200, "% of the data.")
+  }
+  
   if(parallel) {
     n_cores <- detectCores(all.tests = FALSE, logical = TRUE)
     if(is.null(cluster_n)) {
@@ -119,7 +125,7 @@ tsum_test_speedy <- function(strscore,
   for(loc in loci(strscore)) {
     # message("Generating T sum statistics for ", loc)
     strscore_loc <- strscore[loc]
-    T_stats_loc <- tsum_statistic_1locus(strscore_loc, quant = min.quant,
+    T_stats_loc <- tsum_statistic_1locus(strscore_loc, min.quant = min.quant,
       case_control = case_control, trim = trim)
     
     #### qm <- make_quantiles_matrix(strscore, loc = loc, sample = NULL, read_count_quant = 1, 
@@ -132,7 +138,7 @@ tsum_test_speedy <- function(strscore,
     ####   # Using all samples as the background:
     ####   T_stats_loc <- quant_statistic_sampp(qm, quant = min.quant, trim = trim) # quant at default of 0.5
     #### }
-    #### T_stats_list[[loc]] <- data.table(sample = names(T_stats_loc), tsum = T_stats_loc)
+    T_stats_list[[loc]] <- data.table(sample = names(T_stats_loc), tsum = T_stats_loc)
   }
   T_stats <- rbindlist(T_stats_list, idcol = "locus")
   
@@ -217,14 +223,64 @@ tsum_test_speedy <- function(strscore,
 #' @import testit
 #' @import parallel
 #' @export
-tsum_statistic_1locus <- function(strscore_loc, case_control = FALSE) {
+tsum_statistic_1locus <- function(
+  strscore_loc, 
+  case_control = FALSE,
+  min.quant = 0,
+  trim = 0) {
     
-  qm <- make_quantiles_matrix(strscore, sample = NULL, 
+  qm <- make_quantiles_matrix(strscore_loc, sample = NULL, 
     method = "quantile7")
   
-  tsum <- quant_statistic_sampp(strscore_loc, qm, min.quant = min.quant, trim = trim.cc,
-    case_control = case_control) 
+  # tsum <- quant_statistic_sampp(qm, min.quant = min.quant, trim = trim,
+  #   case_control = case_control)
+  # return(tsum)
   
+  # trim, min.quant, case_control not default
+  # subject is in background by default
+  # Use mean and variance of trimmed data (no correction)
+  qmt <- qm$y.mat
+  # remove lower quantiles
+  if(min.quant != 0) {
+    qs <- ceiling(ncol(qmt) * (1 - min.quant)) # number columns to keep
+    if(qs < 1) {
+      qs <- 1
+      warning("Number quantile levels used set to 1, trim may be too high for data or you may be too few data points")
+    }
+    qmt <- qmt[, seq(ncol(qmt) - qs + 1, ncol(qmt))]
+  }
+  
+
+  
+  if(case_control) {
+    qmtest <- qmt[strscore_loc$samples[group == "case", sample], ]
+    qmt_bac <- qmt[strscore_loc$samples[group != "case", sample], ]
+  } else {
+    qmtest <- qmt
+    qmt_bac <- qmt
+  }
+  
+  # trim at each quantile
+  if(trim != 0) {
+    qmt_bac <- apply(qmt_bac, 2, sort)[trim_vector(nrow(qmt_bac), trim), ]
+  }
+  
+  # verify qmt is not too small:
+  if(nrow(qmt_bac) < 2) {
+    stop("Too few samples (", nrow(qmt_bac), ") left after trimming")
+  }
+  
+  # calculate mean, var
+  bac_mu <- colMeans(qmt_bac)
+  # sum((qm[,1] - bmu[1]) ^ 2 / (nrow(qm) - 1))
+  # TODO: may need correction as used in t.test?
+  bac_var <- colMeans(qmt_bac ^ 2) - bac_mu ^ 2
+  # Made to match R's t.test() functionality:
+  bac_stderr <- sqrt(bac_var * (nrow(qmt_bac) + 1) / (nrow(qmt_bac) - 1))
+  # bac_s <- sqrt((colMeans(qmt_bac ^ 2) - bac_mu ^ 2) * (nrow(qmt_bac) / (nrow(qmt_bac) - 1)))
+  # bac_s <- sqrt(colSums(sweep(qmt_bac, 2, bac_mu) ^ 2) / (nrow(qmt_bac) - 1))
+  
+  qm_tsum_stat_bare_(qmtest, bac_mu, bac_stderr)
   
 }
 
@@ -235,12 +291,13 @@ qm_tsum_stat_ <- function(qm) {
   # sum((qm[,1] - bmu[1]) ^ 2 / (nrow(qm) - 1))
   # TODO: may need correction as used in t.test?
   bvar <- colMeans(qm ^ 2) - bmu ^ 2
+  bs <- sqrt(bvar)
   # possibly slower?
   ## bvar <- colSums(sweep(qm, 2, bmu) ^ 2) / nrow(qm)
   # in case a different denominator is required:
   # bvar <- colSums(sweep(qm, 2, bmu) ^ 2) / (nrow(qm) - 1)
   
-  list(bmu, bvar)
+  list(bmu, bs)
 }
 
 #' simple tsum statistic by known 
@@ -256,18 +313,19 @@ qm_tsum_stat_ <- function(qm) {
 qm_tsum_stat_bare_ <- function(
   qm,
   bmu,
-  bvar
+  bstde
 )
 {
   tsums <- rep(NA_real_, nrow(qm))
   names(tsums) <- rownames(qm)
   for(i in seq_len(length(tsums))) {
-    tsums[i] <- mean((qm[i,] - bmu) / bvar)
+    tsums[i] <- mean((qm[i,] - bmu) / bstde)
   }
-  # This is slower:
+  # This is slower when profiled:
   # For one sample: tsum = (mu0 - mu) / S
   # tsums <- rowMeans(sweep(sweep(qm, 2, bmu), 2, bvar, "/"))
   
   tsums
 }
+
 
