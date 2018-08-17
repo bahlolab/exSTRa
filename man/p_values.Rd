@@ -4,8 +4,9 @@
 \alias{p_values}
 \title{Return a data.table with p-values of a tsum_exstra object.}
 \usage{
-p_values(tsum, correction = c("bf", "locus", "uncorrected"), alpha = 0.05,
-  only.signif = FALSE, modify = FALSE, p.matrix = NULL)
+p_values(tsum, correction = c("bf", "locus", "uncorrected"),
+  alpha = 0.05, only.signif = FALSE, modify = FALSE,
+  p.matrix = NULL)
 }
 \arguments{
 \item{tsum}{An exstra_tsum object.}

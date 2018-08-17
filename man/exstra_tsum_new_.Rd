@@ -5,8 +5,8 @@
 \title{Create a new exstra_tsum object.}
 \usage{
 exstra_tsum_new_(strscore, tsum, p.values = NULL, qmats = NULL,
-  xecs = NULL, args = NULL, correction = c("bf", "locus", "uncorrected"),
-  alpha = 0.05, only.signif = FALSE)
+  xecs = NULL, args = NULL, correction = c("bf", "locus",
+  "uncorrected"), alpha = 0.05, only.signif = FALSE)
 }
 \description{
 Create a new exstra_tsum object.

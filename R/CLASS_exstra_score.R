@@ -1,8 +1,6 @@
 # The exstra_score class
 # Holds scores that give the proportion of a read that matches a given repeat.
 
-# TODO: inherit exstra_db, saving many rewriting of methods
-
 #' @import data.table
 #' @import stringr
 #' @import testit
