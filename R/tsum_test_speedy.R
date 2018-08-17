@@ -100,6 +100,12 @@ tsum_test_speedy <- function(strscore,
     warning("trim is set to ", trim, ", removing ", trim * 200, "% of the data.")
   }
   
+  # Check samples after cases are removed in case_control
+  if(case_control && strscore$samples[group != "case", .N] < 5) {
+    warning("May have too few control samples (n = ", strscore$samples[group != "case", .N], ").\n",
+      "Same tsum statistics may be NaN.")
+  }
+  
   if(parallel) {
     n_cores <- detectCores(all.tests = FALSE, logical = TRUE)
     if(is.null(cluster_n)) {
@@ -253,8 +259,8 @@ tsum_statistic_1locus <- function(
 
   
   if(case_control) {
-    qmtest <- qmt[strscore_loc$samples[group == "case", sample], ]
-    qmt_bac <- qmt[strscore_loc$samples[group != "case", sample], ]
+    qmtest <- qmt[strscore_loc$samples[group == "case" & ! sample %in% qm$low.count, sample], ]
+    qmt_bac <- qmt[strscore_loc$samples[group != "case"& ! sample %in% qm$low.count, sample], ]
   } else {
     qmtest <- qmt
     qmt_bac <- qmt
@@ -280,8 +286,15 @@ tsum_statistic_1locus <- function(
   # bac_s <- sqrt((colMeans(qmt_bac ^ 2) - bac_mu ^ 2) * (nrow(qmt_bac) / (nrow(qmt_bac) - 1)))
   # bac_s <- sqrt(colSums(sweep(qmt_bac, 2, bac_mu) ^ 2) / (nrow(qmt_bac) - 1))
   
-  qm_tsum_stat_bare_(qmtest, bac_mu, bac_stderr)
+  tsums <- qm_tsum_stat_bare_(qmtest, bac_mu, bac_stderr)
   
+  if(length(qm$low.count) > 0) {
+    tsums_low_count <- rep(NA_real_, length(qm$low.count))
+    names(tsums_low_count) <- qm$low.count
+    tsums <- c(tsums, tsums_low_count)
+  }
+  
+  tsums
 }
 
 
