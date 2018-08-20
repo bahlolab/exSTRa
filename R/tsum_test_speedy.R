@@ -331,8 +331,21 @@ qm_tsum_stat_bare_ <- function(
 {
   tsums <- rep(NA_real_, nrow(qm))
   names(tsums) <- rownames(qm)
+  # check for 0s
+  if(any(bstde == 0)) {
+    # If there is at least one 0, then spend time correcting this.
+    # We are conservative in the correction; this results in a tsum closer to 0.
+    stde0 <- TRUE
+    stde0v <- bstde == 0
+  } else {
+    stde0 <- FALSE
+  }
   for(i in seq_len(length(tsums))) {
-    tsums[i] <- mean((qm[i,] - bmu) / bstde)
+    t_vec <- (qm[i,] - bmu) / bstde
+    if(stde0) {
+      t_vec[stde0v] <- 0 # conservative correction for 0 variances
+    }
+    tsums[i] <- mean(t_vec)
   }
   # This is slower when profiled:
   # For one sample: tsum = (mu0 - mu) / S
