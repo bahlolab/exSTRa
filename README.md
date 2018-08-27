@@ -24,6 +24,8 @@ At present, the pipeline requires:
 - PCR duplicate marking (recommended)
 
 A database of repeats is required, with known disorder loci included.
+An example script to generate a database of all STRs genome wide, or those in genes that are expressed in the brain, is provide in `inst/tools/prepare_exSTRa_input_db.R`.
+These input database files can also be [downloaded from FigShare](https://figshare.com/s/0bf679a187d5f3cc2b2c).
 
 Use the Perl scripts and modules from https://github.com/bahlolab/Bio-STR-exSTRa to analyse reads in BAM files. This generates STR counts. 
 In the future this functionality may be included within the R exSTRa package. 
