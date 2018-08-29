@@ -106,43 +106,28 @@ tsum_test_speedy <- function(strscore,
       "Same tsum statistics may be NaN.")
   }
   
-  if(parallel) {
-    n_cores <- detectCores(all.tests = FALSE, logical = TRUE)
-    if(is.null(cluster_n)) {
-      # Set the number of cores, max threads - 1 (but at least 1)
-      cluster_n <- max(1, n_cores - 1)
-    } else {
-      if(cluster_n > n_cores) {
-        warn.message <- paste0("More threads have been requested by cluster_n (", cluster_n, 
-          ") than appears to be available (", 
-          n_cores, ").")
-        message(warn.message)
-      }
-    }
-  }
-  
+  # Set or check the number of cores in parallel, when no cluster is specified
   if(inherits(cluster, "cluster")) {
     # as a cluster has been given, assume we actually do want to use the parallel package
     parallel <- TRUE
+  } else {
+    if(parallel) {
+      n_cores <- detectCores(all.tests = FALSE, logical = TRUE)
+      if(is.null(cluster_n)) {
+        # Set the number of cores, max threads - 1 (but at least 1)
+        cluster_n <- max(1, n_cores - 1)
+      } else {
+        if(cluster_n > n_cores) {
+          warn.message <- paste0("More threads have been requested by cluster_n (", cluster_n, 
+            ") than appears to be available (", 
+            n_cores, ").")
+          message(warn.message)
+        }
+      }
+    }
   }
-  
-  # Generate T sum statistic
-  # TODO: consider preallocating the following list
-  T_stats_list <- list()
-  for(loc in loci(strscore)) {
-    # message("Generating T sum statistics for ", loc)
-    strscore_loc <- strscore[loc]
-    T_stats_loc <- tsum_statistic_1locus(strscore_loc, min.quant = min.quant,
-      case_control = case_control, trim = trim)
-    
-    #TODO: above, we need the quantile matrix again for the simulation. 
-    #      Don't spend time recreating the quantile matrix! (slow at present).
-    
-    T_stats_list[[loc]] <- T_stats_loc
-  }
-  T_stats <- rbindlist(T_stats_list, idcol = "locus")
-  
-  # Generate p-values (if applicable)
+
+  # Create a new PSOCKcluster if required
   if(give.pvalue) {
     if(parallel && is.null(cluster)) {
       # create the cluster, just once
@@ -151,41 +136,32 @@ tsum_test_speedy <- function(strscore,
     } else {
       cluster_stop <- FALSE
     }
-    
-    sim.results <- tryCatch(
-      simulation_run(strscore, 
-        B = B, 
-        subject_in_background = TRUE, 
-        sort_sim_qm = TRUE, 
-        use_truncated_sd = FALSE,
-        truncated_sd_fudge = NA,
-        use_truncated_sd_in_quant_statistic = FALSE,
-        median_mad = TRUE, 
-        parallel = parallel, # TRUE for cluster
-        cluster = cluster,
-        cluster_n = cluster_n,
-        trim = trim,
-        T_stats = T_stats
-      ),
-      error = function(x) { 
-          # list(cohort = this.cohort, p.matrix = c(0, 1), error = x)
-          warning(x)
-          return(NULL)
-        }
-    )
-    pvals <- sim.results$p.matrix
-    
-    if(parallel && cluster_stop) {
-      # stop the cluster that we created
-      stopCluster(cluster)
-    }
-  } else {
-    sim.results <- NULL
-    pvals <- NULL
   }
+  
+  # Generate T sum statistic
+  T_stats_list <- vector('list', length(loci(strscore)))
+  names(T_stats_list) <- loci(strscore)
+  for(loc in loci(strscore)) {
+    # message("Generating T sum statistics for ", loc)
+    strscore_loc <- strscore[loc]
+    T_stats_loc <- tsum_statistic_1locus(strscore_loc, min.quant = min.quant,
+      case_control = case_control, trim = trim,
+      parallel = parallel, # TRUE for cluster
+      cluster = cluster # a cluster object
+    )
+    
+    T_stats_list[[loc]] <- T_stats_loc
+  }
+  T_stats <- rbindlist(T_stats_list, idcol = "locus")
+    
+  if(parallel && cluster_stop) {
+    # stop the cluster that we created
+    stopCluster(cluster)
+  }
+  
   # Prepare output
-  outtsum <- exstra_tsum_new_(strscore, tsum = T_stats, p.values = pvals, 
-    qmats = sim.results$qmmats, xecs = sim.results$xecs,
+  outtsum <- exstra_tsum_new_(strscore, tsum = T_stats, p.values = NULL, 
+    qmats = NULL, xecs = NULL,
     correction = correction,
     alpha = alpha, 
     args = list(trim = trim, min.quant = min.quant, B = B))
@@ -195,6 +171,7 @@ tsum_test_speedy <- function(strscore,
         sqrt(p.value * ((Nsim + 2)/(Nsim + 1) - p.value) / Nsim)
       ]
   }
+  # TODO: remove following lines, maybe
   if(! keep.sim.tsum) {
     for(i in seq_along(outtsum$xecs)) {
       outtsum$xecs[[i]]$sim_T <- NULL
@@ -227,7 +204,10 @@ tsum_statistic_1locus <- function(
   strscore_loc, 
   case_control = FALSE,
   min.quant = 0,
-  trim = 0) {
+  trim = 0,
+  give.pvalue = FALSE,
+  parallel = FALSE,
+  cluster = NULL) {
     
   qm <- make_quantiles_matrix(strscore_loc, sample = NULL, 
     method = "quantile7")
@@ -286,6 +266,13 @@ tsum_statistic_1locus <- function(
     names(tsums_low_count) <- qm$low.count
     tsums <- c(tsums, tsums_low_count)
   }
+  
+  #--# P-value generation by simulation #--#
+  if(give.pvalue) {
+    
+    
+  }
+  
   
   # output data.table directly, so that we can include p-values
   data.table(sample = names(tsums), tsum = tsums)
