@@ -127,6 +127,7 @@ tsum_test_speedy <- function(strscore,
   }
   
   # Generate T sum statistic
+  # TODO: consider preallocating the following list
   T_stats_list <- list()
   for(loc in loci(strscore)) {
     # message("Generating T sum statistics for ", loc)
@@ -134,17 +135,10 @@ tsum_test_speedy <- function(strscore,
     T_stats_loc <- tsum_statistic_1locus(strscore_loc, min.quant = min.quant,
       case_control = case_control, trim = trim)
     
-    #### qm <- make_quantiles_matrix(strscore, loc = loc, sample = NULL, read_count_quant = 1, 
-    ####   method = "quantile7", min.n = 3)
-    #### if(case_control) {
-    ####   # Only calculating for case samples
-    ####   T_stats_loc <- quant_statistic_sampp(qm, quant = min.quant, trim = trim.cc,
-    ####     case_samples = strscore$samples[group == "case", sample]) 
-    #### } else {
-    ####   # Using all samples as the background:
-    ####   T_stats_loc <- quant_statistic_sampp(qm, quant = min.quant, trim = trim) # quant at default of 0.5
-    #### }
-    T_stats_list[[loc]] <- data.table(sample = names(T_stats_loc), tsum = T_stats_loc)
+    #TODO: above, we need the quantile matrix again for the simulation. 
+    #      Don't spend time recreating the quantile matrix! (slow at present).
+    
+    T_stats_list[[loc]] <- T_stats_loc
   }
   T_stats <- rbindlist(T_stats_list, idcol = "locus")
   
@@ -256,7 +250,6 @@ tsum_statistic_1locus <- function(
     qmt <- qmt[, seq(ncol(qmt) - qs + 1, ncol(qmt))]
   }
   
-
   
   if(case_control) {
     qmtest <- qmt[strscore_loc$samples[group == "case" & ! sample %in% qm$low.count, sample], ]
@@ -294,7 +287,8 @@ tsum_statistic_1locus <- function(
     tsums <- c(tsums, tsums_low_count)
   }
   
-  tsums
+  # output data.table directly, so that we can include p-values
+  data.table(sample = names(tsums), tsum = tsums)
 }
 
 
