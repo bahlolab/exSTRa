@@ -99,6 +99,14 @@ tsum_test_speedy <- function(strscore,
     #TODO: make this a better test, such as the number of samples left (maybe I've already done this?) - Rick
     warning("trim is set to ", trim, ", removing ", trim * 200, "% of the data.")
   }
+  if(case_control) {
+    n_back_samples <- length(trim_vector(strscore$samples[group != "case", .N], trim))
+  } else {
+    n_back_samples <- length(trim_vector(strscore$samples[, .N], trim))
+  }
+  if(n_back_samples < 6) {
+    warning("Trimming at each quantile only leaves ", n_back_samples, " observations at each level.")
+  }
   
   # Check samples after cases are removed in case_control
   if(case_control && strscore$samples[group != "case", .N] < 5) {
@@ -127,25 +135,33 @@ tsum_test_speedy <- function(strscore,
     }
   }
 
-  # Create a new PSOCKcluster if required
-  if(give.pvalue) {
-    if(parallel && is.null(cluster)) {
+  cluster_stop <- FALSE
+  if(give.pvalue && parallel) {
+    # Create a new PSOCKcluster if required
+    if(is.null(cluster)) {
       # create the cluster, just once
       cluster <- makePSOCKcluster(cluster_n)
       cluster_stop <- TRUE
-    } else {
-      cluster_stop <- FALSE
     }
+    
+    # Load required functions onto cluster nodes
+    clusterEvalQ(cluster, { 
+      library(testit); 
+      library(magrittr);
+      library(data.table);
+      library(exSTRa) 
+    })
   }
   
   # Generate T sum statistic
   T_stats_list <- vector('list', length(loci(strscore)))
   names(T_stats_list) <- loci(strscore)
   for(loc in loci(strscore)) {
-    # message("Generating T sum statistics for ", loc)
+    message("Generating T sum statistics for ", loc)
     strscore_loc <- strscore[loc]
     T_stats_loc <- tsum_statistic_1locus(strscore_loc, min.quant = min.quant,
       case_control = case_control, trim = trim,
+      give.pvalue = give.pvalue, B = B,
       parallel = parallel, # TRUE for cluster
       cluster = cluster # a cluster object
     )
@@ -165,12 +181,7 @@ tsum_test_speedy <- function(strscore,
     correction = correction,
     alpha = alpha, 
     args = list(trim = trim, min.quant = min.quant, B = B))
-  if(give.pvalue) {
-    Nsim <- B * strscore$samples[, .N]
-    outtsum$stats[, p.value.sd := 
-        sqrt(p.value * ((Nsim + 2)/(Nsim + 1) - p.value) / Nsim)
-      ]
-  }
+
   # TODO: remove following lines, maybe
   if(! keep.sim.tsum) {
     for(i in seq_along(outtsum$xecs)) {
@@ -206,6 +217,7 @@ tsum_statistic_1locus <- function(
   min.quant = 0,
   trim = 0,
   give.pvalue = FALSE,
+  B = 999,
   parallel = FALSE,
   cluster = NULL) {
     
@@ -240,6 +252,7 @@ tsum_statistic_1locus <- function(
   }
   
   # trim at each quantile
+  qmt_bac_untrim <- qmt_bac
   if(trim != 0) {
     qmt_bac <- apply(qmt_bac, 2, sort)[trim_vector(nrow(qmt_bac), trim), ]
   }
@@ -269,13 +282,105 @@ tsum_statistic_1locus <- function(
   
   #--# P-value generation by simulation #--#
   if(give.pvalue) {
+    # Calculate the mean and se from the median and MAD of the untruncated
+    # data instead
+    mu_vec <- apply(qmt_bac_untrim, 2, median)
+    # NOTE: should the qnorm(3/4) be on the next line? Works better with.
+    se_vec <- apply(qmt_bac_untrim, 2, mad) / qnorm(3/4)
     
+    N <- nrow(qmt_bac_untrim) # number of samples
+    M <- ncol(qmt_bac_untrim) # number of quantiles
+   
+    # required functions for simulation
+    simulate_quantile_matrix <- function() {
+      sqm <- t (replicate(N, rnorm(M, mu_vec, se_vec)))
+      # as this means the quantiles of a sample are no longer ordered, we sort
+      for(i in seq_len(N)) {
+        sqm[i, ] <- sort(sqm[i,  ])
+      }
+      sqm
+    }
     
+    # simulation function for sample in sample in background testing
+    sim_tsum_stat_backg <- function() {
+      simu <- simulate_quantile_matrix()
+      
+      # Use same names to make copy-pasta easier
+      qmt_bac <- simu 
+      
+      # trim if required
+      if(trim != 0) {
+        qmt_bac <- apply(qmt_bac, 2, sort)[trim_vector(nrow(qmt_bac), trim), ]
+      }
+      
+      # calculate mean, var
+      bac_mu <- colMeans(qmt_bac)
+      bac_var <- colMeans(qmt_bac ^ 2) - bac_mu ^ 2
+      # Made to match R's t.test() functionality:
+      bac_stderr <- sqrt(bac_var * (nrow(qmt_bac) + 1) / (nrow(qmt_bac) - 1))
+      
+      tsums <- qm_tsum_stat_bare_(simu, bac_mu, bac_stderr)
+      
+      tsums
+    }
+    
+    # simulation function for sample in case-control testing
+    sim_tsum_stat_cc <- function() {
+      qmt_bac <- simulate_quantile_matrix()
+      simu_case <- simulate_quantile_matrix()
+      
+      # trim if required
+      if(trim != 0) {
+        qmt_bac <- apply(qmt_bac, 2, sort)[trim_vector(nrow(qmt_bac), trim), ]
+      }
+      
+      # calculate mean, var
+      bac_mu <- colMeans(qmt_bac)
+      bac_var <- colMeans(qmt_bac ^ 2) - bac_mu ^ 2
+      # Made to match R's t.test() functionality:
+      bac_stderr <- sqrt(bac_var * (nrow(qmt_bac) + 1) / (nrow(qmt_bac) - 1))
+      
+      tsums <- qm_tsum_stat_bare_(simu_case, bac_mu, bac_stderr)
+      
+      tsums
+    }
+    
+    # Use the correct simulation function
+    if(case_control) {
+      sim_tsum_stat <- sim_tsum_stat_cc
+    } else {
+      sim_tsum_stat <- sim_tsum_stat_backg 
+    }
+    
+    if(parallel) { 
+      
+    } else {
+      # not performing in parallel
+      # TODO: explore ways that use far less memory (don't keep raw tsum results)
+      sim_T <- rep(NA_real_, B*N) # Don't let p-value get to zero
+      for(i in seq_len(B)) {
+        sim_T[((i-1)*N + 1) : (i*N) ] <- sim_tsum_stat()
+        # TODO: insert stopping-code here
+      }  
+    }
+    
+    # p-values
+    p.value <- rep(1.1, N)
+    # calculate p-values
+    for(i in seq_len(N)) {
+      p.value[i] = (sum(sim_T > tsums[i]) + 1) / (length(sim_T) + 1)
+    }
+    # TODO: improve the following estimate based on the actual number of simulations
+    Nsim <- B * N
+    p.value.sd <- sqrt(p.value * ((Nsim + 2)/(Nsim + 1) - p.value) / Nsim)
+  } else {
+    p.value = NA_real_ 
+    p.value.sd = NA_real_
   }
   
   
   # output data.table directly, so that we can include p-values
-  data.table(sample = names(tsums), tsum = tsums)
+  data.table(sample = names(tsums), tsum = tsums, p.value = p.value, p.value.sd = p.value.sd)
 }
 
 
