@@ -5,7 +5,8 @@
 \title{Determine tsum_statistic_1locus assuming input data is for only one locus}
 \usage{
 tsum_statistic_1locus(strscore_loc, case_control = FALSE,
-  min.quant = 0, trim = 0)
+  min.quant = 0, trim = 0, give.pvalue = FALSE, parallel = FALSE,
+  cluster = NULL)
 }
 \description{
 Private function
