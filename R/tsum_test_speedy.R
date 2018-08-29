@@ -89,11 +89,6 @@ tsum_test_speedy <- function(strscore,
     is.null(cluster) || inherits(cluster, "cluster"))
   assert("cluster_n should be at least 1 and a whole-number.", is.null(cluster_n) || cluster_n >= 1)
   
-  # temp code until this is developed
-  if(case_control && give.pvalue) {
-    stop("tsum_test() cannot yet use cases and controls to generate p-values from simulation.") 
-  }
-  
   # trim too high?
   if (trim > 0.3) {
     #TODO: make this a better test, such as the number of samples left (maybe I've already done this?) - Rick
@@ -365,13 +360,14 @@ tsum_statistic_1locus <- function(
     }
     
     # p-values
-    p.value <- rep(1.1, N)
+    N_out <- length(tsums)
+    p.value <- rep(NA_real_, N_out) # TODO: N may not be set correctly for some loci
     # calculate p-values
-    for(i in seq_len(N)) {
+    for(i in seq_len(N_out)) {
       p.value[i] = (sum(sim_T > tsums[i]) + 1) / (length(sim_T) + 1)
     }
     # TODO: improve the following estimate based on the actual number of simulations
-    Nsim <- B * N
+    Nsim <- B * nrow(qmt_bac)
     p.value.sd <- sqrt(p.value * ((Nsim + 2)/(Nsim + 1) - p.value) / Nsim)
   } else {
     p.value = NA_real_ 
