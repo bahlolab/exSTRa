@@ -277,6 +277,8 @@ tsum_statistic_1locus <- function(
   
   #--# P-value generation by simulation #--#
   if(give.pvalue) {
+    tsum_max <- max(tsums)
+    
     # Calculate the mean and se from the median and MAD of the untruncated
     # data instead
     mu_vec <- apply(qmt_bac_untrim, 2, median)
@@ -340,35 +342,41 @@ tsum_statistic_1locus <- function(
       tsums
     }
     
+    # Simple version to check
+    sim_tsum_stat_simple <- function() {
+      replicate(N, {mean(rt(M, N - 1))})
+    }
+    
     # Use the correct simulation function
     if(case_control) {
       sim_tsum_stat <- sim_tsum_stat_cc
     } else {
       sim_tsum_stat <- sim_tsum_stat_backg 
     }
+
     
     if(parallel) { 
-      
+      stop("Parallel simulation with optimization not yet implemented.")
     } else {
       # not performing in parallel
       # TODO: explore ways that use far less memory (don't keep raw tsum results)
+      #       Is it even worth it? Only for very large B (B*N >> 1e7)
       sim_T <- rep(NA_real_, B*N) # Don't let p-value get to zero
       for(i in seq_len(B)) {
         sim_T[((i-1)*N + 1) : (i*N) ] <- sim_tsum_stat()
-        # TODO: insert stopping-code here
-      }  
+        # TODO: insert stopping-code here using tsum_max
+      }
+      B_used <- B # temp code
     }
     
     # p-values
     N_out <- length(tsums)
-    p.value <- rep(NA_real_, N_out) # TODO: N may not be set correctly for some loci
+    p.value <- rep(NA_real_, N_out)
     # calculate p-values
     for(i in seq_len(N_out)) {
       p.value[i] = (sum(sim_T > tsums[i]) + 1) / (length(sim_T) + 1)
     }
-    # TODO: improve the following estimate based on the actual number of simulations
-    Nsim <- B * nrow(qmt_bac)
-    p.value.sd <- sqrt(p.value * ((Nsim + 2)/(Nsim + 1) - p.value) / Nsim)
+    p.value.sd <- p_value_sd_(p.value, B_used, nrow(qmt_bac))
   } else {
     p.value = NA_real_ 
     p.value.sd = NA_real_
@@ -404,7 +412,6 @@ qm_tsum_stat_ <- function(qm) {
 #' @param bmu Background mu vector
 #' @param bvar Background variance vector
 #' 
-#' @export
 qm_tsum_stat_bare_ <- function(
   qm,
   bmu,
@@ -436,4 +443,15 @@ qm_tsum_stat_bare_ <- function(
   tsums
 }
 
+#' P-value standard deviation
+#' 
+#' Accounts for dependencies within each simulation
+#'
+#' @param p vector of p-values
+#' @param B Number of simulations
+#' @param N Number of tested samples in each simulation
+p_value_sd_ <- function(p, B, N) {
+  Nsim <- B / (1/N + 1/B)
+  sqrt(p * ((Nsim + 2)/(Nsim + 1) - p) / Nsim)
+}
 
