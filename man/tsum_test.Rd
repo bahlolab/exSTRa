@@ -4,9 +4,11 @@
 \alias{tsum_test}
 \title{Generate T sum statistics and p-values from simulation.}
 \usage{
-tsum_test(strscore, trim = 0.15, trim.cc = 0, min.quant = 0.5,
+tsum_test(strscore, trim = ifelse(case_control, trim.cc, trim.all),
+  trim.all = 0.15, trim.cc = 0, min.quant = 0.5,
   give.pvalue = TRUE, B = 999, correction = c("bf", "loci",
   "samples", "uncorrected"), alpha = 0.05, case_control = FALSE,
+  early_stop = TRUE, early_A = 0.25, early_stop_min = 50,
   parallel = FALSE, cluster_n = NULL, cluster = NULL,
   keep.sim.tsum = FALSE)
 }
@@ -34,6 +36,13 @@ decimal fractions.}
 
 \item{case_control}{If TRUE, only calculate for samples designated cases. Otherwise
 all samples are used to calculate the background distribution.}
+
+\item{early_stop}{Simulation may use less replicates when all p-values are large, controlled with early_A.}
+
+\item{early_A}{Simulations may stop when p.value.sd < early_A * min(p.value). 
+Checked approximately when the number of simulations has doubled.}
+
+\item{early_stop_min}{Minimum number of simulations to run before early termination.}
 
 \item{parallel}{Use the parallel package when simulating the distribution, creating the
 required cluster. 

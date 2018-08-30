@@ -39,5 +39,5 @@ Collate:
     'suggested_exstra_pipeline.R'
     'tsum_p_value_summary.R'
     'tsum_test.R'
-    'tsum_test_speedy.R'
+    'tsum_test_1.R'
 VignetteBuilder: knitr
