@@ -1,5 +1,6 @@
 #' Generate T sum statistics and p-values from simulation. 
 #' 
+#' Original thesis version. 
 #' When applied to an exstra_score object, T sum statistics are calculated as described
 #' in Tankard et al. 
 #' May also be applied on a pre-existing exstra_tsum that will regenerate the values.
@@ -59,8 +60,8 @@
 #' @import stringr
 #' @import testit
 #' @import parallel
-#' @export
-tsum_test <- function(strscore, 
+#' 
+tsum_test_1 <- function(strscore, 
   trim = 0.15,
   trim.cc = 0,
   min.quant = 0.5,
