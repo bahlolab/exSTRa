@@ -380,7 +380,11 @@ tsum_statistic_1locus <- function(
     
     # The simulation
     if(early_stop) {
-      B_part <- floor(B / (2 ^ (seq(ceiling(log2(B/min_stop/2)), 0, -1))) + 2 * .Machine$double.eps)
+      if(B <= min_stop) {
+        B_part <- B # Otherwise we will have an empty set 
+      } else {
+        B_part <- floor(B / (2 ^ (seq(ceiling(log2(B/min_stop/2)), 0, -1))) + 2 * .Machine$double.eps)
+      }
     } else {
       B_part <- B
     }
@@ -430,6 +434,7 @@ tsum_statistic_1locus <- function(
   } else {
     p.value = NA_real_ 
     p.value.sd = NA_real_
+    B_used = NA_integer_
   }
   
   
