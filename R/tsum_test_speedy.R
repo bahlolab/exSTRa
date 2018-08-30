@@ -19,6 +19,9 @@
 #' @param alpha Signficance level of p_value() function.
 #' @param case_control If TRUE, only calculate for samples designated cases. Otherwise
 #'                 all samples are used to calculate the background distribution.
+#' @param early_stop Simulation may use less replicates when all p-values are large, controlled with early_A.
+#' @param early_A  Simulations may stop when p.value.sd < early_A * min(p.value). 
+#'                 Checked approximately when the number of simulations has doubled.
 #' @param parallel Use the parallel package when simulating the distribution, creating the
 #'                 required cluster. 
 #'                 If cluster is specified then this option makes no difference. 
@@ -69,7 +72,9 @@ tsum_test_speedy <- function(strscore,
   B = 999, 
   correction = c("bf", "loci", "samples", "uncorrected"),
   alpha = 0.05,
-  case_control = FALSE, 
+  case_control = FALSE,
+  early_stop = TRUE,
+  early_A = 0.25,
   parallel = FALSE, # TRUE for cluster
   cluster_n = NULL, # Cluster size if cluster == NULL. When NULL, #threads - 1 (but always at least 1)
   cluster = NULL, # As created by the parallel package. If cluster == NULL and parallel == TRUE, then a
@@ -158,7 +163,8 @@ tsum_test_speedy <- function(strscore,
       case_control = case_control, trim = trim,
       give.pvalue = give.pvalue, B = B,
       parallel = parallel, # TRUE for cluster
-      cluster = cluster # a cluster object
+      cluster = cluster, # a cluster object
+      early_stop = early_stop, early_A = early_A
     )
     
     T_stats_list[[loc]] <- T_stats_loc
@@ -214,7 +220,10 @@ tsum_statistic_1locus <- function(
   give.pvalue = FALSE,
   B = 999,
   parallel = FALSE,
-  cluster = NULL) {
+  cluster = NULL,
+  early_stop = TRUE,
+  early_A = 0.25)
+{
     
   qm <- make_quantiles_matrix(strscore_loc, sample = NULL, 
     method = "quantile7")
@@ -277,7 +286,7 @@ tsum_statistic_1locus <- function(
   
   #--# P-value generation by simulation #--#
   if(give.pvalue) {
-    tsum_max <- max(tsums)
+    tsum_max <- max(tsums, na.rm = TRUE)
     
     # Calculate the mean and se from the median and MAD of the untruncated
     # data instead
@@ -342,7 +351,7 @@ tsum_statistic_1locus <- function(
       tsums
     }
     
-    # Simple version to check
+    # Simple version to check: TODO: remove
     sim_tsum_stat_simple <- function() {
       replicate(N, {mean(rt(M, N - 1))})
     }
@@ -354,6 +363,7 @@ tsum_statistic_1locus <- function(
       sim_tsum_stat <- sim_tsum_stat_backg 
     }
 
+    B_part <- floor(999 / (2 ^ (seq(ceiling(log2(999/99)), 0, -1))) + 2 * .Machine$double.eps)
     
     if(parallel) { 
       stop("Parallel simulation with optimization not yet implemented.")
@@ -362,11 +372,24 @@ tsum_statistic_1locus <- function(
       # TODO: explore ways that use far less memory (don't keep raw tsum results)
       #       Is it even worth it? Only for very large B (B*N >> 1e7)
       sim_T <- rep(NA_real_, B*N) # Don't let p-value get to zero
-      for(i in seq_len(B)) {
-        sim_T[((i-1)*N + 1) : (i*N) ] <- sim_tsum_stat()
-        # TODO: insert stopping-code here using tsum_max
+      B_next <- 1L
+      for(B_used in B_part) {
+        for(i in seq(B_next, B_used, 1L)) {
+          sim_T[((i-1)*N + 1) : (i*N) ] <- sim_tsum_stat()
+        }
+        N_tss <- B_used * N # number tsums in simulation
+        if(early_stop & B_used != B) {
+          p_smallest <- (sum(sim_T[1L:N_tss] > tsum_max) + 1) / (N_tss + 1)
+          p.value.sd <- p_value_sd_(p_smallest, B_used, N)
+          # if(p_smallest - p.value.sd * 2 > 0.01) {
+          if(p.value.sd < early_A * p_smallest) {
+            message("A speedup has occured at ", B_used, " simulations.")
+            break
+          }
+        }
+        
+        B_next <- B_used + 1L # prepare for next block
       }
-      B_used <- B # temp code
     }
     
     # p-values
@@ -374,9 +397,9 @@ tsum_statistic_1locus <- function(
     p.value <- rep(NA_real_, N_out)
     # calculate p-values
     for(i in seq_len(N_out)) {
-      p.value[i] = (sum(sim_T > tsums[i]) + 1) / (length(sim_T) + 1)
+      p.value[i] <- (sum(sim_T[1L:N_tss] > tsums[i]) + 1) / (N_tss + 1)
     }
-    p.value.sd <- p_value_sd_(p.value, B_used, nrow(qmt_bac))
+    p.value.sd <- p_value_sd_(p.value, B_used, N)
   } else {
     p.value = NA_real_ 
     p.value.sd = NA_real_
@@ -384,7 +407,7 @@ tsum_statistic_1locus <- function(
   
   
   # output data.table directly, so that we can include p-values
-  data.table(sample = names(tsums), tsum = tsums, p.value = p.value, p.value.sd = p.value.sd)
+  data.table(sample = names(tsums), tsum = tsums, p.value = p.value, p.value.sd = p.value.sd, B = B_used)
 }
 
 
