@@ -32,7 +32,16 @@ exstra_tsum_new_ <- function(strscore, tsum, p.values = NULL,
   
   setkey(tsum, locus, sample)
   if(is.null(p.values)) {
-    stats <- tsum
+    ts_fake <- structure(
+      list(stats = tsum, n_tests = tsum[!is.na(tsum), .N])
+      , class = c("exstra_tsum", "exstra_score", "exstra_db")
+    )
+    stats <- p_values(ts_fake,
+      correction = correction,
+      alpha = alpha,
+      only.signif = only.signif,
+      modify = TRUE
+    )
   } else {
     ps <- p_values(correction = correction,
       alpha = alpha,
@@ -40,6 +49,7 @@ exstra_tsum_new_ <- function(strscore, tsum, p.values = NULL,
       p.matrix = p.values)
     stats <- merge(tsum, ps, all = TRUE)
   }
+  
   structure(
     list(
       data = strscore$data, 
