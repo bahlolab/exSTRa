@@ -64,7 +64,7 @@
 #' @import testit
 #' @import parallel
 #' @export
-tsum_test_speedy <- function(strscore, 
+tsum_test <- function(strscore, 
   trim = ifelse(case_control, trim.cc, trim.all),
   trim.all = 0.15,
   trim.cc = 0,
