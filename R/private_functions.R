@@ -457,7 +457,13 @@ trim_vector <- function(dim1, trim) {
   # takes an interger and trim value, gives indicies to keep
   # dim1: integer
   # trim: trimming proportion
-  seq(ceiling(dim1 * trim) + 1, floor(dim1 * (1 - trim)), 1)
+  ti <- trim_index_(dim1, trim)
+  seq(ti[1], ti[2], 1)
+}
+
+# gives indexes for trimming
+trim_index_ <- function(dim1, trim) {
+  c(ceiling(dim1 * trim) + 1, floor(dim1 * (1 - trim)))
 }
 
 quant_statistic <- function(qmmat, sample = 1, quant = 0.5, trim = 0.15, 
