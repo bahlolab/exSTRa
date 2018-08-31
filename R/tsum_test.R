@@ -512,6 +512,7 @@ p_value_sd_ <- function(p, B, N) {
 
 # Trim a matrix, without preserving sample order
 trim_matrix_ <- function(qm, trim = 0) {
-  apply(qm, 2, sort.int)[trim_vector(nrow(qm), trim), ]
+  ti <- trim_index_(nrow(qm), trim)
+  apply(qm, 2, sort.int, partial = ti)[trim_vector(nrow(qm), trim), ]
 }
 
