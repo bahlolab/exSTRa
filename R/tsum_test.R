@@ -304,7 +304,7 @@ tsum_statistic_1locus <- function(
       sqm <- t (replicate(N, rnorm(M, mu_vec, se_vec)))
       # as this means the quantiles of a sample are no longer ordered, we sort
       for(i in seq_len(N)) {
-        sqm[i, ] <- sort(sqm[i,  ])
+        sqm[i, ] <- sort.int(sqm[i,  ])
       }
       sqm
     }
@@ -512,6 +512,6 @@ p_value_sd_ <- function(p, B, N) {
 
 # Trim a matrix, without preserving sample order
 trim_matrix_ <- function(qm, trim = 0) {
-  apply(qm, 2, sort)[trim_vector(nrow(qm), trim), ]
+  apply(qm, 2, sort.int)[trim_vector(nrow(qm), trim), ]
 }
 
