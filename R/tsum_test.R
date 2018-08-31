@@ -260,7 +260,7 @@ tsum_statistic_1locus <- function(
   # trim at each quantile
   qmt_bac_untrim <- qmt_bac
   if(trim != 0) {
-    qmt_bac <- apply(qmt_bac, 2, sort)[trim_vector(nrow(qmt_bac), trim), ]
+    qmt_bac <- trim_matrix_(qmt_bac, trim)
   }
   
   # verify qmt is not too small:
@@ -318,7 +318,7 @@ tsum_statistic_1locus <- function(
       
       # trim if required
       if(trim != 0) {
-        qmt_bac <- apply(qmt_bac, 2, sort)[trim_vector(nrow(qmt_bac), trim), ]
+        qmt_bac <- trim_matrix_(qmt_bac, trim)
       }
       
       # calculate mean, var
@@ -339,7 +339,7 @@ tsum_statistic_1locus <- function(
       
       # trim if required
       if(trim != 0) {
-        qmt_bac <- apply(qmt_bac, 2, sort)[trim_vector(nrow(qmt_bac), trim), ]
+        qmt_bac <- trim_matrix_(qmt_bac, trim)
       }
       
       # calculate mean, var
@@ -515,8 +515,38 @@ trim_matrix_1_ <- function(qm, trim = 0) {
   apply(qm, 2, sort)[trim_vector(nrow(qm), trim), ]
 }
 trim_matrix_2_ <- function(qm, trim = 0) {
-  #qmt_bac_2 <- matrix(NA_real_, nrow = 
-  #    qmt_bac_2 
+  tv <- trim_vector(nrow(qm), trim)
+  qout <- matrix(NA_real_, nrow = length(tv), ncol = ncol(qm))
+  for(i in seq_len(ncol(qm))) {
+    qout[, i] <- sort(qm[, i])[tv]
+  }
+  qout
+}
+trim_matrix_3_ <- function(qm, trim = 0) {
+  tv <- trim_vector(nrow(qm), trim)
+  tvn <- length(tv)
+  qout <- rep(NA_real_, tvn * ncol(qm))
+  for(i in seq_len(ncol(qm))) {
+    qout[((i-1L)*tvn + 1L) : (i*tvn)] <- sort(qm[, i])[tv]
+  }
+  matrix(qout, nrow = length(tv), ncol = ncol(qm))
+}
+trim_matrix_4_ <- function(qm, trim = 0) {
+  tv <- trim_vector(nrow(qm), trim)
+  qout <- matrix(NA_real_, nrow = ncol(qm), ncol = length(tv))
+  for(i in seq_len(ncol(qm))) {
+    qout[i, ] <- sort(qm[, i])[tv]
+  }
+  t(qout)
+}
+trim_matrix_5_ <- function(qm, trim = 0) {
+  qmt <- t(qm)
+  tv <- trim_vector(nrow(qm), trim)
+  qout <- matrix(NA_real_, nrow = ncol(qm), ncol = length(tv))
+  for(i in seq_len(ncol(qm))) {
+    qout[i, ] <- sort(qmt[i, ])[tv]
+  }
+  t(qout)
 }
 trim_matrix_ <- trim_matrix_1_
   
