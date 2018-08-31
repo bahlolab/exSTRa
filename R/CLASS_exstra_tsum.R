@@ -50,18 +50,25 @@ exstra_tsum_new_ <- function(strscore, tsum, p.values = NULL,
     stats <- merge(tsum, ps, all = TRUE)
   }
   
+  out_list <- list(
+    data = strscore$data, 
+    db = strscore$db, 
+    input_type = strscore$input_type, 
+    samples = strscore$samples,
+    stats = stats,
+    args = args,
+    n_tests = sum (!is.na (stats$tsum))
+  )
+  # For old tsum_test_1() function:
+  if(!is.null(qmats)) {
+    out_list <- c(out_list, list(qmats = qmats))
+  }
+  if(!is.null(xecs)) {
+    out_list <- c(out_list, list(xecs = xecs))
+  }
+  
   structure(
-    list(
-      data = strscore$data, 
-      db = strscore$db, 
-      input_type = strscore$input_type, 
-      samples = strscore$samples,
-      stats = stats,
-      qmats = qmats, 
-      xecs = xecs,
-      args = args,
-      n_tests = sum (!is.na (stats$tsum))
-    ), 
+    out_list, 
     class = c("exstra_tsum", "exstra_score", "exstra_db"))
 }
 
