@@ -159,7 +159,7 @@ tsum_test <- function(strscore,
   T_stats_list <- vector('list', length(loci(strscore)))
   names(T_stats_list) <- loci(strscore)
   for(loc in loci(strscore)) {
-    message("Generating T sum statistics for ", loc)
+    message("Working on locus ", loc)
     strscore_loc <- strscore[loc]
     T_stats_loc <- tsum_statistic_1locus(strscore_loc, min.quant = min.quant,
       case_control = case_control, trim = trim,
@@ -179,8 +179,7 @@ tsum_test <- function(strscore,
   }
   
   # Prepare output
-  outtsum <- exstra_tsum_new_(strscore, tsum = T_stats, p.values = NULL, 
-    qmats = NULL, xecs = NULL,
+  outtsum <- exstra_tsum_new_(strscore, tsum = T_stats,
     correction = correction,
     alpha = alpha, 
     args = list(trim = trim, min.quant = min.quant, B = B))
@@ -414,7 +413,7 @@ tsum_statistic_1locus <- function(
         p.value.sd <- p_value_sd_(p_smallest, B_used, N)
         # if(p_smallest - p.value.sd * 2 > 0.01) {
         if(p.value.sd < early_A * p_smallest) {
-          message("A speedup has occured at ", B_used, " simulations.")
+          message("    Reduced replicates to ", B_used, ".")
           break
         }
       }
@@ -509,4 +508,16 @@ p_value_sd_ <- function(p, B, N) {
   Nsim <- B / (1/N + 1/B)
   sqrt(p * ((Nsim + 2)/(Nsim + 1) - p) / Nsim)
 }
+
+
+# Trim a matrix, without preserving sample order
+trim_matrix_1_ <- function(qm, trim = 0) {
+  apply(qm, 2, sort)[trim_vector(nrow(qm), trim), ]
+}
+trim_matrix_2_ <- function(qm, trim = 0) {
+  #qmt_bac_2 <- matrix(NA_real_, nrow = 
+  #    qmt_bac_2 
+}
+trim_matrix_ <- trim_matrix_1_
+  
 
