@@ -12,3 +12,6 @@ is.exstra_score(x)
 \value{
 Logical
 }
+\description{
+Test if object is an exstra_score object
+}
