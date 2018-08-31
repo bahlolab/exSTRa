@@ -78,7 +78,7 @@ tsum_test <- function(strscore,
   early_A = 0.25,
   early_stop_min = 50,
   parallel = FALSE, # TRUE for cluster
-  cluster_n = NULL, # Cluster size if cluster == NULL. When NULL, #threads - 1 (but always at least 1)
+  cluster_n = NULL, # Cluster size if cluster == NULL. When NULL, #threads / 2 (but always at least 1)
   cluster = NULL, # As created by the parallel package. If cluster == NULL and parallel == TRUE, then a
                   # PSOCK cluster is automatically created with the parallel package.
   keep.sim.tsum = FALSE
@@ -124,8 +124,8 @@ tsum_test <- function(strscore,
     if(parallel) {
       n_cores <- detectCores(all.tests = FALSE, logical = TRUE)
       if(is.null(cluster_n)) {
-        # Set the number of cores, max threads - 1 (but at least 1)
-        cluster_n <- max(1, n_cores - 1)
+        # Set the number of cores, max threads / 2 (but at least 1)
+        cluster_n <- max(1, n_cores / 2)
       } else {
         if(cluster_n > n_cores) {
           warn.message <- paste0("More threads have been requested by cluster_n (", cluster_n, 
@@ -212,7 +212,6 @@ tsum_test <- function(strscore,
 #' @import stringr
 #' @import testit
 #' @import parallel
-#' @export
 tsum_statistic_1locus <- function(
   strscore_loc, 
   case_control = FALSE,
