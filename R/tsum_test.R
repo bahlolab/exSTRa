@@ -303,7 +303,7 @@ tsum_statistic_1locus <- function(
       sqm <- t (replicate(N, rnorm(M, mu_vec, se_vec)))
       # as this means the quantiles of a sample are no longer ordered, we sort
       for(i in seq_len(N)) {
-        sqm[i, ] <- sort.int(sqm[i,  ])
+        sqm[i, ] <- sort.int(sqm[i,  ], method = "shell")
       }
       sqm
     }
