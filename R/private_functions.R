@@ -383,7 +383,7 @@ make_quantiles_matrix <- function(strscore, loc = TRUE, sample = NULL, read_coun
   }
   assert("Cannot set both probs and n.quantiles", is.null(probs) || is.null(n.quantiles))
   if(is.null(probs) && is.null(n.quantiles)) {
-    n.quantiles <- loc_data[, .N, by = sample][, quantile(N, read_count_quant, names = FALSE)] %>% round
+    n.quantiles <- round(loc_data[, .N, by = sample][, quantile(N, read_count_quant, names = FALSE)])
   }
   method <- tolower(method)
   if(method == "al1" || method == "al1_all") {
@@ -403,7 +403,7 @@ make_quantiles_matrix <- function(strscore, loc = TRUE, sample = NULL, read_coun
     stop('"Please choose type for quantile with method = "quantile#"')
   }
   if(grepl("^quantile\\d", method)) {
-    quantile_type <- sub("quantile", "", method) %>% as.numeric()
+    quantile_type <- as.numeric(sub("quantile", "", method))
     method <- "quantile"
   }
   assert("samples is not the key of strscore$samples", key(strscore$samples)[1] == "sample")
@@ -440,7 +440,7 @@ make_quantiles_matrix <- function(strscore, loc = TRUE, sample = NULL, read_coun
       }
       v <- sort(v)
     } else if(method == "al1_all") {
-      v <- munoz_rueda_al1(y, n.quantiles) %>% sort
+      v <- sort(munoz_rueda_al1(y, n.quantiles))
     } else {
       stop("Undefined method ", method)
     }
@@ -448,7 +448,7 @@ make_quantiles_matrix <- function(strscore, loc = TRUE, sample = NULL, read_coun
   }
   rownames(quant.matrix) <- sample
   # remove NA rows
-  low.count.samples <- apply(quant.matrix, 1, function(x) { is.na(x) %>% all })
+  low.count.samples <- apply(quant.matrix, 1, function(x) { all(is.na(x)) })
   quant.matrix <- quant.matrix[!low.count.samples, ]
   list(x = probs, y.mat = quant.matrix, low.count = names(low.count.samples[low.count.samples]))
 }
@@ -457,7 +457,13 @@ trim_vector <- function(dim1, trim) {
   # takes an interger and trim value, gives indicies to keep
   # dim1: integer
   # trim: trimming proportion
-  seq(ceiling(dim1 * trim) + 1, floor(dim1 * (1 - trim)), 1)
+  ti <- trim_index_(dim1, trim)
+  seq(ti[1], ti[2], 1)
+}
+
+# gives indexes for trimming
+trim_index_ <- function(dim1, trim) {
+  c(ceiling(dim1 * trim) + 1, floor(dim1 * (1 - trim)))
 }
 
 quant_statistic <- function(qmmat, sample = 1, quant = 0.5, trim = 0.15, 

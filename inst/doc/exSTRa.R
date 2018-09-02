@@ -40,7 +40,7 @@ plot_multi(str_score_four, dir = "example_images",
   prefix = "HiSeqXTen_WGS_PCR_2", plot_types = c(1, 2), alpha_case = 0.2)
 
 ## ------------------------------------------------------------------------
-( tsum <- tsum_test(str_score_four, parallel = TRUE) )
+( tsum <- tsum_test(str_score_four) )
 
 ## ---- out.width = '82%', fig.width=12, fig.height=12---------------------
 par(mfrow = c(2, 2))
