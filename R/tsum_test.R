@@ -136,7 +136,7 @@ tsum_test <- function(strscore,
       }
     }
   }
-
+  
   cluster_stop <- FALSE
   if(give.pvalue && parallel) {
     # Create a new PSOCKcluster if required
@@ -172,7 +172,7 @@ tsum_test <- function(strscore,
     T_stats_list[[loc]] <- T_stats_loc
   }
   T_stats <- rbindlist(T_stats_list, idcol = "locus")
-    
+  
   if(parallel && cluster_stop) {
     # stop the cluster that we created
     stopCluster(cluster)
@@ -183,7 +183,7 @@ tsum_test <- function(strscore,
     correction = correction,
     alpha = alpha, 
     args = list(trim = trim, min.quant = min.quant, B = B))
-
+  
   # TODO: remove following lines, maybe
   if(! keep.sim.tsum) {
     for(i in seq_along(outtsum$xecs)) {
@@ -225,7 +225,7 @@ tsum_statistic_1locus <- function(
   early_A = 0.25,
   min_stop = 50)
 {
-    
+  
   qm <- make_quantiles_matrix(strscore_loc, sample = NULL, 
     method = "quantile7")
   
@@ -297,7 +297,7 @@ tsum_statistic_1locus <- function(
     
     N <- nrow(qmt_bac_untrim) # number of samples
     M <- ncol(qmt_bac_untrim) # number of quantiles
-   
+    
     # required functions for simulation
     simulate_quantile_matrix <- function() {
       sqm <- t (replicate(N, rnorm(M, mu_vec, se_vec)))
@@ -465,6 +465,7 @@ qm_tsum_stat_ <- function(qm) {
 #' @param bmu Background mu vector
 #' @param bvar Background variance vector
 #' 
+#' @keywords internal
 qm_tsum_stat_bare_ <- function(
   qm,
   bmu,
@@ -503,6 +504,8 @@ qm_tsum_stat_bare_ <- function(
 #' @param p vector of p-values
 #' @param B Number of simulations
 #' @param N Number of tested samples in each simulation
+#' 
+#' @keywords internal
 p_value_sd_ <- function(p, B, N) {
   Nsim <- B / (1/N + 1/B)
   sqrt(p * ((Nsim + 2)/(Nsim + 1) - p) / Nsim)

@@ -67,7 +67,8 @@ strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NUL
 }
 
 
-#'
+#' Create a new exstra_score object
+#' @keywords internal
 exstra_score_new_ <- function(data, db) {
   assert("data must be of class data.frame", inherits(data, "data.frame"))
   assert("db must be of class exstra_db", inherits(db, "exstra_db"))
@@ -100,15 +101,19 @@ print.exstra_score <- function(x, ...) {
 }
 
 #' @export
-plot_names.exstra_score <- function(strscore, names) {
+plot_names.exstra_score <- function(x, names = NULL) {
   # gives the plot names for given sample names
-  strscore$samples[as.character(names), plotname]
+  if(is.null(names)) {
+    x$samples[, plotname]
+  } else {
+    x$samples[as.character(names), plotname]
+  }
 }
 
 #' @export
-`plot_names.exstra_score<-` <- function(data, labels) {
-  assert("data must be of class exstra_db", inherits(data, "exstra_db"))
-  data$samples[names(labels), plotname := labels]
+`plot_names<-.exstra_score` <- function(x, value) {
+  assert("data must be of class exstra_db", inherits(x, "exstra_db"))
+  x$samples[names(value), plotname := value]
 }
 
 
@@ -205,7 +210,7 @@ plot_names.exstra_score <- function(strscore, names) {
 #' plot(exstra_wgs_pcr_2, "SBMA", xlinked = "male")
 #' 
 #' @export
-plot.exstra_score <- function(rsc, loci = NULL, sample_col = NULL, 
+plot.exstra_score <- function(x, loci = NULL, sample_col = NULL, 
   refline = TRUE, ylab="Fn(x)", verticals = TRUE,
   pch = 19, xlim, ylim = c(0,1), alpha_control = 0.5, alpha_case = NULL, 
   xlinked = "all", xlinked.safe = TRUE, x_upper_missing = 150, 
@@ -214,6 +219,7 @@ plot.exstra_score <- function(rsc, loci = NULL, sample_col = NULL,
   # sample_col should be a named vector, sample names as the name and color as the value
   # refline: if TRUE, include reference
   # xlinked: For loci on X chromosome, "all" for all samples, "male" and "female" for only that sex
+  rsc <- x # for clarity
   if(is.null(loci)) {
     strlocis <- loci(rsc)
   } else {

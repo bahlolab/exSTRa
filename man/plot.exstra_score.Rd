@@ -4,15 +4,13 @@
 \alias{plot.exstra_score}
 \title{Plot ECDF curves from an exstra_score object}
 \usage{
-\method{plot}{exstra_score}(rsc, loci = NULL, sample_col = NULL,
+\method{plot}{exstra_score}(x, loci = NULL, sample_col = NULL,
   refline = TRUE, ylab = "Fn(x)", verticals = TRUE, pch = 19, xlim,
   ylim = c(0, 1), alpha_control = 0.5, alpha_case = NULL,
   xlinked = "all", xlinked.safe = TRUE, x_upper_missing = 150,
   main = NULL, ...)
 }
 \arguments{
-\item{rsc}{exstra_score object.}
-
 \item{loci}{character; Only plot at the loci specified/ 
 No effect if NULL.}
 
@@ -49,6 +47,8 @@ If FALSE, samples with missing sex will also be filtered when xlinked is "male" 
 upper x-axis limit.}
 
 \item{...}{Further arguments to the \code{plot.ecdf} function.}
+
+\item{rsc}{exstra_score object.}
 }
 \description{
 Plot ECDF curves from an exstra_score object
