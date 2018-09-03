@@ -45,8 +45,7 @@ data_13 <- str_score[, "WGSrpt_13"]
 
 ## ---- Performing tests for expansions ----
 # here, the brackets mean the object is shown
-# We use the parallel package to use threads up to one less than available.
-(tsum <- tsum_test(str_score_four, parallel = TRUE))
+(tsum <- tsum_test(str_score_four))
 
 # Plotting tsum only highlights significant samples
 plot(tsum)
