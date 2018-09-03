@@ -13,23 +13,23 @@ loci <- function (x, ...) {
 }
 
 #' @export
-loci_text_info <- function (x, ...) {
+loci_text_info <- function (x, locus) {
     UseMethod("loci_text_info", x)
 }
 
 #' @export
-plot_names <- function (x, ...) {
+plot_names <- function (x, names) {
   UseMethod("plot_names", x)
 }
 
 #' @export
-`plot_names<-` <- function (x, ...) {
+`plot_names<-` <- function (x, value) {
   UseMethod("`plot_names<-`", x)
 }
 
 # make data.table copy() also work properly on our class
 #' @export
-copy <- function (x, ...) {
+copy <- function (x) {
   UseMethod("copy", x)
 }
 

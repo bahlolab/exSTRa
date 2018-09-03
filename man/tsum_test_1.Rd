@@ -83,3 +83,4 @@ Rick M. Tankard, Martin B. Delatycki, Paul J. Lockhart,
 \seealso{
 \code{\link{tsum_p_value_summary}}
 }
+\keyword{internal}
