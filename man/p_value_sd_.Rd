@@ -16,3 +16,4 @@ p_value_sd_(p, B, N)
 \description{
 Accounts for dependencies within each simulation
 }
+\keyword{internal}

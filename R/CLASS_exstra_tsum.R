@@ -23,6 +23,7 @@ is.exstra_tsum <- function(x) inherits(x, "exstra_tsum")
 
 
 #' Create a new exstra_tsum object.
+#' @keywords internal
 exstra_tsum_new_ <- function(strscore, tsum, p.values = NULL, 
     qmats = NULL, xecs = NULL, args = NULL, 
   correction = c("bf", "locus", "uncorrected"),
@@ -126,7 +127,7 @@ print.exstra_tsum <- function(x, ...) {
 #' 
 #' Plot the significant results of a tsum
 #' 
-#' @param tsum An exstra_tsum object.
+#' @param x An exstra_tsum object.
 #' @param loci Character vector of locus or loci to plot.
 #' @param sample_col Named (samples) vector of charcters defining colors. 
 #' @param correction Apply this correction method from \code{\link{p_values}}. 
@@ -143,7 +144,7 @@ print.exstra_tsum <- function(x, ...) {
 #' @import stringr
 #' @import testit
 #' @export
-plot.exstra_tsum <- function(tsum, loci = NULL, sample_col = NULL, 
+plot.exstra_tsum <- function(x, loci = NULL, sample_col = NULL, 
   correction = NULL, alpha = NULL, # when NULL, use significance as-is
   controls_label = "Not significant", 
   alpha_nonsignif = 0.25, 

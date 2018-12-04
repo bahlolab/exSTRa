@@ -41,9 +41,9 @@ exstra_db_text <- function(file) {
 }
 
 #' @export
-loci.exstra_db <- function(exstra_db) {
+loci.exstra_db <- function(x, ...) {
   # Give the loci names
-  loci <- exstra_db$db[order(input_order), locus]
+  loci <- x$db[order(input_order), locus]
   assert("Could not identify the str loci", !is.null(loci))
   loci
 }
@@ -108,7 +108,7 @@ loci_min_exp <- function(x, locus) {
 
 # copy data.table inside
 #' @export
-copy.exstra_db <- function(x) {
+copy.exstra_db <- function(x, ...) {
   x$db <- copy(x$db)
   x
 }

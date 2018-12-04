@@ -17,3 +17,4 @@ qm_tsum_stat_bare_(qm, bmu, bstde)
 Assume input has been checked, distribution trimming, and minimum quant chopped.
 Background mu and variance is given for each quantile.
 }
+\keyword{internal}

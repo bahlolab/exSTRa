@@ -11,3 +11,4 @@ exstra_tsum_new_(strscore, tsum, p.values = NULL, qmats = NULL,
 \description{
 Create a new exstra_tsum object.
 }
+\keyword{internal}
