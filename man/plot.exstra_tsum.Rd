@@ -4,12 +4,12 @@
 \alias{plot.exstra_tsum}
 \title{Plot exstra_tsum, highlighting significant results}
 \usage{
-\method{plot}{exstra_tsum}(tsum, loci = NULL, sample_col = NULL,
+\method{plot}{exstra_tsum}(x, loci = NULL, sample_col = NULL,
   correction = NULL, alpha = NULL,
   controls_label = "Not significant", alpha_nonsignif = 0.25, ...)
 }
 \arguments{
-\item{tsum}{An exstra_tsum object.}
+\item{x}{An exstra_tsum object.}
 
 \item{loci}{Character vector of locus or loci to plot.}
 

@@ -61,6 +61,7 @@
 #' @import testit
 #' @import parallel
 #' 
+#' @keywords internal
 tsum_test_1 <- function(strscore, 
   trim = 0.15,
   trim.cc = 0,
