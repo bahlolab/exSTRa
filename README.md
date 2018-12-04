@@ -47,8 +47,14 @@ Other datasets in BAM/CRAM format can be analysed in a similar way after process
 
 # Citation
 
-Rick M. Tankard, Mark F Bennett, Peter Degorski, Martin B. Delatycki, 
-        Paul J. Lockhart, Melanie Bahlo 
-         **Detecting tandem repeat expansions in cohorts sequenced with short-read sequencing data**. 
-         *bioRxiv* 157792 (2018);
-         doi: https://doi.org/10.1101/157792
+Rick M. Tankard,
+Mark F. Bennett,
+Peter Degorski,
+Martin B. Delatycki,
+Paul J. Lockhart,
+Melanie Bahlo.
+         **Detecting Expansions of Tandem Repeats in Cohorts Sequenced with Short-Read Sequencing Data**. 
+         *American Journal of Human Genetics* (2018);
+         https://doi.org/10.1016/j.ajhg.2018.10.015
+        
+Licenced under [GPL-2](LICENCE).
