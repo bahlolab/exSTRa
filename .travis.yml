@@ -1,14 +1,22 @@
 language: r
-r:
-  - oldrel
-  - release
-  - devel
-cache: packages
 
-os:
-  - linux
-  - windows
-  - osx
+# Test both linux and mac, but not devel release on mac
+matrix:
+    include:
+        - os: linux
+          r: oldrel
+        - os: linux
+          r: release
+        - os: linux
+          r: devel
+        - os: osx
+          r: oldrel
+        - os: osx
+          r: release
+       #- os: osx
+       #  r: devel           
+
+cache: packages
 
 env:
   - _R_CHECK_FORCE_SUGGESTS_=FALSE
