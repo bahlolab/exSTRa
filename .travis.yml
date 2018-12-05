@@ -5,6 +5,11 @@ r:
   - devel
 cache: packages
 
+os:
+  - linux
+  - windows
+  - osx
+
 env:
   - _R_CHECK_FORCE_SUGGESTS_=FALSE
 
