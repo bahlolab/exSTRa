@@ -1,6 +1,6 @@
 language: r
 
-# Test both linux and mac, but not devel release on mac
+# Test both linux and mac
 matrix:
     include:
         - os: linux
@@ -13,8 +13,12 @@ matrix:
           r: oldrel
         - os: osx
           r: release
-       #- os: osx
-       #  r: devel           
+        - os: osx
+          r: devel
+    allow_failures:
+    # devel on osx fails
+        - os: osx
+          r: devel
 
 cache: packages
 
