@@ -7,7 +7,14 @@ Author: Rick Tankard
 Maintainer: Rick Tankard <tankard@wehi.edu.au>
 Description: Detecting expansions with paired-end Illumina sequencing data.
 License: GPL-2
-Imports: testit, data.table, stringr, reshape2, magrittr, RColorBrewer
+Imports: 
+    testit,
+    data.table,
+    stringr,
+    reshape2,
+    magrittr,
+    RColorBrewer,
+    ggplot2
 Suggests: testthat, DiagrammeR, DiagrammeRsvg, xlsx,
     knitr,
     rmarkdown
@@ -24,6 +31,7 @@ Collate:
     'exstra_wgs_pcr_2.R'
     'filter_low_scores.R'
     'filter_sex.R'
+    'ggplot.exstra_score.R'
     'loci_normal_expansion.R'
     'munoz_rueda_al1.R'
     'p_values.R'
