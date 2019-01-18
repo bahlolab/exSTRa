@@ -40,7 +40,7 @@ this can be viewed in R after installation of the package with
 ```
 vignette("exSTRa")
 ```
-or can be downloaded in the repository from [inst/doc/exSTRa.html](inst/doc/exSTRa.html) (in Github, the vignette cannot be viewed directly and should be downloaded).
+or can be downloaded in the repository from [doc/exSTRa.html](https://bahlolab.github.io/exSTRa/doc/exSTRa.html).
  
 Other datasets in BAM/CRAM format can be analysed in a similar way after processing with the Perl 
 [Bio::STR::exSTRa](https://github.com/bahlolab/Bio-STR-exSTRa) package. 
@@ -53,8 +53,9 @@ Peter Degorski,
 Martin B. Delatycki,
 Paul J. Lockhart,
 Melanie Bahlo.
-         **Detecting Expansions of Tandem Repeats in Cohorts Sequenced with Short-Read Sequencing Data**. 
-         *American Journal of Human Genetics* (2018);
-         https://doi.org/10.1016/j.ajhg.2018.10.015
+        **Detecting Expansions of Tandem Repeats in Cohorts Sequenced with Short-Read Sequencing Data**. 
+        *American Journal of Human Genetics*,
+        103(6):858-873, 2018.
+        https://doi.org/10.1016/j.ajhg.2018.10.015
         
 Licenced under [GPL-2](LICENCE).
