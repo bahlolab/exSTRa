@@ -346,3 +346,6 @@ as.exstra_score <- function(x, copy = FALSE) {
   }
   structure(list(data = x$data, db = x$db, input_type = x$input_type, samples = x$samples), class = c("exstra_score", "exstra_db"))
 }
+
+
+#TODO: create verification function
