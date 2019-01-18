@@ -1,7 +1,7 @@
 Package: exSTRa
 Type: Package
 Title: Expanded STR algorithm: detecting expansions in Illumina sequencing data
-Version: 0.88.3
+Version: 0.88.4
 Date: 2018-12-04
 Author: Rick Tankard
 Maintainer: Rick Tankard <tankard@wehi.edu.au>
@@ -40,4 +40,5 @@ Collate:
     'tsum_p_value_summary.R'
     'tsum_test.R'
     'tsum_test_1.R'
+    'zzz.R'
 VignetteBuilder: knitr

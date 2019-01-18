@@ -96,6 +96,15 @@ tsum_test <- function(strscore,
     is.null(cluster) || inherits(cluster, "cluster"))
   assert("cluster_n should be at least 1 and a whole-number.", is.null(cluster_n) || cluster_n >= 1)
   
+  # Warning for parallel usage
+  if(parallel) {
+    warning("Use of tsum_test(parallel = TRUE) may not be beneficial.\n",
+      "  This is due to optimizations in serial code, such that the overhead of parallization\n",
+      "  outweights any benefit. Future implementations may parallize over loci, thus\n",
+      "  significantly reducing overhead.",
+      immediate. = TRUE)
+  }
+  
   # trim too high?
   if (trim > 0.3) {
     #TODO: make this a better test, such as the number of samples left (maybe I've already done this?) - Rick
