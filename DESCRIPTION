@@ -40,4 +40,5 @@ Collate:
     'tsum_p_value_summary.R'
     'tsum_test.R'
     'tsum_test_1.R'
+    'zzz.R'
 VignetteBuilder: knitr
