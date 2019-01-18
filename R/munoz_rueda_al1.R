@@ -6,7 +6,7 @@
 library(testit)
 
 munoz_rueda_al1 <- function(x, extra.missing = 0, names = TRUE) {
-    # implement the imputation from J.F. Muñoz, M. Rueda 2009
+    # implement the imputation from J.F. Munoz, M. Rueda 2009
     # Only give imputed values
     assert("x should be numeric vector", is.vector(x), is.numeric(x))
     assert("extra.missing should be >= 0", is.vector(extra.missing), is.numeric(extra.missing), extra.missing >= 0)
