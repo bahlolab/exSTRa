@@ -25,11 +25,16 @@ exSTRa supports both whole-genome and whole-exome sequencing (WGS and WES).
 Only paired-end data is supported. 
 This package implements the algorithm as described in:
 
-> Rick M. Tankard, Mark F Bennett, Peter Degorski, Martin B. Delatycki, 
->         Paul J. Lockhart, Melanie Bahlo 
->          **Detecting tandem repeat expansions in cohorts sequenced with short-read sequencing data**. 
->          *bioRxiv* 157792 (2018);
->          doi: https://doi.org/10.1101/157792
+> Rick M. Tankard,
+> Mark F. Bennett,
+> Peter Degorski,
+> Martin B. Delatycki,
+> Paul J. Lockhart,
+> Melanie Bahlo.
+>         **Detecting Expansions of Tandem Repeats in Cohorts Sequenced with Short-Read Sequencing Data**. 
+>         *American Journal of Human Genetics*,
+>         103(6):858-873, 2018.
+>         https://doi.org/10.1016/j.ajhg.2018.10.015
 
 A table of repeat expansion disorders for the human genome reference hg19 is included.
 Other references may be provided in the future, or these may be created by the user.
@@ -178,8 +183,6 @@ plot_multi(str_score_four, dir = "example_images",
 Here, we calculate an aggregated T statistic over quantiles as described in the exSTRa paper. 
 By default, p-values are calculated with a simulation procedure. 
 With default settings, this may take several minutes to complete.
-You may use the parallel package to speed this up (parallel = TRUE); by default this uses 
-1 less thread than available on your system. 
 This creates an `exstra_tsum` object.
 ```{r}
 ( tsum <- tsum_test(str_score_four) )
