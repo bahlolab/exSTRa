@@ -178,8 +178,11 @@ plot_multi(str_score_four, dir = "example_images",
 Here, we calculate an aggregated T statistic over quantiles as described in the exSTRa paper. 
 By default, p-values are calculated with a simulation procedure. 
 With default settings, this may take several minutes to complete.
+---
+#Commented out these lines until parallel is worth using again
 You may use the parallel package to speed this up (parallel = TRUE); by default this uses 
 1 less thread than available on your system. 
+---
 This creates an `exstra_tsum` object.
 ```{r}
 ( tsum <- tsum_test(str_score_four) )
