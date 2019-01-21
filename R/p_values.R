@@ -23,7 +23,7 @@
 #' @export
 p_values <- function(
   tsum, 
-  correction = c("bf", "locus", "uncorrected"),
+  correction = c("bf", "loci", "samples", "uncorrected"),
   alpha = 0.05,
   only.signif = FALSE,
   modify = FALSE, 
