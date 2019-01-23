@@ -4,8 +4,10 @@ NULL
 
 #' @export
 ggplot.exstra_score <- function(data = NULL, ...) {
-  #TODO: verify keys
-   ggplot(data, ...)
+  verify.exstra_score(data)
+  # Merge sample data into main data
+  data <- merge(data$data, data$samples, by = "sample")
+  ggplot(data, ...)
 }
 
 #' @export
