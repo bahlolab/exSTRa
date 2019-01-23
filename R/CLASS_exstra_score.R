@@ -348,4 +348,10 @@ as.exstra_score <- function(x, copy = FALSE) {
 }
 
 
-#TODO: create verification function
+# Verify keys of exstra_score
+verify.exstra_score <- function(x) {
+  assert("Object should inherit from class exstra_score.", is.exstra_score(x))
+  assert("Key of x$data should be 'locus', 'sample'", identical(key(x$data), c("locus", "sample")))
+  assert("Key of x$samples should be 'sample'.", key(x$samples) == "sample")
+  verify.exstra_db(exstra_wgs_pcr_2)
+}
