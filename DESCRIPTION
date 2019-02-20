@@ -4,7 +4,7 @@ Title: Expanded STR algorithm: detecting expansions in Illumina sequencing data
 Version: 0.88.5
 Date: 2019-01-21
 Author: Rick Tankard
-Maintainer: Rick Tankard <tankard@wehi.edu.au>
+Maintainer: Rick Tankard <rick.tankard@murdoch.edu.au>
 Description: Detecting expansions with paired-end Illumina sequencing data.
 License: GPL-2
 Imports: 
