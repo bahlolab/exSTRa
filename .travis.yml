@@ -3,6 +3,7 @@ r:
   - oldrel
   - release
   - devel
+sudo: false
 cache: packages
 
 env:
@@ -15,3 +16,4 @@ r_packages:
 
 r_github_packages:
   - rich-iannone/DiagrammeRsvg
+  
