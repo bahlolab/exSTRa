@@ -1,0 +1,13 @@
+structure(list(tankard2018detecting = structure(list(title = "Detecting expansions of tandem repeats in cohorts sequenced with short-read sequencing data", 
+    author = structure(list(list(given = c("Rick", "M"), family = "Tankard", 
+        role = NULL, email = NULL, comment = NULL), list(given = c("Mark", 
+    "F"), family = "Bennett", role = NULL, email = NULL, comment = NULL), 
+        list(given = "Peter", family = "Degorski", role = NULL, 
+            email = NULL, comment = NULL), list(given = c("Martin", 
+        "B"), family = "Delatycki", role = NULL, email = NULL, 
+            comment = NULL), list(given = c("Paul", "J"), family = "Lockhart", 
+            role = NULL, email = NULL, comment = NULL), list(
+            given = "Melanie", family = "Bahlo", role = NULL, 
+            email = NULL, comment = NULL)), class = "person"), 
+    journal = "The American Journal of Human Genetics", volume = "103", 
+    number = "6", pages = "858--873", year = "2018", publisher = "Elsevier"), bibtype = "Article", key = "tankard2018detecting")), class = "bibentry", strings = structure(character(0), .Names = character(0)))
