@@ -4,7 +4,7 @@
 \alias{p_values}
 \title{Return a data.table with p-values of a tsum_exstra object.}
 \usage{
-p_values(tsum, correction = c("bf", "locus", "uncorrected"),
+p_values(tsum, correction = c("bf", "loci", "samples", "uncorrected"),
   alpha = 0.05, only.signif = FALSE, modify = FALSE,
   p.matrix = NULL)
 }
