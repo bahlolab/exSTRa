@@ -25,7 +25,7 @@ humandb_annovar_dir <- ".../path/to/.../humandb"
 # ---------------------------------------------------------------------------------------
 
 # Read simpleRepeat table
-simpleRepeat <- readr::read_delim("simpleRepeat.txt.gz", delim="\t", col_names=FALSE)
+simpleRepeat <- readr::read_delim(simpleRepeat_file, delim="\t", col_names=FALSE)
 colnames(simpleRepeat) <- c("bin", "chrom", "chromStart", "chromEnd", "name", "period", "copyNum", "consensusSize", "perMatch", "perIndel", "score", "A", "C", "G", "T", "entropy", "sequence")
 simpleRepeat <- as.data.frame(simpleRepeat, stringsAsFactors=FALSE)
 
@@ -48,7 +48,7 @@ simpleRepeat_avinput$alt <- "0"
 write.table(simpleRepeat_avinput, file="simpleRepeat.avinput", sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE)
 
 # Run ANNOVAR
-system(past0("perl ", table_annovar_script, " simpleRepeat.avinput ", humandb_annovar_dir, " -buildver hg19 -out simpleRepeat_annovar -remove -protocol refGene -operation g -nastring ."))
+system(paste0("perl ", table_annovar_script, " simpleRepeat.avinput ", humandb_annovar_dir, " -buildver hg19 -out simpleRepeat_annovar -remove -protocol refGene -operation g -nastring ."))
 
 # Load ANNOVAR input
 simpleRepeat_annovar <- read.delim("simpleRepeat_annovar.hg19_multianno.txt", sep="\t", header=TRUE, stringsAsFactors=FALSE)
