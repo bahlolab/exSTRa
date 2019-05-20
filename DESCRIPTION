@@ -13,7 +13,7 @@ Imports:
     stringr (>= 1.2.0), 
     reshape2 (>= 1.4.3), 
     magrittr (>= 1.5), 
-    RColorBrewer (>= 1.1-2)
+    RColorBrewer (>= 1.1-2),
     ggplot2
 Suggests: 
     testthat (>= 2.0.0),
