@@ -24,6 +24,7 @@ matrix:
         - os: windows
           r: release
 
+sudo: false
 cache: packages
 
 env:
@@ -36,3 +37,6 @@ r_packages:
 
 r_github_packages:
   - rich-iannone/DiagrammeRsvg
+  
+after_success:
+  - Rscript -e 'covr::codecov()'
