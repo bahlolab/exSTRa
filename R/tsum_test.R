@@ -166,12 +166,16 @@ tsum_test <- function(strscore,
   
   # Generate T sum statistic
   if(parallel) {
-    X_loci <- loci(strscore)
-    names(X_loci) <- X_loci
+    all_loci <- loci(strscore)
+    names(all_loci) <- all_loci
+    # Save copying the whole object each time
+    tsum_statistic_1locus_insider <- function(...) {
+      tsum_statistic_1locus(strscore = get("strscore", envir = .GlobalEnv), ...)
+    }
+    clusterExport(cl = cluster, c("strscore", "tsum_statistic_1locus_insider"), envir=environment())
     T_stats_list <- parLapply(cl = cluster,
-             X_loci, 
-             tsum_statistic_1locus, 
-             strscore,
+             all_loci, 
+             tsum_statistic_1locus_insider,
              min.quant = min.quant,
              case_control = case_control, trim = trim,
              give.pvalue = give.pvalue, B = B,
@@ -182,6 +186,8 @@ tsum_test <- function(strscore,
     names(T_stats_list) <- loci(strscore)
     for(loc in loci(strscore)) {
       message("Working on locus ", loc)
+      # The following uses the strscore variable from the environment
+
       T_stats_loc <- tsum_statistic_1locus(loc, strscore,
                                            min.quant = min.quant,
                                            case_control = case_control, trim = trim,
@@ -235,7 +241,7 @@ tsum_test <- function(strscore,
 #' @import parallel
 tsum_statistic_1locus <- function(
   loc,
-  strscore, 
+  strscore,
   case_control = FALSE,
   min.quant = 0,
   trim = 0,
