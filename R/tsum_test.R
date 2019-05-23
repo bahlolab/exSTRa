@@ -169,13 +169,10 @@ tsum_test <- function(strscore,
     all_loci <- loci(strscore)
     names(all_loci) <- all_loci
     # Save copying the whole object each time
-    tsum_statistic_1locus_insider <- function(...) {
-      tsum_statistic_1locus(strscore = get("strscore", envir = .GlobalEnv), ...)
-    }
-    clusterExport(cl = cluster, c("strscore", "tsum_statistic_1locus_insider"), envir=environment())
+    strscore_loc_list <- lapply(all_loci, function(loc) {strscore[loc]})
     T_stats_list <- parLapply(cl = cluster,
-             all_loci, 
-             tsum_statistic_1locus_insider,
+             strscore_loc_list, 
+             tsum_statistic_1locus,
              min.quant = min.quant,
              case_control = case_control, trim = trim,
              give.pvalue = give.pvalue, B = B,
@@ -186,9 +183,8 @@ tsum_test <- function(strscore,
     names(T_stats_list) <- loci(strscore)
     for(loc in loci(strscore)) {
       message("Working on locus ", loc)
-      # The following uses the strscore variable from the environment
-
-      T_stats_loc <- tsum_statistic_1locus(loc, strscore,
+      T_stats_loc <- tsum_statistic_1locus(
+                                           strscore_loc = strscore[loc],
                                            min.quant = min.quant,
                                            case_control = case_control, trim = trim,
                                            give.pvalue = give.pvalue, B = B,
@@ -240,8 +236,7 @@ tsum_test <- function(strscore,
 #' @import testit
 #' @import parallel
 tsum_statistic_1locus <- function(
-  loc,
-  strscore,
+  strscore_loc,
   case_control = FALSE,
   min.quant = 0,
   trim = 0,
@@ -253,7 +248,6 @@ tsum_statistic_1locus <- function(
   early_A = 0.25,
   min_stop = 50)
 {
-  strscore_loc <- strscore[loc]
   
   qm <- make_quantiles_matrix(strscore_loc, sample = NULL, 
     method = "quantile7")
