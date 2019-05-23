@@ -165,20 +165,32 @@ tsum_test <- function(strscore,
   }
   
   # Generate T sum statistic
-  T_stats_list <- vector('list', length(loci(strscore)))
-  names(T_stats_list) <- loci(strscore)
-  for(loc in loci(strscore)) {
-    message("Working on locus ", loc)
-    strscore_loc <- strscore[loc]
-    T_stats_loc <- tsum_statistic_1locus(strscore_loc, min.quant = min.quant,
-      case_control = case_control, trim = trim,
-      give.pvalue = give.pvalue, B = B,
-      parallel = parallel, # TRUE for cluster
-      cluster = cluster, # a cluster object
-      early_stop = early_stop, early_A = early_A, min_stop = early_stop_min
-    )
+  if(parallel) {
+    X_loci <- loci(strscore)
+    names(X_loci) <- X_loci
+    T_stats_list <- parLapply(cl = cluster,
+             X_loci, 
+             tsum_statistic_1locus, 
+             strscore,
+             min.quant = min.quant,
+             case_control = case_control, trim = trim,
+             give.pvalue = give.pvalue, B = B,
+             early_stop = early_stop, early_A = early_A, min_stop = early_stop_min)
     
-    T_stats_list[[loc]] <- T_stats_loc
+  } else {
+    T_stats_list <- vector('list', length(loci(strscore)))
+    names(T_stats_list) <- loci(strscore)
+    for(loc in loci(strscore)) {
+      message("Working on locus ", loc)
+      T_stats_loc <- tsum_statistic_1locus(loc, strscore,
+                                           min.quant = min.quant,
+                                           case_control = case_control, trim = trim,
+                                           give.pvalue = give.pvalue, B = B,
+                                           early_stop = early_stop, early_A = early_A, min_stop = early_stop_min
+      )
+      
+      T_stats_list[[loc]] <- T_stats_loc
+    }
   }
   T_stats <- rbindlist(T_stats_list, idcol = "locus")
   
@@ -222,7 +234,8 @@ tsum_test <- function(strscore,
 #' @import testit
 #' @import parallel
 tsum_statistic_1locus <- function(
-  strscore_loc, 
+  loc,
+  strscore, 
   case_control = FALSE,
   min.quant = 0,
   trim = 0,
@@ -234,6 +247,7 @@ tsum_statistic_1locus <- function(
   early_A = 0.25,
   min_stop = 50)
 {
+  strscore_loc <- strscore[loc]
   
   qm <- make_quantiles_matrix(strscore_loc, sample = NULL, 
     method = "quantile7")
