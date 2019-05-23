@@ -176,7 +176,7 @@ plot_names.exstra_score <- function(x, names = NULL) {
 #' Plot ECDF curves from an exstra_score object
 #' 
 #' 
-#' @param rsc exstra_score object.
+#' @param x exstra_score object.
 #' @param loci character; Only plot at the loci specified/ 
 #'        No effect if NULL. 
 #' @param sample_col Specify the colours for the given samples as a named character vector.
