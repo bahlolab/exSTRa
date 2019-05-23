@@ -18,9 +18,6 @@ matrix:
         - os: windows
           r: release
     allow_failures:
-    # devel on osx fails
-        - os: osx
-          r: devel
         - os: windows
           r: release
 
