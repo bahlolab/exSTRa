@@ -7,7 +7,7 @@
 tsum_statistic_1locus(strscore_loc, case_control = FALSE,
   min.quant = 0, trim = 0, give.pvalue = FALSE, B = 999,
   parallel = FALSE, cluster = NULL, early_stop = TRUE,
-  early_A = 0.25, min_stop = 50)
+  early_A = 0.25, min_stop = 50, verbose = TRUE)
 }
 \description{
 Private function
