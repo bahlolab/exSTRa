@@ -28,7 +28,7 @@ tsum_p_value_summary <- function(tsum,
   if(sum(tsum$stats$p.value < 0, na.rm = TRUE)) {
     stop("Some p-values appear to be below 0. This may be an exSTRa package bug.")
   }
-  assert_number(bonferroni.size, lower = 1, null.ok = TRUE)
+  checkmate::assert_number(bonferroni.size, lower = 1, null.ok = TRUE)
   # 
   output <- data.table(alpha = c(p, 1, NA))
   ps <- c(-0.1, p, 1)
