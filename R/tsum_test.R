@@ -169,14 +169,21 @@ tsum_test <- function(strscore,
     all_loci <- loci(strscore)
     names(all_loci) <- all_loci
     # Save copying the whole object each time
-    strscore_loc_list <- lapply(all_loci, function(loc) {strscore[loc]})
-    T_stats_list <- parLapply(cl = cluster,
+    strscore_loc_list <- lapply(all_loci, function(loc) { strscore[loc]} )
+    tsum_statistic_1locus_failsafe <- function(...) {
+        tryCatch(tsum_statistic_1locus(...), error = function(e) { NULL })
+    }
+    T_stats_list <- parLapplyLB(cl = cluster,
              strscore_loc_list, 
-             tsum_statistic_1locus,
+             tsum_statistic_1locus_failsafe,
              min.quant = min.quant,
              case_control = case_control, trim = trim,
              give.pvalue = give.pvalue, B = B,
-             early_stop = early_stop, early_A = early_A, min_stop = early_stop_min)
+             early_stop = early_stop, early_A = early_A, min_stop = early_stop_min,
+             verbose = FALSE)
+
+    # Remove errored runs
+    T_stats_list <- T_stats_list[!sapply(T_stats_list, is.null)]
     
   } else {
     T_stats_list <- vector('list', length(loci(strscore)))
@@ -246,7 +253,8 @@ tsum_statistic_1locus <- function(
   cluster = NULL,
   early_stop = TRUE,
   early_A = 0.25,
-  min_stop = 50)
+  min_stop = 50,
+  verbose = TRUE)
 {
   
   qm <- make_quantiles_matrix(strscore_loc, sample = NULL, 
@@ -434,7 +442,7 @@ tsum_statistic_1locus <- function(
         p_smallest <- (sum(sim_T[1L:N_tss] > tsum_max) + 1) / (N_tss + 1)
         p.value.sd <- p_value_sd_(p_smallest, B_used, N)
         # if(p_smallest - p.value.sd * 2 > 0.01) {
-        if(p.value.sd < early_A * p_smallest) {
+        if(verbose && p.value.sd < early_A * p_smallest) {
           message("    Reduced replicates to ", B_used, ".")
           break
         }
