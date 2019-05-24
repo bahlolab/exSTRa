@@ -49,9 +49,9 @@ required cluster.
 If cluster is specified then this option makes no difference.}
 
 \item{cluster_n}{If parallel is TRUE, then the number of nodes in the cluster is 
- automatically set as 1 less than those available on your machine. 
+ automatically set as half of those available on your machine 
  (but never less than 1). This option allows manual setting of the 
- number of nodes, either less to free up other resources, or more to 
+ number of nodes, either less to free up other resources, or to 
  maximize available resources. 
 If cluster is specified then this option makes no difference.}
 
