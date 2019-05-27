@@ -99,9 +99,8 @@ tsum_test <- function(strscore,
   # Warning for parallel usage
   if(parallel) {
     warning("Use of tsum_test(parallel = TRUE) may not be beneficial.\n",
-      "  This is due to optimizations in serial code, such that the overhead of parallization\n",
-      "  outweights any benefit. Future implementations may parallize over loci, thus\n",
-      "  significantly reducing overhead.",
+      "  Optimizations in serial code have reduced the benefits of parallization.\n",
+      "  Additionally, often R jobs tend to be idle which has not been resolved.",
       immediate. = TRUE)
   }
   
