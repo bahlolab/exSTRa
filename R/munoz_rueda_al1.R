@@ -74,26 +74,26 @@ munoz_rueda_al1_include <- function(x, extra.missing = 0, ...) {
     }
 }
 
-munoz_rueda_al1(c(1, 5, 7, 5, 4, 8, 3))
-
-munoz_rueda_al1(c(1, 5, 7, 5, 4, NA, 8, 3)) 
-
-munoz_rueda_al1(c(1, 5, 7, NA, 5, NA, 4, 8, 3))
-
-munoz_rueda_al1(c(1, 5, 7, NA, 5, NA, 4, 8, 3), 10)
-munoz_rueda_al1(c(1, 5, 7, NA, 5, NA, 4, 8, 3), 10, names = FALSE)
-
-munoz_rueda_al1_include(c(1, 5, 7, NA, 5, NA, 4, 8, 3), 10)
-
-munoz_rueda_al1_include(c(1, 5, 7, NA, 5, NA, 4, 8, 3))
-
-munoz_rueda_al1_include(c(NA, NA, 1, 5, 7, NA, 5, NA, 4, 8, NA, 3))
-
-munoz_rueda_al1_include(numeric(0), 15)
+# munoz_rueda_al1(c(1, 5, 7, 5, 4, 8, 3))
+# 
+# munoz_rueda_al1(c(1, 5, 7, 5, 4, NA, 8, 3)) 
+# 
+# munoz_rueda_al1(c(1, 5, 7, NA, 5, NA, 4, 8, 3))
+# 
+# munoz_rueda_al1(c(1, 5, 7, NA, 5, NA, 4, 8, 3), 10)
+# munoz_rueda_al1(c(1, 5, 7, NA, 5, NA, 4, 8, 3), 10, names = FALSE)
+# 
+# munoz_rueda_al1_include(c(1, 5, 7, NA, 5, NA, 4, 8, 3), 10)
+# 
+# munoz_rueda_al1_include(c(1, 5, 7, NA, 5, NA, 4, 8, 3))
+# 
+# munoz_rueda_al1_include(c(NA, NA, 1, 5, 7, NA, 5, NA, 4, 8, NA, 3))
+# 
+# munoz_rueda_al1_include(numeric(0), 15)
 
 # Example where different k is chosen
-munoz_rueda_al1(c(1, 5, 7, NA, 5, NA, 4, 8, 3))
-munoz_rueda_al1(c(1, 5, 7, NA, 5, NA, 8, 3))
+# munoz_rueda_al1(c(1, 5, 7, NA, 5, NA, 4, 8, 3))
+# munoz_rueda_al1(c(1, 5, 7, NA, 5, NA, 8, 3))
 
 
 # y <- c(31L, 31L, 34L, 26L, 16L, 27L, 27L, 34L, 27L, 33L, 24L, 11L, 

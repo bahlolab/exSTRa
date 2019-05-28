@@ -124,3 +124,10 @@ copy.exstra_db <- function(x, ...) {
 #TODO length(exstra_db) =  number of loci
 
 #TODO dim(exstra_db) = dim(exstra_db$db)
+
+# Verify keys of exstra_db
+verify.exstra_db <- function(x) {
+  assert("Object should inherit from class exstra_db.", is.exstra_db(x))
+  assert("Key of x$db should be 'locus'", key(x$db) == "locus")
+  invisible(TRUE)
+}

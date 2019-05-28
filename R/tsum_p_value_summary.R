@@ -28,11 +28,12 @@ tsum_p_value_summary <- function(tsum,
   if(sum(tsum$stats$p.value < 0, na.rm = TRUE)) {
     stop("Some p-values appear to be below 0. This may be an exSTRa package bug.")
   }
+  checkmate::assert_number(bonferroni.size, lower = 1, null.ok = TRUE)
   # 
   output <- data.table(alpha = c(p, 1, NA))
   ps <- c(-0.1, p, 1)
   if(bonferroni) {
-    ps.bf <- c(-0.1, p / tsum$n_tests, 1)
+    ps.bf <- c(-0.1, p / ifelse(is.null(bonferroni.size), tsum$n_tests, bonferroni.size), 1)
     output$bf <- 0L
     tab <- table(.bincode(tsum$stats$p.value, ps.bf), useNA = "always")
     output[as.integer(names(tab)), bf := as.integer(tab)]

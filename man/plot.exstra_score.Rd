@@ -11,6 +11,8 @@
   main = NULL, ...)
 }
 \arguments{
+\item{x}{exstra_score object.}
+
 \item{loci}{character; Only plot at the loci specified/ 
 No effect if NULL.}
 
@@ -47,8 +49,6 @@ If FALSE, samples with missing sex will also be filtered when xlinked is "male" 
 upper x-axis limit.}
 
 \item{...}{Further arguments to the \code{plot.ecdf} function.}
-
-\item{rsc}{exstra_score object.}
 }
 \description{
 Plot ECDF curves from an exstra_score object
