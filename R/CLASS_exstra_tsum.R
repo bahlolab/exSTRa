@@ -150,11 +150,11 @@ plot.exstra_tsum <- function(x, loci = NULL, sample_col = NULL,
   alpha_nonsignif = 0.25, 
   ...) {
   # check input
-  assert("tsum should be an exstra_tsum object.", is.exstra_tsum(tsum))
+  assert("x should be an exstra_tsum object.", is.exstra_tsum(x))
   if(!is.null(loci)) {
     assert("loci should be a character vector", is.vector(loci), is.character(loci))
     # only work on loci we want to plot
-    tsum <- tsum[loci]
+    x <- x[loci]
   }
   if(!is.null(sample_col)) {
     assert("sample_col should be a character vector", is.vector(sample_col), 
@@ -165,7 +165,7 @@ plot.exstra_tsum <- function(x, loci = NULL, sample_col = NULL,
   # construct colours
   if(is.null(correction) && is.null(alpha)) {
     # Use the samples marked as significant
-    ps <- tsum$stats[identity(signif)]
+    ps <- x$stats[identity(signif)]
   } else {
     if(is.null(correction)) {
       correction <- "bonferroni"
@@ -173,10 +173,10 @@ plot.exstra_tsum <- function(x, loci = NULL, sample_col = NULL,
     if(is.null(alpha)) {
       alpha <- 0.05
     }
-    ps <- p_values(tsum, correction = correction, alpha = alpha, only.signif = TRUE)
+    ps <- p_values(x, correction = correction, alpha = alpha, only.signif = TRUE)
   }
   significant_sample_colours <- list()
-  for(loc in loci(tsum)) {
+  for(loc in loci(x)) {
     # TODO
     this.ps <- ps[loc] 
     if(is.null(sample_col)) {
@@ -198,8 +198,8 @@ plot.exstra_tsum <- function(x, loci = NULL, sample_col = NULL,
   }
   
   # Do the plot:
-  # TODO: as.exstra_score(tsum)
-  plot_many_str_score(as.exstra_score(tsum), loci = loci, 
+  # TODO: as.exstra_score(x)
+  plot_many_str_score(as.exstra_score(x), loci = loci, 
     plot_cols = significant_sample_colours, 
     controls_label = controls_label, 
     alpha_control = alpha_nonsignif, ...)

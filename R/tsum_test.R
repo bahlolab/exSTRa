@@ -27,9 +27,9 @@
 #'                 required cluster. 
 #'                 If cluster is specified then this option makes no difference. 
 #' @param cluster_n If parallel is TRUE, then the number of nodes in the cluster is 
-#'                  automatically set as 1 less than those available on your machine. 
+#'                  automatically set as half of those available on your machine 
 #'                  (but never less than 1). This option allows manual setting of the 
-#'                  number of nodes, either less to free up other resources, or more to 
+#'                  number of nodes, either less to free up other resources, or to 
 #'                  maximize available resources. 
 #'                 If cluster is specified then this option makes no difference.
 #' @param cluster  A cluster object from the parallel package. Use if you wish to set up 
@@ -99,9 +99,8 @@ tsum_test <- function(strscore,
   # Warning for parallel usage
   if(parallel) {
     warning("Use of tsum_test(parallel = TRUE) may not be beneficial.\n",
-      "  This is due to optimizations in serial code, such that the overhead of parallization\n",
-      "  outweights any benefit. Future implementations may parallize over loci, thus\n",
-      "  significantly reducing overhead.",
+      "  Optimizations in serial code have reduced the benefits of parallization.\n",
+      "  Additionally, often R jobs tend to be idle which has not been resolved.",
       immediate. = TRUE)
   }
   
@@ -165,20 +164,41 @@ tsum_test <- function(strscore,
   }
   
   # Generate T sum statistic
-  T_stats_list <- vector('list', length(loci(strscore)))
-  names(T_stats_list) <- loci(strscore)
-  for(loc in loci(strscore)) {
-    message("Working on locus ", loc)
-    strscore_loc <- strscore[loc]
-    T_stats_loc <- tsum_statistic_1locus(strscore_loc, min.quant = min.quant,
-      case_control = case_control, trim = trim,
-      give.pvalue = give.pvalue, B = B,
-      parallel = parallel, # TRUE for cluster
-      cluster = cluster, # a cluster object
-      early_stop = early_stop, early_A = early_A, min_stop = early_stop_min
-    )
+  if(parallel) {
+    all_loci <- loci(strscore)
+    names(all_loci) <- all_loci
+    # Save copying the whole object each time
+    strscore_loc_list <- lapply(all_loci, function(loc) { strscore[loc]} )
+    tsum_statistic_1locus_failsafe <- function(...) {
+        tryCatch(tsum_statistic_1locus(...), error = function(e) { NULL })
+    }
+    T_stats_list <- parLapplyLB(cl = cluster,
+             strscore_loc_list, 
+             tsum_statistic_1locus_failsafe,
+             min.quant = min.quant,
+             case_control = case_control, trim = trim,
+             give.pvalue = give.pvalue, B = B,
+             early_stop = early_stop, early_A = early_A, min_stop = early_stop_min,
+             verbose = FALSE)
+
+    # Remove errored runs
+    T_stats_list <- T_stats_list[!sapply(T_stats_list, is.null)]
     
-    T_stats_list[[loc]] <- T_stats_loc
+  } else {
+    T_stats_list <- vector('list', length(loci(strscore)))
+    names(T_stats_list) <- loci(strscore)
+    for(loc in loci(strscore)) {
+      message("Working on locus ", loc)
+      T_stats_loc <- tsum_statistic_1locus(
+                                           strscore_loc = strscore[loc],
+                                           min.quant = min.quant,
+                                           case_control = case_control, trim = trim,
+                                           give.pvalue = give.pvalue, B = B,
+                                           early_stop = early_stop, early_A = early_A, min_stop = early_stop_min
+      )
+      
+      T_stats_list[[loc]] <- T_stats_loc
+    }
   }
   T_stats <- rbindlist(T_stats_list, idcol = "locus")
   
@@ -222,7 +242,7 @@ tsum_test <- function(strscore,
 #' @import testit
 #' @import parallel
 tsum_statistic_1locus <- function(
-  strscore_loc, 
+  strscore_loc,
   case_control = FALSE,
   min.quant = 0,
   trim = 0,
@@ -232,7 +252,8 @@ tsum_statistic_1locus <- function(
   cluster = NULL,
   early_stop = TRUE,
   early_A = 0.25,
-  min_stop = 50)
+  min_stop = 50,
+  verbose = TRUE)
 {
   
   qm <- make_quantiles_matrix(strscore_loc, sample = NULL, 
@@ -420,7 +441,7 @@ tsum_statistic_1locus <- function(
         p_smallest <- (sum(sim_T[1L:N_tss] > tsum_max) + 1) / (N_tss + 1)
         p.value.sd <- p_value_sd_(p_smallest, B_used, N)
         # if(p_smallest - p.value.sd * 2 > 0.01) {
-        if(p.value.sd < early_A * p_smallest) {
+        if(verbose && p.value.sd < early_A * p_smallest) {
           message("    Reduced replicates to ", B_used, ".")
           break
         }

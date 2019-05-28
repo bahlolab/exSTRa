@@ -176,7 +176,7 @@ plot_names.exstra_score <- function(x, names = NULL) {
 #' Plot ECDF curves from an exstra_score object
 #' 
 #' 
-#' @param rsc exstra_score object.
+#' @param x exstra_score object.
 #' @param loci character; Only plot at the loci specified/ 
 #'        No effect if NULL. 
 #' @param sample_col Specify the colours for the given samples as a named character vector.
@@ -345,4 +345,13 @@ as.exstra_score <- function(x, copy = FALSE) {
     x <- copy.exstra_score(x)
   }
   structure(list(data = x$data, db = x$db, input_type = x$input_type, samples = x$samples), class = c("exstra_score", "exstra_db"))
+}
+
+
+# Verify keys of exstra_score
+verify.exstra_score <- function(x) {
+  assert("Object should inherit from class exstra_score.", is.exstra_score(x))
+  assert("Key of x$data should be 'locus', 'sample'", identical(key(x$data), c("locus", "sample")))
+  assert("Key of x$samples should be 'sample'.", key(x$samples) == "sample")
+  verify.exstra_db(exstra_wgs_pcr_2)
 }
