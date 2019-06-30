@@ -14,7 +14,7 @@
 #' @seealso \code{\link{read_score}}
 #' 
 #' @examples
-#' read_exstra_db(system.file("extdata", "repeat_expansion_disorders.txt", package = "exSTRa")) 
+#' read_exstra_db(system.file("extdata", "repeat_expansion_disorders_hg19.txt", package = "exSTRa")) 
 #' 
 #' @export
 #' @include read_exstra_db_xlsx.R

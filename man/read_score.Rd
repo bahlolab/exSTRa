@@ -34,7 +34,7 @@ expected by chance (assuming independent and uniform DNA base distribution).}
 \examples{
 str_score <- read_score (
     file = system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa"), 
-    database = system.file("extdata", "repeat_expansion_disorders.txt", package = "exSTRa"), 
+    database = system.file("extdata", "repeat_expansion_disorders_hg19.txt", package = "exSTRa"), 
     groups.regex = c(control = "^WGSrpt_0[24]$", case = ""), 
     filter.low.counts = TRUE
 )
@@ -48,7 +48,7 @@ plot(str_score["HD"])
 # Defining cases by sample name directly:
 str_score_HD_cases <- read_score (
     file = system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa"), 
-    database = system.file("extdata", "repeat_expansion_disorders.txt", package = "exSTRa"),
+    database = system.file("extdata", "repeat_expansion_disorders_hg19.txt", package = "exSTRa"),
     groups.samples = list(case = c("WGSrpt_10", "WGSrpt_12")),
     filter.low.counts = TRUE
 )
@@ -59,7 +59,7 @@ plot(str_score_HD_cases["HD"])
 
 # for greater control, use object from read_exstra_db() instead
 str_db <- read_exstra_db(
-            system.file("extdata", "repeat_expansion_disorders.txt", package = "exSTRa")
+            system.file("extdata", "repeat_expansion_disorders_hg19.txt", package = "exSTRa")
           )
 str_score <- read_score (
     file = system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa"), 
