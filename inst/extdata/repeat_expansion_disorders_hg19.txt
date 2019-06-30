@@ -1,0 +1,31 @@
+### exSTRa repeat expansion disorder hg19 database ###																						
+# Last updated 26th June 2019.																						
+# Most fields are for informational purposes and not used by exSTRa.																						
+# Requires: exSTRa 0.8																						
+locus	long_name	OMIM	inheritance	gene	location	gene_region	motif	norm_low	norm_up	aff_low	aff_up	aff_more	strand	chrom	hg19_start	hg19_end	copyNum	perMatch	perIndel	STR_size_bp	score_size	strcat
+DM1	Myotonic dystrophy 1	160900	AD	DMPK	19q13	3'UTR	CTG	5	37	50	10000	FALSE	-	chr19	46273463	46273524	20.7	100	0	62	NA	http://strcat.teamerlich.org/chart/chr19/46273463/46273524
+DM2	Myotonic dystrophy 2	602668	AD	ZNF9/CNBP	3q21.3	intron	CCTG	10	26	75	11000	FALSE	-	chr3	128891420	128891502	20.8	92	0	83	NA	http://strcat.teamerlich.org/chart/chr3/128891420/128891502
+DRPLA	Dentatorubral-pallidoluysian atrophy	125370	AD	DRPLA/ATN1	12p13.31	coding	CAG	7	34	49	88	FALSE	+	chr12	7045880	7045938	19.7	92	0	59	NA	http://strcat.teamerlich.org/chart/chr12/7045880/7045938
+EPM1A	Myoclonic epilepsy of Unverricht and Lundborg	254800	AR	CSTB	21q22.3	promotor	CCCCGCCCCGCG	2	3	40	80	FALSE	-	chr21	45196324	45196360	3.1	100	0	37	NA	http://strcat.teamerlich.org/chart/chr21/45196324/45196360
+FRAXA	Fragile-X site A	309550	X	FMR1	Xq27.3	5'UTR	CGG	6	54	200	1000	TRUE	+	chrX	146993555	146993629	25	90	5	75	NA	http://strcat.teamerlich.org/chart/chrX/146993555/146993629
+FRAXE	Fragile-X site E	309548	X	FMR2	Xq28	5'UTR	CCG	4	39	200	900	FALSE	+	chrX	147582159	147582204	15.3	100	0	46	NA	http://strcat.teamerlich.org/chart/chrX/147582125/147582273
+FRDA	Friedreich ataxia	229300	AR	FXN	9q13	intron	GAA	6	32	200	1700	FALSE	+	chr9	71652201	71652220	6.7	100	0	20	NA	http://strcat.teamerlich.org/chart/chr9/71652201/71652220
+FTDALS1	Amyotrophic lateral sclerosis-frontotemporal dementia	105550	AD	C9orf72	9p21	intron	GGGGCC	2	19	250	1600	FALSE	-	chr9	27573483	27573544	10.8	74	8	62	NA	http://strcat.teamerlich.org/chart/chr9/27573483/27573544
+HD	Huntington disease	143100	AD	HTT	4p16.3	coding	CAG	6	34	36	100	TRUE	+	chr4	3076604	3076667	21.3	96	0	64	NA	http://strcat.teamerlich.org/chart/chr4/3076604/3076667
+HDL2	Huntington disease-like 2	606438	AD	JPH3	16q24.3	exon	CTG	7	28	66	78	FALSE	+	chr16	87637889	87637935	15.3	95	4	47	NA	http://strcat.teamerlich.org/chart/chr16/87637889/87637935
+SBMA	Kennedy disease	313200	X	AR	Xq12	coding	CAG	9	35	38	62	FALSE	+	chrX	66765159	66765261	33.3	86	9	103	NA	http://strcat.teamerlich.org/chart/chrX/66765159/66765261
+SCA1	Spinocerebellar ataxia 1	164400	AD	ATXN1	6p23	coding	CAG	6	38	39	82	FALSE	-	chr6	16327865	16327955	30.3	95	0	91	NA	http://strcat.teamerlich.org/chart/chr6/16327865/16327955
+SCA2	Spinocerebellar ataxia 2	183090	AD	ATXN2	12q24	coding	CAG	15	24	32	200	FALSE	-	chr12	112036754	112036823	23.3	97	0	70	NA	http://strcat.teamerlich.org/chart/chr12/112036754/112036823
+SCA3	Machado-Joseph disease	109150	AD	ATXN3	14q32.1	coding	CAG	13	36	61	84	FALSE	-	chr14	92537355	92537396	14	84	0	42	NA	http://strcat.teamerlich.org/chart/chr14/92537355/92537396
+SCA6	Spinocerebellar ataxia 6	183086	AD	CACNA1A	19p13	coding	CAG	4	17	21	33	FALSE	-	chr19	13318673	13318712	13.3	100	0	40	NA	http://strcat.teamerlich.org/chart/chr19/13318673/13318712
+SCA7	Spinocerebellar ataxia 7	164500	AD	ATXN7	3p14.1	coding	CAG	4	35	37	306	FALSE	+	chr3	63898361	63898392	10.7	100	0	32	NA	http://strcat.teamerlich.org/chart/chr3/63898361/63898392
+SCA8	Spinocerebellar ataxia 8	608768	AD	ATXN8OS/ATXN8	13q21	utRNA	CTG	16	34	74	74	TRUE	+	chr13	70713516	70713561	15.3	100	0	46	NA	http://strcat.teamerlich.org/chart/chr13/70713516/70713561
+SCA10	Spinocerebellar ataxia 10	603516	AD	ATXN10	22q13.31	intron	ATTCT	10	20	500	4500	FALSE	+	chr22	46191235	46191304	14	100	0	70	NA	http://strcat.teamerlich.org/chart/chr22/46191235/46191304
+SCA12	Spinocerebellar ataxia 12	604326	AD	PPP2R2B	5q32	promotor	CAG	7	45	55	78	FALSE	-	chr5	146258291	146258322	10.7	100	0	32	NA	http://strcat.teamerlich.org/chart/chr5/146258291/146258322
+SCA17	Spinocerebellar ataxia 17	607136	AD	TBP	6q27	coding	CAG	25	42	47	63	FALSE	+	chr6	170870995	170871105	37	94	0	111	NA	http://strcat.teamerlich.org/chart/chr6/170870995/170871105
+SCA36	Spinocerebellar ataxia 36	614153	AD	NOP56	20p13	intron	GGCCTG	3	8	1500	2500	FALSE	+	chr20	2633379	2633421	7.2	97	0	43	NA	http://strcat.teamerlich.org/chart/chr20/2633379/2633421
+FECD3	Fuchs endothelial corneal dystrophy 3	613267	AD	TCF4	18q21.2	intron	CTG	10	40	50	1300	TRUE	-	chr18	53253385	53253460	25.3	100	0	76	NA	NA
+FAME1	Familial adult myoclonic epilepsy 1	601068	AD	SAMD12	8q24	intron	TTTCA	0	0	440	3680	FALSE	-	chr8	119379052	119379155	0.6			3	NA	NA
+FAME6	Familial adult myoclonic epilepsy 6	618074	AD	TNRC6A	16p12.1	intron	TTTCA	0	0			TRUE	+	chr16	24624851	24624853	0.6			3	NA	NA
+FAME7	Familial adult myoclonic epilepsy 7	618075	AD	RAPGEF2	4q32.1	intron	TTTCA	0	0			TRUE	+	chr4	160263769	160263770	0.4			2	NA	NA
+CANVAS	Cerebellar ataxia, neuropathy, and vestibular areflexia syndrome	614575	AR	RFC1	4p14	intron	TTCCC	0	0	400	2000	FALSE	-	chr4	39350045	39350103	11.8			59	NA	NA

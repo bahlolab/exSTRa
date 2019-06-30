@@ -18,6 +18,10 @@ GTEx_median_tpm_file <- ".../path/to/.../GTEx_Analysis_2016-01-15_v7_RNASeQCv1.1
 # Specify median TMP value to use as threshold for which genes are considered expressed in brain
 brain_median_tpm_thresh <- 1
 
+# Specify miminum and maximum motif size (in base pairs) to search for
+min_motif_size <- 2
+max_motif_size <- 6
+
 # Download and install ANNOVAR (http://annovar.openbioinformatics.org/)
 table_annovar_script <- ".../path/to/.../table_annovar.pl"
 humandb_annovar_dir <- ".../path/to/.../humandb"
@@ -29,8 +33,8 @@ simpleRepeat <- readr::read_delim(simpleRepeat_file, delim="\t", col_names=FALSE
 colnames(simpleRepeat) <- c("bin", "chrom", "chromStart", "chromEnd", "name", "period", "copyNum", "consensusSize", "perMatch", "perIndel", "score", "A", "C", "G", "T", "entropy", "sequence")
 simpleRepeat <- as.data.frame(simpleRepeat, stringsAsFactors=FALSE)
 
-# Filter to 2-6 bp pair repeats
-simpleRepeat <- simpleRepeat[(simpleRepeat$period >= 2) & (simpleRepeat$period <= 6), ]
+# Filter based on repeat motif size
+simpleRepeat <- simpleRepeat[(simpleRepeat$consensusSize >= min_motif_size) & (simpleRepeat$consensusSize <= max_motif_size), ]
 
 # Download GTEx portal median TPM table from https://gtexportal.org/home/datasets:
 # GTEx_Analysis_2016-01-15_v7_RNASeQCv1.1.8_gene_median_tpm.gct.gz
