@@ -1,4 +1,4 @@
-### exSTRa repeat expansion disorder GRCh37 database ###																						
+### exSTRa repeat expansion disorder hg19 database ###																						
 # Last updated 26th June 2019.																						
 # Most fields are for informational purposes and not used by exSTRa.																						
 # Requires: exSTRa 0.8																						
