@@ -23,7 +23,7 @@ Files are assumed to be tab-delimited unless the extension is xlsx in which case
 xlsx package is used (if installed).
 }
 \examples{
-read_exstra_db(system.file("extdata", "repeat_expansion_disorders.txt", package = "exSTRa")) 
+read_exstra_db(system.file("extdata", "repeat_expansion_disorders_hg19.txt", package = "exSTRa")) 
 
 }
 \seealso{
