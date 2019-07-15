@@ -1,8 +1,6 @@
 # An example of exSTRa usage, for known STR expansion disorder loci
 
 ## ---- strexpansion_prepare
-# best to load data.table before exSTRa if manipulation with data.table commands is required
-library(data.table)
 library(exSTRa)
 
 knitr::opts_chunk$set(fig.width=11, fig.height=11)
