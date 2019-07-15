@@ -1,5 +1,5 @@
 # Algorithm for imputing missing data using quantiles from:
-# Munoz JF, Rueda M (2009) New imputation methods for missing data using quantiles. Journal of Computational and Applied Mathematics 232:305–317. doi: 10.1016/j.cam.2009.06.011
+# Munoz JF, Rueda M (2009) New imputation methods for missing data using quantiles. Journal of Computational and Applied Mathematics 232:305-317. doi: 10.1016/j.cam.2009.06.011
 #
 # Only algorithm AL1 implemented here
 
