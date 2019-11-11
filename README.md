@@ -1,12 +1,15 @@
 # exSTRa
+
 expanded STR algorithm: detecting expansions with paired-end Illumina sequencing data. 
+
+https://github.com/bahlolab/exSTRa/
+
+![exSTRa plots](https://github.com/bahlolab/exSTRa/blob/devel_bennett/exSTRa_plots)
 
 This depends on the Perl package 
 [Bio::STR::exSTRa](https://github.com/bahlolab/Bio-STR-exSTRa) 
 for processing of BAM files. 
-
-![exSTRa plots](https://github.com/bahlolab/exSTRa/blob/devel_bennett/exSTRa_plots)
-
+.
 # Installation
 
 For easy installation, run from within R:
