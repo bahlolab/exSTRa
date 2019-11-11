@@ -1,12 +1,11 @@
-[![Build Status](https://travis-ci.org/bahlolab/exSTRa.svg?branch=master)](https://travis-ci.org/bahlolab/exSTRa)
-[![Coverage status](https://codecov.io/gh/bahlolab/exSTRa/branch/master/graph/badge.svg)](https://codecov.io/github/bahlolab/exSTRa?branch=master)
-
 # exSTRa
 expanded STR algorithm: detecting expansions with paired-end Illumina sequencing data. 
 
 This depends on the Perl package 
 [Bio::STR::exSTRa](https://github.com/bahlolab/Bio-STR-exSTRa) 
 for processing of BAM files. 
+
+![exSTRa plots](https://github.com/bahlolab/exSTRa/blob/devel_bennett/exSTRa_plots)
 
 # Installation
 
