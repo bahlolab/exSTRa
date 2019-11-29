@@ -1,5 +1,5 @@
 ### exSTRa repeat expansion disorder hg19 database ###																						
-# Last updated 26th June 2019.																						
+# Last updated 21 November 2019.																						
 # Most fields are for informational purposes and not used by exSTRa.																						
 # Requires: exSTRa 0.8																						
 locus	long_name	OMIM	inheritance	gene	location	gene_region	motif	norm_low	norm_up	aff_low	aff_up	aff_more	strand	chrom	hg19_start	hg19_end	copyNum	perMatch	perIndel	STR_size_bp	score_size	strcat
@@ -29,3 +29,11 @@ FAME1	Familial adult myoclonic epilepsy 1	601068	AD	SAMD12	8q24	intron	TTTCA	0	0
 FAME6	Familial adult myoclonic epilepsy 6	618074	AD	TNRC6A	16p12.1	intron	TTTCA	0	0			TRUE	+	chr16	24624851	24624853	0.6			3	NA	NA
 FAME7	Familial adult myoclonic epilepsy 7	618075	AD	RAPGEF2	4q32.1	intron	TTTCA	0	0			TRUE	+	chr4	160263769	160263770	0.4			2	NA	NA
 CANVAS	Cerebellar ataxia, neuropathy, and vestibular areflexia syndrome	614575	AR	RFC1	4p14	intron	TTCCC	0	0	400	2000	FALSE	-	chr4	39350045	39350103	11.8			59	NA	NA
+FAME2	Familial adult myoclonic epilepsy 2	607876	AD	STARD7	2q11.2	intron	TTTCA	0	0	274	588	TRUE	-	chr2	96862805	96862807	0.6			3	NA	NA
+FAME3	Familial adult myoclonic epilepsy 3	613608	AD	MARCHF6	5p15.2	intron	TTTCA	0	0	216	2000	TRUE	+	chr5	10356520	10356522	0.6			3	NA	NA
+FAME4	Familial adult myoclonic epilepsy 4	615127	AD	YEATS2	3q27.1	intron	TTTCA	0	0	221		TRUE	+	chr3	183430011	183430013	0.6			3	NA	NA
+GDPAG	Global developmental delay, progressive ataxia, and elevated glutamine	618412	AR	GLS	2q32.2	5'UTR	GCA	6	25	400	1500	TRUE	+	chr2	191745599	191745646	16	100	0	48	NA	NA
+NIID	Neuronal intranuclear inclusion disease	603472	AD	NOTCH2NLC	1q21.2	5'UTR	GGC	5	39	66	517	FALSE	+	chr1	145209324	145209346	10.3	100	0	31	NA	NA
+OPDM1	Oculopharyngodistal myopathy 1	164310	AD	LRP12	8q22.3	5'UTR	CGG	9	41			TRUE	-	chr8	105601199	105601226	9.3	100	0	28	NA	NA
+OPML1	Oculopharyngeal myopathy with leukoencephalopathy 1	618637	AD	NUTM2B-AS1	10q22.3	utRNA	CCG	3	16			TRUE	-	chr10	81586140	81586160	7	100	0	21	NA	NA
+DBQD2	Desbuquois dysplasia 2	615777	AR	XYLT1	16p12.3	promotor	GGC					TRUE	-	chr16	17564778	17564779	0.7			2	NA	NA
