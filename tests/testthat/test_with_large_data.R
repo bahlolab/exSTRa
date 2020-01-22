@@ -13,8 +13,8 @@ test_that("text info has changed", {
 signif_t4 <- rep(FALSE, 72L)
 signif_t4[c(6L, 8L, 25L, 27L, 47L, 49L, 57L, 58L)] <- TRUE
 tsum_4_stat_expected <- structure(
-  list(locus = rep(sort(four_loci), each = 18L), 
-       sample = rep(exstra_wgs_pcr_2[four_loci]$samples$sample, 4), 
+  list(locus = rep(c("FRDA", "HD", "SCA1", "SCA6"), each = 18L), 
+       sample = rep(exstra_wgs_pcr_2[c("FRDA", "HD", "SCA1", "SCA6")]$samples$sample, 4), 
        tsum = c(0.224380249148274, 2.37758148162022, -1.07940061758087,
                 1.57425576258927, -0.79878550838408, 12.1568724547555, -0.0499542968581384, 
                 13.6084534900895, -0.948799603576646, 0.574070399992864, 1.63576022357891, 
