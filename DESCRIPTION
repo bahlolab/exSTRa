@@ -40,7 +40,6 @@ Collate:
     'filter_sex.R'
     'ggplot.exstra_score.R'
     'loci_normal_expansion.R'
-    'munoz_rueda_al1.R'
     'p_values.R'
     'plot_multi.R'
     'private_functions.R'
