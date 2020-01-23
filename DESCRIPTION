@@ -33,7 +33,6 @@ Collate:
     'CLASS_exstra_score.R'
     'CLASS_exstra_tsum.R'
     'GENERICS.R'
-    'TRASH.R'
     'add_alpha_.R'
     'exstra_known.R'
     'exstra_wgs_pcr_2.R'
