@@ -382,11 +382,6 @@ tsum_statistic_1locus <- function(
       tsums
     }
     
-    # Simple version to check: TODO: remove
-    sim_tsum_stat_simple <- function() {
-      replicate(N, {mean(rt(M, N - 1))})
-    }
-    
     # Use the correct simulation function
     if(case_control) {
       sim_tsum_stat <- sim_tsum_stat_cc
