@@ -11,6 +11,7 @@ Encoding: UTF-8
 Depends:
     data.table (>= 1.10.4-3)
 Imports: 
+    methods,
     testit (>= 0.7), 
     checkmate,
     stringr (>= 1.2.0), 
