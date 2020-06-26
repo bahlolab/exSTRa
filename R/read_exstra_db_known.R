@@ -1,3 +1,6 @@
+#' @import data.table
+#' @import testit
+#' @import checkmate
 read_exstra_db_known <- function(file, ...) {
   if (!is.character(file)) stop("file must be character")
   data <- read.delim(file, stringsAsFactors = FALSE, comment.char = "#", ...)
