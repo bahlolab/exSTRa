@@ -1,5 +1,5 @@
 ### exSTRa repeat expansion disorder GRCh37 database ###																						
-# Last updated 21 November 2019.																						
+# Last updated 26th June 2020.
 # Most fields are for informational purposes and not used by exSTRa.																						
 # Requires: exSTRa 0.8																						
 locus	long_name	OMIM	inheritance	gene	location	gene_region	motif	norm_low	norm_up	aff_low	aff_up	aff_more	strand	chrom	start	end	copyNum	perMatch	perIndel	STR_size_bp	score_size	strcat
