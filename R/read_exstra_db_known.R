@@ -8,9 +8,11 @@ read_exstra_db_known <- function(file, ...) {
   }
   data <- replace(data, data == "NA", NA)
   data$locus <- sub(".*\\((.*)\\).*", "\\1", data$Disease, perl = T)
-  names(data)[which(names(data) == "hg19.chrom" | names(data) == "hg19_chr")] <- "chrom"
-  names(data)[which(names(data) == "hg19.start.0" | names(data) == "repeat.start" | names(data) == "hg19_start")] <- "chromStart"
-  names(data)[which(names(data) == "hg19.end" | names(data) == "repeat.end" | names(data) == "hg19_end")] <- "chromEnd"
+  
+  # Match the first suitable column
+  names(data)[assert_int(grep("chr(om)?$", names(data), TRUE))] <- "chrom"
+  names(data)[assert_int(grep("start(\\.0)?$", names(data), TRUE))] <- "chromStart"
+  names(data)[assert_int(grep("end$", names(data), TRUE))] <- "chromEnd"
   
   # give more verbose repeat number information
   
