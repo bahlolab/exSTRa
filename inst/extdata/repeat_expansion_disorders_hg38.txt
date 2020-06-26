@@ -1,5 +1,5 @@
 ### exSTRa repeat expansion disorder database ###																						
-# Last updated 10th September 2019.																						
+# Last updated 26th June 2020.
 # Note that this is for the hg38 human genome reference. 
 # Most fields are for informational purposes and not used by exSTRa.																						
 # Requires: exSTRa 0.8																						
