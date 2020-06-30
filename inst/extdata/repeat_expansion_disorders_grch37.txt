@@ -1,8 +1,8 @@
 ### exSTRa repeat expansion disorder GRCh37 database ###																						
-# Last updated 21 November 2019.																						
+# Last updated 26th June 2020.
 # Most fields are for informational purposes and not used by exSTRa.																						
 # Requires: exSTRa 0.8																						
-locus	long_name	OMIM	inheritance	gene	location	gene_region	motif	norm_low	norm_up	aff_low	aff_up	aff_more	strand	chrom	hg19_start	hg19_end	copyNum	perMatch	perIndel	STR_size_bp	score_size	strcat
+locus	long_name	OMIM	inheritance	gene	location	gene_region	motif	norm_low	norm_up	aff_low	aff_up	aff_more	strand	chrom	start	end	copyNum	perMatch	perIndel	STR_size_bp	score_size	strcat
 DM1	Myotonic dystrophy 1	160900	AD	DMPK	19q13	3'UTR	CTG	5	37	50	10000	FALSE	-	19	46273463	46273524	20.7	100	0	62	NA	http://strcat.teamerlich.org/chart/chr19/46273463/46273524
 DM2	Myotonic dystrophy 2	602668	AD	ZNF9/CNBP	3q21.3	intron	CCTG	10	26	75	11000	FALSE	-	3	128891420	128891502	20.8	92	0	83	NA	http://strcat.teamerlich.org/chart/chr3/128891420/128891502
 DRPLA	Dentatorubral-pallidoluysian atrophy	125370	AD	DRPLA/ATN1	12p13.31	coding	CAG	7	34	49	88	FALSE	+	12	7045880	7045938	19.7	92	0	59	NA	http://strcat.teamerlich.org/chart/chr12/7045880/7045938
