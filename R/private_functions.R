@@ -359,10 +359,7 @@ make_quantiles_matrix <- function(strscore, loc = TRUE, sample = NULL, read_coun
   # quant, remove the data points below the given quantile for each sample at each locus, this probably should not be used, instead derived from the statistic
   #
   # method "midquantile" uses Qtools to find the mid-quantile at ppoints(n, a=1/2)
-  # method "al1" uses Munoz Rueda's AL1 algorithm to impute up to the desired number of data points
-  #       If the number of data points is less than avaliable for a sample, then it is instead downsampled
   # method "quantile8" uses the quantile method type 8 (or number inferred)
-  # method "al1_all" uses Munoz Rueda's AL1 algorithm to impute all data points to give quantiles
   # n.quantiles sets the number of quantiles in the output matrix
   # min.n is the minimum number of observations for a sample at a locus to go into the matrix
   
@@ -386,19 +383,12 @@ make_quantiles_matrix <- function(strscore, loc = TRUE, sample = NULL, read_coun
     n.quantiles <- round(loc_data[, .N, by = sample][, quantile(N, read_count_quant, names = FALSE)])
   }
   method <- tolower(method)
-  if(method == "al1" || method == "al1_all") {
-    if(!is.null(probs)) {
-      stop("probs cannot be manually set with al1 or al1_all")
-    }
-    probs <- seq(1 / n.quantiles, 1, length.out = n.quantiles)
-  } else {
     if(is.null(probs)) {
       #probs <- ppoints(n.quantiles, 1/2)
       probs <- seq(0, 1, length.out = n.quantiles)
     } else {
       n.quantiles <- length(probs) # replace n.quantiles
     }
-  }
   if(method == "quantile") {
     stop('"Please choose type for quantile with method = "quantile#"')
   }
@@ -427,20 +417,6 @@ make_quantiles_matrix <- function(strscore, loc = TRUE, sample = NULL, read_coun
       }
     } else if(method == "quantile") {
       v <- quantile(y, probs, names = FALSE, type = quantile_type)
-    } else if(method == "al1") {
-      if(n.quantiles < length(y)) {
-        # sample down
-        v <- sample_safe(y, n.quantiles)
-      } else if (n.quantiles > length(y)) {
-        # impute up
-        v <- munoz_rueda_al1_include(y, n.quantiles - length(y))
-      } else {
-        # exact match
-        v <- y
-      }
-      v <- sort(v)
-    } else if(method == "al1_all") {
-      v <- sort(munoz_rueda_al1(y, n.quantiles))
     } else {
       stop("Undefined method ", method)
     }
@@ -798,9 +774,7 @@ simulate_ecdf_quant_statistic <- function(qmmat, B = 9999, trim = 0.15,
         "simulate_quant_statistic_sampp",
         "simulate_quantile_matrix", 
         "quant_statistic",
-        "trim_vector",
-        "munoz_rueda_al1",
-        "munoz_rueda_al1_include" 
+        "trim_vector"
       ),
       envir = environment()
     )
@@ -923,13 +897,9 @@ midpoint_removal_imputing <- function(strscore, method, sort.in.original = TRUE,
       prune_data <- loc_data
       prune_data$data <- prune_data$data[order(rep)][seq(1, .N, 2)]
       n_out <- prune_data$data[, .N] - 1
-      if(grepl("al1", method)) {
-        qm_mid <- make_quantiles_matrix(prune_data, method = method, n.quantiles = n_out)
-      } else {
         probs <- seq(1, 2 * n_out, 2) / (2 * n_out)
         #seq(3 / (n_out * 4), (n_out * 4 - 3) / (n_out * 4), length.out = n_out)
         qm_mid <- make_quantiles_matrix(prune_data, method = method, probs = probs)
-      }
       
       # Consider that the sorting order may need to be different
       if(length(qm_mid$low.count) != 0) {
