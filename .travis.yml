@@ -9,18 +9,19 @@ matrix:
           r: release
         - os: linux
           r: devel
-        - os: osx
-          r: oldrel
-        - os: osx
-          r: release
-        - os: osx
-          r: devel
+        #- os: osx
+        #  r: oldrel
+        #- os: osx
+        #  r: release
+        #- os: osx
+        #  r: devel
+      # Here so we know when R for Windows is ever supported.
         - os: windows
           r: release
     allow_failures:
-    # devel on osx fails
-        - os: osx
-          r: devel
+    # all osx now fails, and does not appear to have R
+        #- os: osx
+        #  r: devel
         - os: windows
           r: release
 
