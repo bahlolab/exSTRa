@@ -1,5 +1,5 @@
 <!-- badges: start -->
-[![Build status](https://github.com/trickytank/exSTRa/actions/workflows/r.yml)](https://github.com/trickytank/exSTRa/actions/workflows/r.yml/badge.svg)
+[![Build status](https://github.com/trickytank/exSTRa/actions/workflows/r.yml/badge.svg)](https://github.com/trickytank/exSTRa/actions/workflows/r.yml)
 [![Codecov test coverage](https://codecov.io/gh/bahlolab/exSTRa/branch/master/graph/badge.svg)](https://app.codecov.io/gh/bahlolab/exSTRa?branch=master)
 [![Codecov test coverage](https://codecov.io/gh/trickytank/exSTRa/branch/master/graph/badge.svg)](https://app.codecov.io/gh/trickytank/exSTRa?branch=master)
 <!-- badges: end -->
