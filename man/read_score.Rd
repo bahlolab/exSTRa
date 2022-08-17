@@ -4,8 +4,13 @@
 \alias{read_score}
 \title{Read repeat score data produced from Bio::STR::exSTRa}
 \usage{
-read_score(file, database, groups.regex = NULL, groups.samples = NULL,
-  filter.low.counts = TRUE)
+read_score(
+  file,
+  database,
+  groups.regex = NULL,
+  groups.samples = NULL,
+  filter.low.counts = TRUE
+)
 }
 \arguments{
 \item{file}{Path of file to read.}

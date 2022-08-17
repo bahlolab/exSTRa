@@ -1,5 +1,6 @@
 <!-- badges: start -->
-[![Build Status](https://travis-ci.org/bahlolab/exSTRa.svg?branch=master)](https://travis-ci.org/bahlolab/exSTRa)
+[![R](https://github.com/bahlolab/exSTRa/actions/workflows/r.yml/badge.svg)](https://github.com/bahlolab/exSTRa/actions/workflows/r.yml)
+[![R-CMD-check](https://github.com/bahlolab/exSTRa/actions/workflows/check_standard.yml/badge.svg)](https://github.com/bahlolab/exSTRa/actions/workflows/check_standard.yml)
 [![Codecov test coverage](https://codecov.io/gh/bahlolab/exSTRa/branch/master/graph/badge.svg)](https://app.codecov.io/gh/bahlolab/exSTRa?branch=master)
 <!-- badges: end -->
 

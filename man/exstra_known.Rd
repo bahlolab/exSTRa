@@ -4,11 +4,13 @@
 \name{exstra_known}
 \alias{exstra_known}
 \title{Known repeat expansion disorder loci.}
-\format{An exstra_db object:
+\format{
+An exstra_db object:
 \describe{
   \item{db}{A data.table of the known loci}
   \item{input_type}{Indication that the loci are referred to by name (as opposed to genomic position)}
-}}
+}
+}
 \source{
 Rick M. Tankard, Martin B. Delatycki, Paul J. Lockhart, 
         Melanie Bahlo. 

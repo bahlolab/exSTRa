@@ -5,11 +5,19 @@
 \alias{rbind_score}
 \title{Combine multiple exSTRa data objects.}
 \usage{
-rbind_score_list(strscore_list, idcol = "data_group",
-  allow_sample_clash = FALSE, fill = FALSE)
+rbind_score_list(
+  strscore_list,
+  idcol = "data_group",
+  allow_sample_clash = FALSE,
+  fill = FALSE
+)
 
-rbind_score(..., idcol = "data_group", allow_sample_clash = FALSE,
-  fill = FALSE)
+rbind_score(
+  ...,
+  idcol = "data_group",
+  allow_sample_clash = FALSE,
+  fill = FALSE
+)
 }
 \arguments{
 \item{strscore_list}{A list containing \code{exstra_score} objects.}

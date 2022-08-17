@@ -20,13 +20,13 @@ read_exstra_db_ucsc <- function(file, header, ...) {
   data <- read.delim(file, header, colClasses = col.classes, ...)
   # Check if a header line is probably present
   if(header) {
-    assert("When reading UCSC files with a header, the header lines must be: '#bin' (converted to 'X.bin' by R), 'chrom', 'chromStart', 'chromEnd', 'name', 'period', 'copyNum', 'consensusSize', 'perMatch', 'perIndel', 'score', 'A', 'C', 'G', 'T', 'entropy', 'sequence'", 
+    testit::assert("When reading UCSC files with a header, the header lines must be: '#bin' (converted to 'X.bin' by R), 'chrom', 'chromStart', 'chromEnd', 'name', 'period', 'copyNum', 'consensusSize', 'perMatch', 'perIndel', 'score', 'A', 'C', 'G', 'T', 'entropy', 'sequence'", 
       identical(names(data), header.names))
   } else {
-    assert("When reading UCSC file without a header, must have 17 columns exactly", dim(data)[2] == 17)
+    testit::assert("When reading UCSC file without a header, must have 17 columns exactly", dim(data)[2] == 17)
     names(data) <- header.names
   }
-  assert("The column classes of the UCSC file are not as expected. Are you sure you are supplying a UCSCS file and that the header setting is correct?", prod(sapply(data, class) == col.classes) == 1)
+  testit::assert("The column classes of the UCSC file are not as expected. Are you sure you are supplying a UCSCS file and that the header setting is correct?", prod(sapply(data, class) == col.classes) == 1)
   data$locus <- with(data, paste0(chrom, ":", chromStart + 1, "-", chromEnd, ":", sequence))
   data$motif <- data$sequence
   data <- data.table(data)
