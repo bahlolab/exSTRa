@@ -3,6 +3,7 @@
 #' Return the loci of the selected object
 #' 
 #' @param x object of an exSTRa class.
+#' @param ... additional arguments to loci
 #' @return The loci of \code{x}.
 #' @examples 
 #' loci(exstra_known)
