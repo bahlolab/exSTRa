@@ -19,6 +19,38 @@ tsum_statistic_1locus(
   verbose = TRUE
 )
 }
+\arguments{
+\item{strscore_loc}{exstra_strscore object for a single locus (do not give multiple loci).}
+
+\item{case_control}{Set to TRUE if this is a case-control analysis, and FALSE if looking for outliers in all samples.}
+
+\item{min.quant}{Only quantiles above this value are used in constructing the statistic.}
+
+\item{trim}{Trim this proportion of data points at each quantile 
+level (rounded up). Must be at least 0 and less than 0.5, but values close
+to 0.5 may remove all samples and hence result in an error.}
+
+\item{give.pvalue}{If TRUE, generate the p-value in the simulation.}
+
+\item{B}{Number of simulations in calculating null distributions. The denominator will
+be B + 1, hence values of B = 10^i - 1 will result in p-values that are}
+
+\item{parallel}{Use the parallel package when simulating the distribution, creating the
+required cluster. 
+If cluster is specified then this option makes no difference.}
+
+\item{cluster}{A cluster object from the parallel package. Use if you wish to set up 
+the cluster yourself or reuse an existing cluster.}
+
+\item{early_stop}{Simulation may use less replicates when all p-values are large, controlled with early_A.}
+
+\item{early_A}{Simulations may stop when p.value.sd < early_A * min(p.value). 
+Checked approximately when the number of simulations has doubled.}
+
+\item{min_stop}{Minimum number of simulations before stopping.}
+
+\item{verbose}{If TRUE, report if stopped early, and to what number of simulations.}
+}
 \description{
 Private function
 }

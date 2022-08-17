@@ -6,6 +6,9 @@
 \usage{
 \method{length}{exstra_score}(x)
 }
+\arguments{
+\item{x}{exstra_score object.}
+}
 \description{
 Number of data points in exstra_score object
 }

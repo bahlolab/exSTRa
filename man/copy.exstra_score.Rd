@@ -6,6 +6,9 @@
 \usage{
 \method{copy}{exstra_score}(x)
 }
+\arguments{
+\item{x}{exstra_score object to copy.}
+}
 \description{
 Prevents changing both objects on changes by reference, that do not copy on write.
 }
