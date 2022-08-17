@@ -10,8 +10,8 @@
 #' \dontrun{
 #' suggested_exstra_pipeline()
 #' }
-#' @seealso \pkg{\link{DiagrammeR}}
-#' @seealso \pkg{\link{DiagrammeRsvg}}
+#' @seealso \pkg{DiagrammeR}
+#' @seealso \pkg{DiagrammeRsvg}
 #' @export
 #' 
 suggested_exstra_pipeline <- function(file = NULL, show.with.file = FALSE) {
