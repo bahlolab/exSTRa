@@ -10,9 +10,9 @@ name: R
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "devel_tankard" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "devel_tankard" ]
 
 permissions:
   contents: read
@@ -22,7 +22,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        r-version: ['3.6.3', '4.1.1']
+        r-version: ['4.2.1']
 
     steps:
       - uses: actions/checkout@v3
@@ -30,6 +30,9 @@ jobs:
         uses: r-lib/actions/setup-r@f57f1301a053485946083d7a45022b278929a78a
         with:
           r-version: ${{ matrix.r-version }}
+      - uses: r-lib/actions/setup-pandoc@v2
+      - name: Install rmarkdown
+        run: Rscript -e 'install.packages("rmarkdown")'
       - name: Install dependencies
         run: |
           install.packages(c("remotes", "rcmdcheck"))

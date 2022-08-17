@@ -4,11 +4,21 @@
 \alias{tsum_test_1}
 \title{Generate T sum statistics and p-values from simulation.}
 \usage{
-tsum_test_1(strscore, trim = 0.15, trim.cc = 0, min.quant = 0.5,
-  give.pvalue = TRUE, B = 999, correction = c("bf", "loci",
-  "samples", "uncorrected"), alpha = 0.05, case_control = FALSE,
-  parallel = FALSE, cluster_n = NULL, cluster = NULL,
-  keep.sim.tsum = FALSE)
+tsum_test_1(
+  strscore,
+  trim = 0.15,
+  trim.cc = 0,
+  min.quant = 0.5,
+  give.pvalue = TRUE,
+  B = 999,
+  correction = c("bf", "loci", "samples", "uncorrected"),
+  alpha = 0.05,
+  case_control = FALSE,
+  parallel = FALSE,
+  cluster_n = NULL,
+  cluster = NULL,
+  keep.sim.tsum = FALSE
+)
 }
 \arguments{
 \item{strscore}{An exstra_score object.}

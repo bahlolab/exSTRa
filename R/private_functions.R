@@ -298,7 +298,7 @@ analyse_str_score_mw <- function(strscore, plot_cols, filebase = c(), actual = N
   
   # Set the correct sample loci as expanded
   if(!is.null(actual)) {
-    assert("actual is not a data.table (or NULL)", is.data.table(actual))
+    testit::assert("actual is not a data.table (or NULL)", is.data.table(actual))
     setkey(score_p_tidy, sample, locus)
     setkey(actual, sample, locus)
     score_p_tidy[actual, expansion := TRUE]
@@ -378,7 +378,7 @@ make_quantiles_matrix <- function(strscore, loc = TRUE, sample = NULL, read_coun
   if(is.null(sample)) {
     sample <- strscore$samples$sample
   }
-  assert("Cannot set both probs and n.quantiles", is.null(probs) || is.null(n.quantiles))
+  testit::assert("Cannot set both probs and n.quantiles", is.null(probs) || is.null(n.quantiles))
   if(is.null(probs) && is.null(n.quantiles)) {
     n.quantiles <- round(loc_data[, .N, by = sample][, quantile(N, read_count_quant, names = FALSE)])
   }
@@ -396,7 +396,7 @@ make_quantiles_matrix <- function(strscore, loc = TRUE, sample = NULL, read_coun
     quantile_type <- as.numeric(sub("quantile", "", method))
     method <- "quantile"
   }
-  assert("samples is not the key of strscore$samples", key(strscore$samples)[1] == "sample")
+  testit::assert("samples is not the key of strscore$samples", key(strscore$samples)[1] == "sample")
   quant.matrix <- matrix(numeric(), length(sample), length(probs))
   for(sampi in seq_along(sample)) {
     # note this "sample" is the one within the object
@@ -461,11 +461,11 @@ quant_statistic <- function(qmmat, sample = 1, quant = 0.5, trim = 0.15,
   if(is.list(qmmat) && !is.null(qmmat$y.mat)) {
     qmmat <- qmmat$y.mat
   }
-  assert("qmmat is not a matrix or list with $y.mat", is.matrix(qmmat))
-  assert("sample is not a character or numeric", is.character(sample) || is.numeric(sample))
-  assert("qs is not numeric", is.null(qs) || is.numeric(qs))
-  assert("quant is not a single numeric from 0 and less than 1", is.numeric(quant), length(quant) == 1, quant >= 0, quant < 1)
-  assert("qs_trim is not numeric of length 1", is.numeric(qs_trim), length(qs_trim) == 1)
+  testit::assert("qmmat is not a matrix or list with $y.mat", is.matrix(qmmat))
+  testit::assert("sample is not a character or numeric", is.character(sample) || is.numeric(sample))
+  testit::assert("qs is not numeric", is.null(qs) || is.numeric(qs))
+  testit::assert("quant is not a single numeric from 0 and less than 1", is.numeric(quant), length(quant) == 1, quant >= 0, quant < 1)
+  testit::assert("qs_trim is not numeric of length 1", is.numeric(qs_trim), length(qs_trim) == 1)
   if(median_mad && use_truncated_sd) {
     stop("Options median_mad and use_truncated_sd are mutually exclusive.")
   }
@@ -476,13 +476,13 @@ quant_statistic <- function(qmmat, sample = 1, quant = 0.5, trim = 0.15,
       warning("qs set to 1, qs_trim may be too high for data or may be too few data points")
     }
   }
-  assert("trim is not numeric of length 1", is.numeric(trim), length(trim) == 1)
-  assert("trim is not within 0 (inclusive) to 0.5", trim >= 0, trim < 0.5)
+  testit::assert("trim is not numeric of length 1", is.numeric(trim), length(trim) == 1)
+  testit::assert("trim is not within 0 (inclusive) to 0.5", trim >= 0, trim < 0.5)
   if (trim > 0.3) {
     #TODO: make this a better test, such as the number of samples left (maybe I've already done this?) - Rick
     warning("trim is set to ", trim, ", removing ", trim * 200, "% of the data.")
   }
-  assert("Maximum qs to output must be less or equal to than the number of xs - qs_trim", max(qs) <= dim(qmmat)[2] - qs_trim)
+  testit::assert("Maximum qs to output must be less or equal to than the number of xs - qs_trim", max(qs) <= dim(qmmat)[2] - qs_trim)
   #qmmat[sample, ]
   xindexes <- seq(dim(qmmat)[2] - max(qs) - qs_trim + 1, dim(qmmat)[2] - qs_trim, 1)
   ts <- rep(NA, length(xindexes))
@@ -497,7 +497,7 @@ quant_statistic <- function(qmmat, sample = 1, quant = 0.5, trim = 0.15,
     bg_n <- bg_n - 1
   } 
   trimseq <- trim_vector(bg_n, trim)
-  assert("Trimming of extreme control samples set too high to keep at least two samples for variance estimation", length(trimseq) >= 2) 
+  testit::assert("Trimming of extreme control samples set too high to keep at least two samples for variance estimation", length(trimseq) >= 2) 
   
   for(xi in xindexes) {
     ti <- ti + 1
@@ -557,17 +557,17 @@ quant_statistic_sampp <- function(qmmat, sample = NULL, qs = NULL,
   if(is.list(qmmat) && !is.null(qmmat$y.mat)) {
     qmmat <- qmmat$y.mat
   }
-  assert("qmmat is not a matrix or list with $y.mat", is.matrix(qmmat))
-  assert("sample is not a character, numeric or null", is.null(sample) || is.character(sample) || is.numeric(sample))
-  assert("qs is not numeric", is.null(qs) || is.numeric(qs))
-  assert("qs is not single", is.null(qs) || length(qs) == 1)
+  testit::assert("qmmat is not a matrix or list with $y.mat", is.matrix(qmmat))
+  testit::assert("sample is not a character, numeric or null", is.null(sample) || is.character(sample) || is.numeric(sample))
+  testit::assert("qs is not numeric", is.null(qs) || is.numeric(qs))
+  testit::assert("qs is not single", is.null(qs) || length(qs) == 1)
   
   ti <- 0
   if(!is.null(case_samples)) {
     if(is.null(sample)) {
       sample <- case_samples
     }
-    assert("All case samples should be in qmmat", all(case_samples %in% rownames(qmmat)))
+    testit::assert("All case samples should be in qmmat", all(case_samples %in% rownames(qmmat)))
     t_out <- rep(NA, length(sample) - length(case_samples))
     control_samples <- rownames(qmmat)[! rownames(qmmat) %in% case_samples]
     for(samp in sample) {
@@ -675,7 +675,7 @@ simulate_ecdf_quant_statistic <- function(qmmat, B = 9999, trim = 0.15,
   qmmat.y.sort <- apply(qmmat$y.mat, 2, sort) # TODO maybe not working
   # so that we can trim the top and bottom:
   trimseq <- trim_vector(dim(qmmat.y.sort)[1], trim)
-  assert("Trimming of extreme control samples set too high to keep at least two samples for variance estimation", length(trimseq) >= 2) 
+  testit::assert("Trimming of extreme control samples set too high to keep at least two samples for variance estimation", length(trimseq) >= 2) 
   if(length(trimseq) < 6) {
     # TODO: 6 chosen arbitrarily, maybe could be better
     warning("Trimming of outliers leaves only ", length(trimseq), " observations.")
@@ -879,7 +879,7 @@ midpoint_removal_imputing <- function(strscore, method, sort.in.original = TRUE,
   #
   # sort.in.original: if TRUE, put the imputed values together with the orignal and sort
   # before calculating differences
-  assert("Not strdata", is.strdata(strscore))
+  testit::assert("Not strdata", is.strdata(strscore))
   quantile_diff <- data.table()
   for(loc in loci(strscore)) {
     for(samp in strscore$samples$sample) {

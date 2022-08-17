@@ -4,11 +4,24 @@
 \alias{plot.exstra_score}
 \title{Plot ECDF curves from an exstra_score object}
 \usage{
-\method{plot}{exstra_score}(x, loci = NULL, sample_col = NULL,
-  refline = TRUE, ylab = "Fn(x)", verticals = TRUE, pch = 19, xlim,
-  ylim = c(0, 1), alpha_control = 0.5, alpha_case = NULL,
-  xlinked = "all", xlinked.safe = TRUE, x_upper_missing = 150,
-  main = NULL, ...)
+\method{plot}{exstra_score}(
+  x,
+  loci = NULL,
+  sample_col = NULL,
+  refline = TRUE,
+  ylab = "Fn(x)",
+  verticals = TRUE,
+  pch = 19,
+  xlim,
+  ylim = c(0, 1),
+  alpha_control = 0.5,
+  alpha_case = NULL,
+  xlinked = "all",
+  xlinked.safe = TRUE,
+  x_upper_missing = 150,
+  main = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{exstra_score object.}

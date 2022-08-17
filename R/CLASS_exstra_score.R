@@ -17,10 +17,10 @@ is.exstra_score <- function(x) inherits(x, "exstra_score")
 # 
 strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NULL, this.class = NULL) {
   # Load the STR data, and give it the right class
-  assert("read.strs requires database to be class exstra_db", is.exstra_db(database))
-  assert("Need groups.samples or groups.regex to be defined", !is.null(groups.samples) || !is.null(groups.regex))
-  assert("Require exactly one of groups.samples or groups.regex to be defined", xor(is.null(groups.samples), is.null(groups.regex)))
-  assert("This function must have a class to return", !is.null(this.class))
+  testit::assert("read.strs requires database to be class exstra_db", is.exstra_db(database))
+  testit::assert("Need groups.samples or groups.regex to be defined", !is.null(groups.samples) || !is.null(groups.regex))
+  testit::assert("Require exactly one of groups.samples or groups.regex to be defined", xor(is.null(groups.samples), is.null(groups.regex)))
+  testit::assert("This function must have a class to return", !is.null(this.class))
   # Read in data
   counts <- read.delim(file)
   # Add some info to the data
@@ -30,7 +30,7 @@ strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NUL
     if(is.null(names(groups.regex))) {
       names(groups.regex) <- groups.regex
     }
-    assert("Require groups to only to have names 'case', 'control' and 'null'.", is.element(names(groups.regex), c("case", "control", "null")))
+    testit::assert("Require groups to only to have names 'case', 'control' and 'null'.", is.element(names(groups.regex), c("case", "control", "null")))
     groups_all <- factor(rep(NA, dim(counts)[1]), levels = names(groups.regex))
     for(group.name in names(groups.regex)) {
       groups_all[grepl(groups.regex[group.name], counts$sample)] <- group.name
@@ -38,13 +38,13 @@ strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NUL
   }
   if(!is.null(groups.samples)) {
     # Specify the group of samples directly via groups.samples
-    assert("groups.samples must be a list if used, with vectors with names of at least one of 'case', 'control' or 'null'.", 
+    testit::assert("groups.samples must be a list if used, with vectors with names of at least one of 'case', 'control' or 'null'.", 
       is.list(groups.samples), 
       length(groups.samples) > 0,
       !is.null(names(groups.samples)),
       is.element(names(groups.samples), c("case", "control", "null"))
     )
-    assert("groups.samples does not currently accept multiple of the same names for groups, please put all sample names in the one vector under that name", 
+    testit::assert("groups.samples does not currently accept multiple of the same names for groups, please put all sample names in the one vector under that name", 
       length(unique(names(groups.samples))) == length(names(groups.samples)) )
     if(length(groups.samples) == 1 && names(groups.samples) == "case") {
       # only cases described, so make other samples controls
@@ -70,8 +70,8 @@ strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NUL
 #' Create a new exstra_score object
 #' @keywords internal
 exstra_score_new_ <- function(data, db) {
-  assert("data must be of class data.frame", inherits(data, "data.frame"))
-  assert("db must be of class exstra_db", inherits(db, "exstra_db"))
+  testit::assert("data must be of class data.frame", inherits(data, "data.frame"))
+  testit::assert("db must be of class exstra_db", inherits(db, "exstra_db"))
   data <- data.table(data)
   if(!is.element("locus", colnames(data))) {
     if(is.element("disease", colnames(data))) {
@@ -112,7 +112,7 @@ plot_names.exstra_score <- function(x, names = NULL) {
 
 #' @export
 `plot_names<-.exstra_score` <- function(x, value) {
-  assert("data must be of class exstra_db", inherits(x, "exstra_db"))
+  testit::assert("data must be of class exstra_db", inherits(x, "exstra_db"))
   x$samples[names(value), plotname := value]
 }
 
@@ -157,9 +157,9 @@ plot_names.exstra_score <- function(x, names = NULL) {
 #' 
 #' @export
 `[.exstra_score` <- function(x, loc, samp) {
-  assert("locus is not the key of x$data", key(x$data)[1] == "locus")
-  assert("sample is not the key of x$samples", key(x$samples)[1] == "sample")
-  assert("locus not the key of x$db", key(x$db)[1] == "locus")
+  testit::assert("locus is not the key of x$data", key(x$data)[1] == "locus")
+  testit::assert("sample is not the key of x$samples", key(x$samples)[1] == "sample")
+  testit::assert("locus not the key of x$db", key(x$db)[1] == "locus")
   if(!missing(loc)) {
     x$db <- x$db[eval(substitute(loc)), nomatch=0]
     setkey(x$db, locus)
@@ -228,7 +228,7 @@ plot.exstra_score <- function(x, loci = NULL, sample_col = NULL,
   if(!missing(xlim)) {
     xlim_1 <- xlim
   }
-  assert('In plot.exstra_score(), must have xlinked one of "all", "male", "female" or "both"', xlinked %in% c("all", "male", "female", "both"))
+  testit::assert('In plot.exstra_score(), must have xlinked one of "all", "male", "female" or "both"', xlinked %in% c("all", "male", "female", "both"))
   if(xlinked == "both") {
     xlinked_loop <- c("male", "female")
   } else {
@@ -340,7 +340,7 @@ dim.exstra_score <- function(x) {
 #' @export
 as.exstra_score <- function(x, copy = FALSE) {
   #
-  assert("x should inherit from class exstra_score.", is.exstra_score(x))
+  testit::assert("x should inherit from class exstra_score.", is.exstra_score(x))
   if(copy) {
     x <- copy.exstra_score(x)
   }
@@ -350,8 +350,8 @@ as.exstra_score <- function(x, copy = FALSE) {
 
 # Verify keys of exstra_score
 verify.exstra_score <- function(x) {
-  assert("Object should inherit from class exstra_score.", is.exstra_score(x))
-  assert("Key of x$data should be 'locus', 'sample'", identical(key(x$data), c("locus", "sample")))
-  assert("Key of x$samples should be 'sample'.", key(x$samples) == "sample")
+  testit::assert("Object should inherit from class exstra_score.", is.exstra_score(x))
+  testit::assert("Key of x$data should be 'locus', 'sample'", identical(key(x$data), c("locus", "sample")))
+  testit::assert("Key of x$samples should be 'sample'.", key(x$samples) == "sample")
   verify.exstra_db(exstra_wgs_pcr_2)
 }

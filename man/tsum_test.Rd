@@ -4,13 +4,25 @@
 \alias{tsum_test}
 \title{Generate T sum statistics and p-values from simulation.}
 \usage{
-tsum_test(strscore, trim = ifelse(case_control, trim.cc, trim.all),
-  trim.all = 0.15, trim.cc = 0, min.quant = 0.5,
-  give.pvalue = TRUE, B = 999, correction = c("bf", "loci",
-  "samples", "uncorrected"), alpha = 0.05, case_control = FALSE,
-  early_stop = TRUE, early_A = 0.25, early_stop_min = 50,
-  parallel = FALSE, cluster_n = NULL, cluster = NULL,
-  keep.sim.tsum = FALSE)
+tsum_test(
+  strscore,
+  trim = ifelse(case_control, trim.cc, trim.all),
+  trim.all = 0.15,
+  trim.cc = 0,
+  min.quant = 0.5,
+  give.pvalue = TRUE,
+  B = 999,
+  correction = c("bf", "loci", "samples", "uncorrected"),
+  alpha = 0.05,
+  case_control = FALSE,
+  early_stop = TRUE,
+  early_A = 0.25,
+  early_stop_min = 50,
+  parallel = FALSE,
+  cluster_n = NULL,
+  cluster = NULL,
+  keep.sim.tsum = FALSE
+)
 }
 \arguments{
 \item{strscore}{An exstra_score object.}
