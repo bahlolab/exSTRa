@@ -61,6 +61,8 @@ If FALSE, samples with missing sex will also be filtered when xlinked is "male" 
 \item{x_upper_missing}{If xlim is not specified, then loci with no data will have this
 upper x-axis limit.}
 
+\item{main}{Plot title.}
+
 \item{...}{Further arguments to the \code{plot.ecdf} function.}
 }
 \description{

@@ -274,11 +274,12 @@ plot.exstra_tsum <- function(x, loci = NULL, sample_col = NULL,
 }
 
 
-#' Copy an exstra_tsum object
-#' 
-#' Prevents changing both objects on changes by reference, that do not copy on write. 
-#' 
-#' @export
+# Copy an exstra_tsum object
+# 
+# Prevents changing both objects on changes by reference, that do not copy on write. 
+# @param x exstra_tsum object to copy.
+# 
+# @export
 copy.exstra_tsum <- function(x) {
   x <- copy.exstra_score(x)
   x$stats %<>% copy()

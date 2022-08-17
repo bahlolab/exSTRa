@@ -9,7 +9,7 @@
 #'                   "loci" is Bonferroni correction by the number of loci.
 #'                   
 #' @param alpha Significance level alpha.
-#' @param only.sig If TRUE, only return significant results.
+#' @param only.signif If TRUE, only return significant results.
 #' @param modify If TRUE, will modify the tsum$stats table. Effectively ignored if only.sig == TRUE.
 #' @param p.matrix Matrix of p-values for internal use. Should only be used without tsum. 
 #' @return A \code{data.table} keyed by "locus" then "sample". 

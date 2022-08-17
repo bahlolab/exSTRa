@@ -2,23 +2,23 @@ Package: exSTRa
 Type: Package
 Title: Expanded STR algorithm: detecting expansions in Illumina sequencing data
 Version: 0.90.0
-Date: 2020-06-26
+Date: 2022-08-17
 Author: Rick Tankard
-Maintainer: Rick Tankard <rick.tankard@murdoch.edu.au>
+Maintainer: Rick Tankard <tankard.r@wehi.edu.au>
 Description: Detecting expansions with paired-end Illumina sequencing data.
 License: GPL-2
 Encoding: UTF-8
 Depends:
+    R (>= 3.6),
     data.table (>= 1.10.4-3)
 Imports: 
-    methods,
     testit (>= 0.7), 
-    checkmate,
+    checkmate (>= 2.1.0),
     stringr (>= 1.2.0), 
     reshape2 (>= 1.4.3), 
     magrittr (>= 1.5), 
     RColorBrewer (>= 1.1-2),
-    ggplot2
+    ggplot2 (>= 3.3.6)
 Suggests: 
     testthat (>= 2.0.0),
     DiagrammeR (>= 0.9.2),
@@ -26,7 +26,7 @@ Suggests:
     xlsx (>= 0.5.7),
     knitr (>= 1.20),
     rmarkdown (>= 1.11),
-    covr
+    covr (>= 3.5.1)
 RoxygenNote: 7.2.1
 LazyData: true
 Collate:

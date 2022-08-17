@@ -23,11 +23,11 @@ p_values(
 
 \item{alpha}{Significance level alpha.}
 
+\item{only.signif}{If TRUE, only return significant results.}
+
 \item{modify}{If TRUE, will modify the tsum$stats table. Effectively ignored if only.sig == TRUE.}
 
 \item{p.matrix}{Matrix of p-values for internal use. Should only be used without tsum.}
-
-\item{only.sig}{If TRUE, only return significant results.}
 }
 \value{
 A \code{data.table} keyed by "locus" then "sample". 

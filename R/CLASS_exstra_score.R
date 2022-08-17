@@ -199,6 +199,7 @@ plot_names.exstra_score <- function(x, names = NULL) {
 #'        If FALSE, samples with missing sex will also be filtered when xlinked is "male" or "female". 
 #' @param x_upper_missing If xlim is not specified, then loci with no data will have this
 #'        upper x-axis limit. 
+#' @param main Plot title.
 #' @param ... Further arguments to the \code{plot.ecdf} function.
 #' 
 #' @examples 
@@ -293,11 +294,11 @@ plot.exstra_score <- function(x, loci = NULL, sample_col = NULL,
 # TODO: easy renaming of samples
 
 
-#' Copy an exstra_score object.
-#' 
-#' Prevents changing both objects on changes by reference, that do not copy on write. 
-#'   
-#' @export
+# Copy an exstra_score object.
+# 
+# Prevents changing both objects on changes by reference, that do not copy on write. 
+# @param x exstra_score object to copy.
+# @export
 copy.exstra_score <- function(x) {
   x$data %<>% copy()
   x$db %<>% copy()
@@ -307,9 +308,9 @@ copy.exstra_score <- function(x) {
 }
 
 
-#' Number of data points in exstra_score object
-#' 
-#' @export
+# Number of data points in exstra_score object
+# @param x exstra_score object.
+# 
 length.exstra_score <- function(x) {
   x$data[, .N]
 }
@@ -320,13 +321,12 @@ length.exstra_score <- function(x) {
   stop("Cannot reassign length to exstra_score object.")
 }
 
-#' Dimension of exstra_score object
-#' 
-#' @param x An exstra_score object.
-#' 
-#' @return Vector of length two, the number of loci and number of samples respectively.
-#' 
-#' @export
+# Dimension of exstra_score object
+# 
+# @param x An exstra_score object.
+# 
+# @return Vector of length two, the number of loci and number of samples respectively.
+# 
 dim.exstra_score <- function(x) {
   c(exstra_wgs_pcr_2$db[, .N], exstra_wgs_pcr_2$samples[, .N])
 }

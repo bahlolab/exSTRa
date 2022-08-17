@@ -184,7 +184,7 @@ summary_ps <- function(ps, significance.threshold = NULL) {
 }
 
 sensitivity_specificity <- function(x, truelist, significance.threshold = NULL) {
-  if(class(x) != "matrix") {
+  if(inherits(x, "matrix")) {
     stop("x is not matrix")
   }
   if(is.data.table(truelist)) {
