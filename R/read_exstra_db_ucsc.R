@@ -1,3 +1,8 @@
+#' Read simple repeats track that's been downloaded from UCSC Genome Browser.
+#' 
+#' @param file File path.
+#' @param header Explicitly indicate is there is a header in the file. Determined automatically otherwise.
+#' @param ... Additional arguments to read.delim()
 #' @export
 read_exstra_db_ucsc <- function(file, header, ...) {
   if (!is.character(file)) stop("file must be character")

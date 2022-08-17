@@ -23,7 +23,7 @@ suggested_exstra_pipeline()
 }
 }
 \seealso{
-\pkg{\link{DiagrammeR}}
+\pkg{DiagrammeR}
 
-\pkg{\link{DiagrammeRsvg}}
+\pkg{DiagrammeRsvg}
 }

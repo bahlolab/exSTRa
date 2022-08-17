@@ -2,6 +2,10 @@
 # this function is from http://www.magesblog.com/2013/04/how-to-change-alpha-value-of-colours-in.html
 # so may need a rewrite
 # old name: add.alpha
+#' Add transparency to a color value
+#' 
+#' @param col Input color string.
+#' @param alpha Transparency level, a numeric from 0 to 1 inclusive.
 #' @export
 add_alpha_ <- function(col, alpha = 1){
   if(missing(col))

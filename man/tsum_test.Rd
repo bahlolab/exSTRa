@@ -31,6 +31,8 @@ tsum_test(
 level (rounded up). Must be at least 0 and less than 0.5, but values close
 to 0.5 may remove all samples and hence result in an error.}
 
+\item{trim.all}{Trim value when looking for outliers in all samples. Default 0.15.}
+
 \item{trim.cc}{Trim value used in case-control analysis. Default of 0.}
 
 \item{min.quant}{Only quantiles above this value are used in constructing the statistic.}

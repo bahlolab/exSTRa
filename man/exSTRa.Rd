@@ -25,7 +25,7 @@ Maintainer:  \email{tankard@wehi.edu.au}
 \references{
 Detecting known repeat expansions with standard protocol next generation sequencing, towards developing a single screening test for neurological repeat expansion disorders.
 Rick M. Tankard, Martin B. Delatycki, Paul J. Lockhart, Melanie Bahlo.
-bioRxiv 157792; June 2017. doi: \code{\link{https://doi.org/10.1101/157792}}
+bioRxiv 157792; June 2017. doi: \code{https://doi.org/10.1101/157792}
 }
 \keyword{ package }
 \seealso{

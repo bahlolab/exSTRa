@@ -1,5 +1,7 @@
 # Guess the type of data inside a txt file by its header
-#' @export
+#
+# @param file File path to check.
+# @param ... Additional arguments to read_exstra_db_known()
 read_exstra_db_txt_guesser <- function(file, ...) {
   # Scan the header
   filefirst <- read.delim(file, nrows = 1, comment.char = "#") 

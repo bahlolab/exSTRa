@@ -2,7 +2,9 @@
 # Includes information on STRs, whether they are disease-causing or of a general nature
 
 
-# check if the object is of this class
+#' check if the object is part of the exstra_db class
+#' 
+#' @param x Object to test.
 #' @import data.table
 #' @import stringr
 #' @import testit
@@ -34,7 +36,7 @@ print.exstra_db <- function(x, ...) {
     sep = "")
 }
 
-#' @export
+#' 
 exstra_db_text <- function(file) {
   if (!is.character(file)) stop("file must be character")
   stop("Text exstra_db reading not yet implemented")
@@ -48,9 +50,13 @@ loci.exstra_db <- function(x, ...) {
   loci
 }
 
-# TODO: mae these into generics
+# TODO: make these into generics
 
-#' @export
+# Give text info for the locus
+# 
+# Usually used in plot titles.
+# @param x object of class exstra_db
+# @param locus Locus to get the information of
 loci_text_info.exstra_db <- function(x, locus) {
   # gives text info for the locus, usually used in plot titles
   # TODO: modify this:
@@ -87,12 +93,23 @@ loci_text_info.exstra_db <- function(x, locus) {
 }
 
 
-
+#' Give the reference or normal size of the STR
+#' 
+#' This function may not work as intended may be deleted.
+#' 
+#' @param x Object that inherits from exstra_db
+#' @param locus Locus name to get the reference size from.
 #' @export
 loci_normal <- function(x, locus) {
   loci_normal_exp (x, locus)[1]
 }
 
+#' Give the minimum expanded size of the STR
+#' 
+#' This function may not work as intended may be deleted.
+#' 
+#' @param x Object that inherits from exstra_db
+#' @param locus Locus name to get the reference size from.
 #' @export
 loci_min_exp <- function(x, locus) {
   # Give the minimum expanded STR in bp
