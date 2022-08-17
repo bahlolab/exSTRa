@@ -1,6 +1,10 @@
 # old name: rsd_filter_lower_than_expected
-# Filter read scores with lower than expected scores, under
-# the assumption each base in the sequence is uniform and independent.
+#' Filter read scores with lower than expected scores
+#' 
+#' Under the assumption each base in the sequence is uniform and independent.
+#' This may help to filter reads not overlapping the STR.
+#' 
+#' @param strscore exstra_score object.
 #' @export
 filter_low_scores  <- function(strscore) {
   strscore$db[, unit_length := nchar(as.character(motif))]

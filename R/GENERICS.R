@@ -29,6 +29,12 @@ plot_names <- function (x, names) {
 }
 
 # make data.table copy() also work properly on our class
+#' Copy an object with a data.table.
+#' 
+#' Copy-on-write doesn't apply to data.table. 
+#' Instead, an explicit copy() must be used.
+#' 
+#' @param x Object to copy.
 #' @export
 copy <- function (x) {
   UseMethod("copy", x)

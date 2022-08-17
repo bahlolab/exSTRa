@@ -2,7 +2,9 @@
 # Includes information on STRs, whether they are disease-causing or of a general nature
 
 
-# check if the object is of this class
+#' check if the object is part of the exstra_db class
+#' 
+#' @param x Object to test.
 #' @import data.table
 #' @import stringr
 #' @import testit
@@ -34,7 +36,7 @@ print.exstra_db <- function(x, ...) {
     sep = "")
 }
 
-#' @export
+#' 
 exstra_db_text <- function(file) {
   if (!is.character(file)) stop("file must be character")
   stop("Text exstra_db reading not yet implemented")
