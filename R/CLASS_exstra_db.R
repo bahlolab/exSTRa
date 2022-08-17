@@ -50,8 +50,13 @@ loci.exstra_db <- function(x, ...) {
   loci
 }
 
-# TODO: mae these into generics
+# TODO: make these into generics
 
+#' Give text info for the locus
+#' 
+#' Usually used in plot titles.
+#' @param x object of class exstra_db
+#' @param locus Locus to get the information of
 #' @export
 loci_text_info.exstra_db <- function(x, locus) {
   # gives text info for the locus, usually used in plot titles
@@ -89,12 +94,23 @@ loci_text_info.exstra_db <- function(x, locus) {
 }
 
 
-
+#' Give the reference or normal size of the STR
+#' 
+#' This function may not work as intended may be deleted.
+#' 
+#' @param x Object that inherits from exstra_db
+#' @param locus Locus name to get the reference size from.
 #' @export
 loci_normal <- function(x, locus) {
   loci_normal_exp (x, locus)[1]
 }
 
+#' Give the minimum expanded size of the STR
+#' 
+#' This function may not work as intended may be deleted.
+#' 
+#' @param x Object that inherits from exstra_db
+#' @param locus Locus name to get the reference size from.
 #' @export
 loci_min_exp <- function(x, locus) {
   # Give the minimum expanded STR in bp

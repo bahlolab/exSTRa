@@ -1,6 +1,11 @@
+#' Give the reference or normal size of the STR
+#' 
+#' This function may not work as intended may be deleted.
+#' 
+#' @param x Object that inherits from exstra_db
+#' @param locus Locus name to get the reference size from.
 #' @export
 loci_normal_exp <- function(x, locus) {
-  # Give the reference or normal size of the STR
   if(is.element("strdata", class(x))) {
     x <- x$db
   }
