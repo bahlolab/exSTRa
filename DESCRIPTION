@@ -9,7 +9,7 @@ Description: Detecting expansions with paired-end Illumina sequencing data.
 License: GPL-2
 Encoding: UTF-8
 Depends:
-    R (>= 3.6.3),
+    R (>= 3.6),
     data.table (>= 1.10.4-3)
 Imports: 
     testit (>= 0.7), 
