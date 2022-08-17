@@ -36,12 +36,6 @@ print.exstra_db <- function(x, ...) {
     sep = "")
 }
 
-#' 
-exstra_db_text <- function(file) {
-  if (!is.character(file)) stop("file must be character")
-  stop("Text exstra_db reading not yet implemented")
-}
-
 #' @export
 loci.exstra_db <- function(x, ...) {
   # Give the loci names
