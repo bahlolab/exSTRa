@@ -47,17 +47,17 @@
 #' @export
 rbind_score_list <- function(strscore_list, idcol = "data_group", 
   allow_sample_clash = FALSE, fill = FALSE) {
-  assert("strscore_list must be a list", inherits(strscore_list, "list"))
+  testit::assert("strscore_list must be a list", inherits(strscore_list, "list"))
   if(length(strscore_list) == 0) {
     stop("List is empty")
   }
-  assert("Not all elements are rep score data", is.exstra_score(strscore_list[[1]]))
+  testit::assert("Not all elements are rep score data", is.exstra_score(strscore_list[[1]]))
   if(length(strscore_list) == 1) {
     return(strscore_list[[1]])
   }
   for(i in seq_along(strscore_list)) {
-    assert(paste("Element", i, "is not exstra_score"), is.exstra_score(strscore_list[[i]]))
-    assert("STR database is of mixed types", strscore_list[[1]]$input_type == strscore_list[[i]]$input_type)
+    testit::assert(paste("Element", i, "is not exstra_score"), is.exstra_score(strscore_list[[i]]))
+    testit::assert("STR database is of mixed types", strscore_list[[1]]$input_type == strscore_list[[i]]$input_type)
   }
   
   # Could be written much better, all in one go here instead, rather than recursion

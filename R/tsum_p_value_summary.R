@@ -21,7 +21,7 @@ tsum_p_value_summary <- function(tsum,
   # bonferroni.by.locus = TRUE, # more complicated to implement
   bonferroni.size = NULL) {
   # Check inputs, maybe...
-  assert("tsum should be an exstra_tsum object", is.exstra_tsum(tsum))
+  testit::assert("tsum should be an exstra_tsum object", is.exstra_tsum(tsum))
   if(sum(tsum$stats$p.value > 1, na.rm = TRUE)) {
     stop("Some p-values appear to be above 1. This may be an exSTRa package bug.")
   }

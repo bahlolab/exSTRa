@@ -85,16 +85,16 @@ tsum_test <- function(strscore,
   ) 
 {
   # Check inputs
-  assert("strscore should be from class exstra_score.", is.exstra_score(strscore))
-  assert("trim should be a number that is at least 0 and less than 0.5.", is.numeric(trim),
+  testit::assert("strscore should be from class exstra_score.", is.exstra_score(strscore))
+  testit::assert("trim should be a number that is at least 0 and less than 0.5.", is.numeric(trim),
     trim >= 0, trim < 0.5)
-  assert("min.quant should be a number from 0 to less than 1.", is.numeric(min.quant), min.quant >= 0, min.quant < 1)
-  assert("give.pvalue should be logical", is.logical(give.pvalue), !is.na(give.pvalue))
-  assert("B should be at least 1 and a whole-number.", B >= 1)
-  assert("parallel should be logical.", is.logical(parallel), !is.na(parallel))
-  assert("When specified, cluster should be a cluster object from the parallel package.", 
+  testit::assert("min.quant should be a number from 0 to less than 1.", is.numeric(min.quant), min.quant >= 0, min.quant < 1)
+  testit::assert("give.pvalue should be logical", is.logical(give.pvalue), !is.na(give.pvalue))
+  testit::assert("B should be at least 1 and a whole-number.", B >= 1)
+  testit::assert("parallel should be logical.", is.logical(parallel), !is.na(parallel))
+  testit::assert("When specified, cluster should be a cluster object from the parallel package.", 
     is.null(cluster) || inherits(cluster, "cluster"))
-  assert("cluster_n should be at least 1 and a whole-number.", is.null(cluster_n) || cluster_n >= 1)
+  testit::assert("cluster_n should be at least 1 and a whole-number.", is.null(cluster_n) || cluster_n >= 1)
   
   # Warning for parallel usage
   if(parallel) {
