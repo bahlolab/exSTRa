@@ -234,34 +234,34 @@ tsum_test <- function(strscore,
 
 # exp_test_parallel_big <- tsum_test(exstra_wgs_pcr_2, parallel = TRUE, B = 9999, cluster_n = 4)
 
-#' Determine tsum_statistic_1locus assuming input data is for only one locus
-#' 
-#' Private function
-#' 
-#' @param strscore_loc exstra_strscore object for a single locus (do not give multiple loci).
-#' @param case_control Set to TRUE if this is a case-control analysis, and FALSE if looking for outliers in all samples.
-#' @param min.quant Only quantiles above this value are used in constructing the statistic.  
-#' @param trim Trim this proportion of data points at each quantile 
-#'             level (rounded up). Must be at least 0 and less than 0.5, but values close
-#'             to 0.5 may remove all samples and hence result in an error.  
-#' @param give.pvalue If TRUE, generate the p-value in the simulation.
-#' @param B Number of simulations in calculating null distributions. The denominator will
-#'          be B + 1, hence values of B = 10^i - 1 will result in p-values that are 
-#' @param parallel Use the parallel package when simulating the distribution, creating the
-#'                 required cluster. 
-#'                 If cluster is specified then this option makes no difference. 
-#' @param cluster  A cluster object from the parallel package. Use if you wish to set up 
-#'                 the cluster yourself or reuse an existing cluster. 
-#' @param early_stop Simulation may use less replicates when all p-values are large, controlled with early_A.
-#' @param early_A  Simulations may stop when p.value.sd < early_A * min(p.value). 
-#'                 Checked approximately when the number of simulations has doubled.
-#' @param min_stop Minimum number of simulations before stopping.
-#' @param verbose  If TRUE, report if stopped early, and to what number of simulations.
-#' 
-#' @import data.table
-#' @import stringr
-#' @import testit
-#' @import parallel
+# Determine tsum_statistic_1locus assuming input data is for only one locus
+# 
+# Private function
+# 
+# @param strscore_loc exstra_strscore object for a single locus (do not give multiple loci).
+# @param case_control Set to TRUE if this is a case-control analysis, and FALSE if looking for outliers in all samples.
+# @param min.quant Only quantiles above this value are used in constructing the statistic.  
+# @param trim Trim this proportion of data points at each quantile 
+#             level (rounded up). Must be at least 0 and less than 0.5, but values close
+#             to 0.5 may remove all samples and hence result in an error.  
+# @param give.pvalue If TRUE, generate the p-value in the simulation.
+# @param B Number of simulations in calculating null distributions. The denominator will
+#          be B + 1, hence values of B = 10^i - 1 will result in p-values that are 
+# @param parallel Use the parallel package when simulating the distribution, creating the
+#                 required cluster. 
+#                 If cluster is specified then this option makes no difference. 
+# @param cluster  A cluster object from the parallel package. Use if you wish to set up 
+#                 the cluster yourself or reuse an existing cluster. 
+# @param early_stop Simulation may use less replicates when all p-values are large, controlled with early_A.
+# @param early_A  Simulations may stop when p.value.sd < early_A * min(p.value). 
+#                 Checked approximately when the number of simulations has doubled.
+# @param min_stop Minimum number of simulations before stopping.
+# @param verbose  If TRUE, report if stopped early, and to what number of simulations.
+# 
+# @import data.table
+# @import stringr
+# @import testit
+# @import parallel
 tsum_statistic_1locus <- function(
   strscore_loc,
   case_control = FALSE,
