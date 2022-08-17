@@ -4,11 +4,22 @@
 \alias{plot_multi}
 \title{Multiple STR score ECDF plots}
 \usage{
-plot_multi(strscore, prefix = "exSTRa_plot", dir = "images/",
-  plot_cols = NULL, color_only = NULL, plot_types = 1,
-  alpha_control = 0.5, alpha_case = NULL, legend = TRUE,
-  legend_control = TRUE, controls_label = "controls",
-  cases_label = "cases", custom_legend = NULL, ...)
+plot_multi(
+  strscore,
+  prefix = "exSTRa_plot",
+  dir = "images/",
+  plot_cols = NULL,
+  color_only = NULL,
+  plot_types = 1,
+  alpha_control = 0.5,
+  alpha_case = NULL,
+  legend = TRUE,
+  legend_control = TRUE,
+  controls_label = "controls",
+  cases_label = "cases",
+  custom_legend = NULL,
+  ...
+)
 }
 \arguments{
 \item{strscore}{exstra_score object.}

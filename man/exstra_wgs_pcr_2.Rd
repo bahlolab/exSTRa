@@ -4,13 +4,15 @@
 \name{exstra_wgs_pcr_2}
 \alias{exstra_wgs_pcr_2}
 \title{Repeat score data from cohort WGS_PCR_2.}
-\format{An exstra_score object:
+\format{
+An exstra_score object:
 \describe{
   \item{data}{A data.table repeat scores, one row for each read}
   \item{samples}{A data.table of input samples}
   \item{db}{A data.table of the known loci}
   \item{input_type}{Indication that the loci are referred to by name (as opposed to genomic position)}
-}}
+}
+}
 \source{
 Rick M. Tankard, Martin B. Delatycki, Paul J. Lockhart, 
         Melanie Bahlo. 
