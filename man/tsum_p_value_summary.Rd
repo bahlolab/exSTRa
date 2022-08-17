@@ -4,8 +4,13 @@
 \alias{tsum_p_value_summary}
 \title{create summary of significance on a exstra_tsum object}
 \usage{
-tsum_p_value_summary(tsum, p = c(1e-04, 0.001, 0.01, 0.05),
-  bonferroni = TRUE, raw = TRUE, bonferroni.size = NULL)
+tsum_p_value_summary(
+  tsum,
+  p = c(1e-04, 0.001, 0.01, 0.05),
+  bonferroni = TRUE,
+  raw = TRUE,
+  bonferroni.size = NULL
+)
 }
 \arguments{
 \item{tsum}{An exstra_tsum object.}
