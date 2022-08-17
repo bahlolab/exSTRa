@@ -6,6 +6,9 @@
 \usage{
 \method{copy}{exstra_tsum}(x)
 }
+\arguments{
+\item{x}{exstra_tsum object to copy.}
+}
 \description{
 Prevents changing both objects on changes by reference, that do not copy on write.
 }

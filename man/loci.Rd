@@ -8,6 +8,8 @@ loci(x, ...)
 }
 \arguments{
 \item{x}{object of an exSTRa class.}
+
+\item{...}{additional arguments to loci}
 }
 \value{
 The loci of \code{x}.
