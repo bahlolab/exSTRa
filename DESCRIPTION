@@ -27,7 +27,7 @@ Suggests:
     knitr (>= 1.20),
     rmarkdown (>= 1.11),
     covr
-RoxygenNote: 7.0.2
+RoxygenNote: 7.2.1
 LazyData: true
 Collate:
     'CLASS_exstra_db.R'
