@@ -52,12 +52,11 @@ loci.exstra_db <- function(x, ...) {
 
 # TODO: make these into generics
 
-#' Give text info for the locus
-#' 
-#' Usually used in plot titles.
-#' @param x object of class exstra_db
-#' @param locus Locus to get the information of
-#' @export
+# Give text info for the locus
+# 
+# Usually used in plot titles.
+# @param x object of class exstra_db
+# @param locus Locus to get the information of
 loci_text_info.exstra_db <- function(x, locus) {
   # gives text info for the locus, usually used in plot titles
   # TODO: modify this:
