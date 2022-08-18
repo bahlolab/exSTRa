@@ -861,19 +861,6 @@ performance_from_stat_matrix <- function(stat_matrix, actual, main = NULL, pdfou
   list(auc = auc_value, stat_dt = stat_dt)
 }
 
-# summarise sensitivity/specificity 
-sen_spec_all <- function(ps_list, truelist) {
-  sen_spec <- data.frame(test = character(), sensitivity = numeric(), specificity = numeric(), tp = numeric(), fp = numeric(), fn = numeric(), tn = numeric(), stringsAsFactors = FALSE)
-  for(px_name in names(ps_list)) {
-    px <- ps_list[[px_name]]
-    ss <- sensitivity_specificity(px, truelist)
-    sen_spec <- rbind(sen_spec, list(test = px_name, sensitivity = ss$sensitivity, specificity = ss$specificity, tp = ss$confusion[1,1], fp = ss$confusion[2,1], fn = ss$confusion[1,2], tn = ss$confusion[2,2]))
-    sen_spec$test %<>% as.character()
-    #sen_spec <- rbind(sen_spec, c(sensitivity=ss$sensitivity, ss$specificity, (ss$confusion %>% as.vector)))
-  }
-  sen_spec
-}
-
 
 # parallel replicate, from:
 #https://stackoverflow.com/questions/19281010/simplest-way-to-do-parallel-replicate
