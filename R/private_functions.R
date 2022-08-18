@@ -176,59 +176,6 @@ trim_index_ <- function(dim1, trim) {
 }
 
 
-quant_statistic_sampp <- function(qmmat, sample = NULL, qs = NULL, 
-  case_samples = NULL,
-  ...) {
-  # get the quantile statistic for multiple samples
-  # qmmat: a quantile matrix from the make_quantiles_matrix() function
-  # sample: samples to get the statistic of. If NULL, give all samples in qmmat
-  # qs: keeps the top number of quantiles, you probably do not want to use this
-  # case_samples: if not NULL, only calculate for these samples in case-control setting.
-  #               Other cases are excluded in each calculation.
-  # ... further arguments to quant_statistic(), most interesting is:
-  #     quant keeps quantiles above its value only when qs is not specified. The default 
-  #         keeps all values above the median (quant = 0.5)
-  #     trim removes the top proportion of data points at each quantile 
-  #         (rounded to the nearest sample) (0 <= trim < 1), default 0 at time of writing
-  if(is.list(qmmat) && !is.null(qmmat$y.mat)) {
-    qmmat <- qmmat$y.mat
-  }
-  testit::assert("qmmat is not a matrix or list with $y.mat", is.matrix(qmmat))
-  testit::assert("sample is not a character, numeric or null", is.null(sample) || is.character(sample) || is.numeric(sample))
-  testit::assert("qs is not numeric", is.null(qs) || is.numeric(qs))
-  testit::assert("qs is not single", is.null(qs) || length(qs) == 1)
-  
-  ti <- 0
-  if(!is.null(case_samples)) {
-    if(is.null(sample)) {
-      sample <- case_samples
-    }
-    testit::assert("All case samples should be in qmmat", all(case_samples %in% rownames(qmmat)))
-    t_out <- rep(NA, length(sample) - length(case_samples))
-    control_samples <- rownames(qmmat)[! rownames(qmmat) %in% case_samples]
-    for(samp in sample) {
-      ti <- ti + 1
-      # Get only the correct qmmat columns
-      qmmat0 <- qmmat[c(samp, control_samples),]
-      t_out[ti] <- quant_statistic(qmmat0, sample = samp, qs = qs, 
-        subject_in_background = FALSE, ...) # TODO: maybe trim = 0?
-    }
-    names(t_out) <- sample
-  } else {
-    # No samples marked explicitly as cases
-    if(is.null(sample)) {
-      sample <- seq_len(dim(qmmat)[1])
-    }
-    t_out <- rep(NA, length(sample))
-    for(samp in sample) {
-      ti <- ti + 1
-      t_out[ti] <- quant_statistic(qmmat, sample = samp, qs = qs, ...)
-    }
-    names(t_out) <- rownames(qmmat) # may be a bug if only some samples are required
-  }
-  t_out
-}
-
 generate_T_stat_performance <- function(strscore, actual, main = NULL, pdfout = NULL,
   quant = 0.5, trim = 0.2, plot = TRUE) {
   # Generating performance for the T stat
