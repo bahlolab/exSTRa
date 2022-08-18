@@ -30,6 +30,7 @@ Suggests:
     xlsx (>= 0.5.7),
     knitr (>= 1.20),
     rmarkdown (>= 1.11),
+    vdiffr (>= 1.0.4),
     covr (>= 3.5.1)
 RoxygenNote: 7.2.1
 LazyData: true
