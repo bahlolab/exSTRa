@@ -13,5 +13,7 @@ utils::globalVariables(c(
   "N",
   "p.value",
   "plotname",
+  "ord",
+  "keepme",
   "bf"
 ))
