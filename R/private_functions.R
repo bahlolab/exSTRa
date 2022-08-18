@@ -68,36 +68,6 @@ plot_many_str_score <- function(strscore, typename, plot_cols, loci = NULL,
 }
 
 
-sensitivity_specificity <- function(x, truelist, significance.threshold = NULL) {
-  if(inherits(x, "matrix")) {
-    stop("x is not matrix")
-  }
-  if(is.data.table(truelist)) {
-    # convert to the expected list format
-    truelist_dt <- truelist
-    truelist <- list()
-    for(loc in colnames(x)) {
-      truelist[[loc]] <- actual_expansions[locus == loc & sample %in% rownames(x), sample]
-    }
-  }
-  strsig <- str_significant(x, significance.threshold)
-  x_n <- length(x)
-  confusion <- matrix(0, ncol = 2, nrow = 2)
-  # for(loc in names(truelist)) {
-  for(loc in colnames(x)) {
-    trues <- truelist[[loc]] %>% length
-    true_p <- is.element(truelist[[loc]], strsig[[loc]]) %>% sum
-    false_n <- trues - true_p
-    false_p <- (!is.element(strsig[[loc]], truelist[[loc]])) %>% sum
-    confusion %<>% `+`(matrix(c(true_p, false_p, false_n, 0), ncol = 2, nrow = 2))
-  }
-  confusion[2,2] <-  x_n - sum(confusion)
-  sensitivity <- confusion[1,1] / sum(confusion[1,])
-  specificity <- confusion[2,2] / sum(confusion[2,])
-  list(sensitivity = sensitivity, specificity = specificity, confusion = confusion)
-}
-
-
 sample_safe <- function(x, size, replace = FALSE, ...) {
   # Sometimes the input is only of length one, causing different behaviour
   if(length(x) == 1) {
