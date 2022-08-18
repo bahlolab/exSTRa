@@ -1,4 +1,4 @@
-# tsum_test() may not be giving T statistics
+# tsum_test()
 
     Code
       print(tsum_test(exstra_wgs_pcr_2[c("HD", "SCA6", "SCA1", "FRDA")]))
