@@ -1,5 +1,3 @@
-context("Testing that the package handles sample names that look like numbers")
-
 # setup
 str_score_num <- copy(exstra_wgs_pcr_2["HD"])
 str_score_num_0 <- copy(str_score_num)

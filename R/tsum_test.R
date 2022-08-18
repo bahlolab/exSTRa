@@ -86,16 +86,16 @@ tsum_test <- function(strscore,
   ) 
 {
   # Check inputs
-  testit::assert("strscore should be from class exstra_score.", is.exstra_score(strscore))
-  testit::assert("trim should be a number that is at least 0 and less than 0.5.", is.numeric(trim),
+  assert("strscore should be from class exstra_score.", is.exstra_score(strscore))
+  assert("trim should be a number that is at least 0 and less than 0.5.", is.numeric(trim),
     trim >= 0, trim < 0.5)
-  testit::assert("min.quant should be a number from 0 to less than 1.", is.numeric(min.quant), min.quant >= 0, min.quant < 1)
-  testit::assert("give.pvalue should be logical", is.logical(give.pvalue), !is.na(give.pvalue))
-  testit::assert("B should be at least 1 and a whole-number.", B >= 1)
-  testit::assert("parallel should be logical.", is.logical(parallel), !is.na(parallel))
-  testit::assert("When specified, cluster should be a cluster object from the parallel package.", 
+  assert("min.quant should be a number from 0 to less than 1.", is.numeric(min.quant), min.quant >= 0, min.quant < 1)
+  assert("give.pvalue should be logical", is.logical(give.pvalue), !is.na(give.pvalue))
+  assert("B should be at least 1 and a whole-number.", B >= 1)
+  assert("parallel should be logical.", is.logical(parallel), !is.na(parallel))
+  assert("When specified, cluster should be a cluster object from the parallel package.", 
     is.null(cluster) || inherits(cluster, "cluster"))
-  testit::assert("cluster_n should be at least 1 and a whole-number.", is.null(cluster_n) || cluster_n >= 1)
+  assert("cluster_n should be at least 1 and a whole-number.", is.null(cluster_n) || cluster_n >= 1)
   
   # Warning for parallel usage
   if(parallel) {
@@ -262,6 +262,7 @@ tsum_test <- function(strscore,
 # @import stringr
 # @import testit
 # @import parallel
+#' @importFrom stats mad median qnorm rnorm
 tsum_statistic_1locus <- function(
   strscore_loc,
   case_control = FALSE,
@@ -276,7 +277,6 @@ tsum_statistic_1locus <- function(
   min_stop = 50,
   verbose = TRUE)
 {
-  
   qm <- make_quantiles_matrix(strscore_loc, sample = NULL, 
     method = "quantile7")
   
@@ -297,7 +297,6 @@ tsum_statistic_1locus <- function(
     }
     qmt <- qmt[, seq(ncol(qmt) - qs + 1, ncol(qmt))]
   }
-  
   
   if(case_control) {
     qmtest <- qmt[strscore_loc$samples[group == "case" & ! sample %in% qm$low.count, sample], ]
@@ -559,6 +558,7 @@ p_value_sd_ <- function(p, B, N) {
 
 
 # Trim a matrix, without preserving sample order
+#' @keywords internal
 trim_matrix_ <- function(qm, trim = 0) {
   ti <- trim_index_(nrow(qm), trim)
   apply(qm, 2, sort.int, partial = ti)[trim_vector(nrow(qm), trim), ]

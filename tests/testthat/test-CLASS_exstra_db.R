@@ -35,7 +35,9 @@ test_that("loci on exstra_db works", {
 X_verify <- copy(exstra_known)
 setkey(X_verify$db, "motif")
 test_that("verify.exstra_db() works", {
+  local_edition(2)
   expect_true(verify.exstra_db(exstra_known))
-  expect_error(verify.exstra_db(X_verify))
+  expect_error(verify.exstra_db(X_verify)) 
   expect_error(verify.exstra_db(6))
 })
+

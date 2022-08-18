@@ -19,7 +19,7 @@
 #'         simulation.
 #' 
 #' @import magrittr
-#' @import testit
+#' @importFrom testit assert
 #' @export
 p_values <- function(
   tsum, 
@@ -31,14 +31,14 @@ p_values <- function(
   ) {
   # verify input
   if(!missing(tsum)) {
-    testit::assert("tsum should be an exstra_tsum object.", is.exstra_tsum(tsum))
+    assert("tsum should be an exstra_tsum object.", is.exstra_tsum(tsum))
   }
-  testit::assert("correction should be a character or logical vector", 
+  assert("correction should be a character or logical vector", 
     is.character(correction) || is.logical(correction), 
     is.vector(correction))
-  testit::assert("alpha should be a probability value.", alpha >= 0, alpha <= 1)
-  testit::assert("only.signif should be a logical.", is.logical(only.signif))
-  testit::assert("", xor(is.null(p.matrix), missing(tsum)))
+  assert("alpha should be a probability value.", alpha >= 0, alpha <= 1)
+  assert("only.signif should be a logical.", is.logical(only.signif))
+  assert("", xor(is.null(p.matrix), missing(tsum)))
   
   # Get p.matrix
   if(is.null(p.matrix)) {
@@ -48,10 +48,11 @@ p_values <- function(
       out.table %<>% copy()
     }
   } else {
-    testit::assert("p.matrix is not a matrix", is.matrix(p.matrix))
+    assert("p.matrix is not a matrix", is.matrix(p.matrix))
     n_tests <- sum (!is.na(p.matrix))
     out.table <- p.matrix %>% 
-      reshape2:::melt.matrix(value.name = "p.value", 
+      # NOTE: this used to be reshape2:::melt.matrix. It was changed due save a R CMD check NOTE. 
+      reshape2::melt(value.name = "p.value", 
                              varnames = c("sample", "locus"), 
                              as.is = TRUE
         ) %>%

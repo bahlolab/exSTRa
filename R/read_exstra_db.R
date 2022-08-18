@@ -24,7 +24,7 @@
 read_exstra_db <- function(file, ...) {
   # Open up a file to load a STR database object
   if (!is.character(file)) stop("file must be character")
-  testit::assert("Input file name is an empty string", file != "")
+  assert("Input file name is an empty string", file != "")
   strdatabase <- switch(str_extract(file, "[^.]*$"), # note str_extract is a stringr function, can be very confusing
     xlsx = read_exstra_db_xlsx(file, ...),
     read_exstra_db_txt_guesser(file, ...))
