@@ -68,17 +68,6 @@ plot_many_str_score <- function(strscore, typename, plot_cols, loci = NULL,
 }
 
 
-str_significant <- function(ps, significance.threshold = NULL) {
-  if(is.null(significance.threshold)) {
-    significance.threshold <- 0.05 / length(ps %>% as.vector)
-  }
-  sig_list <- list()
-  for(loc in colnames(ps)) {
-    sig_list[[loc]] <- which(ps[, loc] <= significance.threshold) %>% names
-  }
-  sig_list
-}
-
 summary_ps <- function(ps, significance.threshold = NULL) {
   str_sig <- str_significant(ps, significance.threshold)
   nloc <- str_sig %>% length
