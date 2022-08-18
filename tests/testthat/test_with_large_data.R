@@ -1,6 +1,4 @@
 ## After running exSTRa_score_analysis.R
-context("Test with a real dataset")
-# 
 
 expected_text <- "SCA1 (coding CAG) norm: 30 (91bp) , exp: 39 (117bp)"
 
