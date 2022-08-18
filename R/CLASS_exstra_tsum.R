@@ -143,6 +143,7 @@ print.exstra_tsum <- function(x, ...) {
 #' @import data.table
 #' @import stringr
 #' @import testit
+#' @importFrom grDevices rainbow
 #' @export
 plot.exstra_tsum <- function(x, loci = NULL, sample_col = NULL, 
   correction = NULL, alpha = NULL, # when NULL, use significance as-is
