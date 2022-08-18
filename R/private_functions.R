@@ -68,36 +68,6 @@ plot_many_str_score <- function(strscore, typename, plot_cols, loci = NULL,
 }
 
 
-summary_ps <- function(ps, significance.threshold = NULL) {
-  str_sig <- str_significant(ps, significance.threshold)
-  nloc <- str_sig %>% length
-  by.locus <- data.frame(
-    locus = str_sig %>% names, 
-    n.sig =  sapply(str_sig, length), 
-    significant = sapply(str_sig, function(x) {paste(x, collapse = ",")}),
-    stringsAsFactors = FALSE
-  )
-  by.sample <- data.frame(
-    row.names = rownames(ps), 
-    sample = rownames(ps),
-    n.sig =  0, 
-    significant = rep("", dim(ps)[1]),
-    stringsAsFactors = FALSE
-  )
-  by.sample$significant <- as.character(by.sample$significant) # because it kept being made into a factor :(
-  for(rowi in seq_along(str_sig)) {
-    for(samp in str_sig[[rowi]]) {
-      if(by.sample[samp, "significant"] == "") {
-        by.sample[samp, "significant"] <- names(str_sig)[rowi]
-      } else {
-        by.sample[samp, "significant"] <- paste(by.sample[samp, "significant"], names(str_sig)[rowi], sep = ",")
-      }
-      by.sample[samp, "n.sig"] %<>% `+`(1)
-    }
-  }
-  list(by.locus = by.locus, by.sample = by.sample)
-}
-
 sensitivity_specificity <- function(x, truelist, significance.threshold = NULL) {
   if(inherits(x, "matrix")) {
     stop("x is not matrix")
