@@ -148,16 +148,7 @@ make_quantiles_matrix <- function(strscore, loc = TRUE, sample = NULL, read_coun
       # sometimes there is no data to impute
       v <- rep(as.numeric(NA), n.quantiles)
     } else if(method == "midquantile") {
-      if(length(unique(y)) == 1) {
-        # midquantile is no good if all the values are the same
-        # TODO: this can probably be improved, can result in all quantiles being 
-        #       the same as they should be for quantiles, but may be poor for 
-        #       analysis
-        v <- rep(y[1], n.quantiles)
-      } else {
-        xmid <- midquantile(y, probs = probs)
-        v <- xmid$y
-      }
+      stop("midquantile is no longer available in exSTRa,")
     } else if(method == "quantile") {
       v <- quantile(y, probs, names = FALSE, type = quantile_type)
     } else {
