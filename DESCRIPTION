@@ -6,7 +6,7 @@ Date: 2022-08-18
 Author: Rick Tankard
 Maintainer: Rick Tankard <tankard.r@wehi.edu.au>
 Description: Detecting expansions with paired-end Illumina sequencing data.
-License: GPL-2
+License: GPL-2 + LICENSE
 Encoding: UTF-8
 Depends:
     R (>= 3.6),
