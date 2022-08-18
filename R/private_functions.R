@@ -1,3 +1,12 @@
+remove_below_quant <- function(loc_data, quant = 0.5) {
+  loc_data[, ord := order(prop), by = sample] [, keepme := ord > max(ord) * quant, by = sample]
+  loc_data <- loc_data[identity(keepme), ]
+  loc_data[, c("ord","keepme") := NULL]
+  loc_data
+}
+
+
+#' @importFrom grDevices dev.off pdf
 plot_many_str_score <- function(strscore, typename, plot_cols, loci = NULL, 
   color_only = NULL, plot_types = 1, dirbase = "images/", 
   alpha_control = 0.5, alpha_case = NULL,
@@ -84,6 +93,7 @@ sample_safe <- function(x, size, replace = FALSE, ...) {
   sample(x, size, replace = replace, ...)
 }
 
+#' @importFrom stats quantile
 make_quantiles_matrix <- function(strscore, loc = TRUE, sample = NULL, read_count_quant = 1, 
   probs = NULL, quant = NULL, method = "midquantile", n.quantiles = NULL, min.n = 3) {
   # Create the matrix of quantiles
@@ -111,7 +121,7 @@ make_quantiles_matrix <- function(strscore, loc = TRUE, sample = NULL, read_coun
   if(is.null(sample)) {
     sample <- strscore$samples$sample
   }
-  testit::assert("Cannot set both probs and n.quantiles", is.null(probs) || is.null(n.quantiles))
+  assert("Cannot set both probs and n.quantiles", is.null(probs) || is.null(n.quantiles))
   if(is.null(probs) && is.null(n.quantiles)) {
     n.quantiles <- round(loc_data[, .N, by = sample][, quantile(N, read_count_quant, names = FALSE)])
   }
@@ -129,7 +139,7 @@ make_quantiles_matrix <- function(strscore, loc = TRUE, sample = NULL, read_coun
     quantile_type <- as.numeric(sub("quantile", "", method))
     method <- "quantile"
   }
-  testit::assert("samples is not the key of strscore$samples", key(strscore$samples)[1] == "sample")
+  assert("samples is not the key of strscore$samples", key(strscore$samples)[1] == "sample")
   quant.matrix <- matrix(numeric(), length(sample), length(probs))
   for(sampi in seq_along(sample)) {
     # note this "sample" is the one within the object
@@ -138,16 +148,7 @@ make_quantiles_matrix <- function(strscore, loc = TRUE, sample = NULL, read_coun
       # sometimes there is no data to impute
       v <- rep(as.numeric(NA), n.quantiles)
     } else if(method == "midquantile") {
-      if(length(unique(y)) == 1) {
-        # midquantile is no good if all the values are the same
-        # TODO: this can probably be improved, can result in all quantiles being 
-        #       the same as they should be for quantiles, but may be poor for 
-        #       analysis
-        v <- rep(y[1], n.quantiles)
-      } else {
-        xmid <- midquantile(y, probs = probs)
-        v <- xmid$y
-      }
+      stop("midquantile is no longer available in exSTRa,")
     } else if(method == "quantile") {
       v <- quantile(y, probs, names = FALSE, type = quantile_type)
     } else {

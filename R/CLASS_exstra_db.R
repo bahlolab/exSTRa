@@ -40,7 +40,7 @@ print.exstra_db <- function(x, ...) {
 loci.exstra_db <- function(x, ...) {
   # Give the loci names
   loci <- x$db[order(input_order), locus]
-  testit::assert("Could not identify the str loci", !is.null(loci))
+  assert("Could not identify the str loci", !is.null(loci))
   loci
 }
 
@@ -54,13 +54,13 @@ loci.exstra_db <- function(x, ...) {
 loci_text_info.exstra_db <- function(x, locus) {
   # gives text info for the locus, usually used in plot titles
   # TODO: modify this:
-  testit::assert("The class of x must be exstra_db", is.exstra_db(x))
+  assert("The class of x must be exstra_db", is.exstra_db(x))
   locus.in <- locus
   if(x$input_type == "named") {
     x.info <- x$db[locus.in == locus]
     #TODO: this is wrong
-    testit::assert(paste("The locus", locus, "was not found"), dim(x.info)[1] >= 1)
-    testit::assert(paste("There were multiple entries for locus", locus), dim(x.info)[1] <= 1)
+    assert(paste("The locus", locus, "was not found"), dim(x.info)[1] >= 1)
+    assert(paste("There were multiple entries for locus", locus), dim(x.info)[1] <= 1)
     rs.len <- with(x.info, nchar(as.character(motif)))
     normal.copyNum <- with(x.info, floor(copyNum))
     normal.size.bp <- with(x.info, round(copyNum * rs.len))
@@ -73,8 +73,8 @@ loci_text_info.exstra_db <- function(x, locus) {
   } else if (x$input_type == "ucsc") {
     x.info <- x$db[locus.in == locus] 
     #TODO: this is wrong
-    testit::assert(paste("The locus", locus, "was not found"), dim(x.info)[1] >= 1)
-    testit::assert(paste("There were multiple entries for locus", locus), dim(x.info)[1] <= 1)
+    assert(paste("The locus", locus, "was not found"), dim(x.info)[1] >= 1)
+    assert(paste("There were multiple entries for locus", locus), dim(x.info)[1] <= 1)
     rs.len <- with(x.info, nchar(as.character(motif)))
     # normal.copyNum <- with(x.info, floor(copyNum))
     # normal.size.bp <- with(x.info, floor(copyNum * rs.len))
@@ -112,7 +112,7 @@ loci_min_exp <- function(x, locus) {
 
 #' @export
 `[.exstra_db` <- function(x, fil) {
-  testit::assert("locus not the key of x$db", key(x$db)[1] == "locus")
+  assert("locus not the key of x$db", key(x$db)[1] == "locus")
   x$db <- x$db[eval(substitute(fil))]
   x
 }
@@ -138,7 +138,7 @@ copy.exstra_db <- function(x, ...) {
 
 # Verify keys of exstra_db
 verify.exstra_db <- function(x) {
-  testit::assert("Object should inherit from class exstra_db.", is.exstra_db(x))
-  testit::assert("Key of x$db should be 'locus'", key(x$db) == "locus")
+  assert("Object should inherit from class exstra_db.", is.exstra_db(x))
+  assert("Key of x$db should be 'locus'", key(x$db) == "locus")
   invisible(TRUE)
 }

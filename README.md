@@ -30,7 +30,7 @@ At present, the pipeline requires:
 
 A database of repeats is required, with files for the known disorder loci included for hg19, GRCh37, hg38 or GRCh38 in the `inst/extdata` directory.
 A database of all STRs genome wide in available to [download from FigShare](https://figshare.com/s/bb1e6358781bb3ca12c2).
-An example script to generate this database of all STRs genome wide, or those in genes that are expressed in the brain, is provide in `inst/tools/prepare_exSTRa_input_db.R`.
+An example script to generate this database of all STRs genome wide, or those in genes that are expressed in the brain, is provided in `inst/tools/prepare_exSTRa_input_db.R`.
 
 Use the Perl scripts and modules from https://github.com/bahlolab/Bio-STR-exSTRa to analyse reads in BAM files. This generates STR counts. 
 In the future this functionality may be included within the R exSTRa package. 
