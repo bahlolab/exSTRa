@@ -1,6 +1,5 @@
 # create graphs of the suggested pipeline
 
-
 #' Create a graph of the suggested pipeline
 #' 
 #' @param file Output SVG file name, if required.
@@ -13,7 +12,6 @@
 #' @seealso \pkg{DiagrammeR}
 #' @seealso \pkg{DiagrammeRsvg}
 #' @export
-#' 
 suggested_exstra_pipeline <- function(file = NULL, show.with.file = FALSE) {
   gv <- DiagrammeR::grViz(system.file("extdata", "exSTRa_pipeline_graph.gv", package = "exSTRa"))
   if(!is.null(file)) {
