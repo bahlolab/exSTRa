@@ -997,36 +997,6 @@ sd_of_trimmed <- function(...) {
   sqrt( variance_of_trimmed(...) )
 }
 
-
-# This runs the simulation with the given paramets
-# Use ... to pass options to simulate_ecdf_quant_statistic()
-# This also passes remaining options onto quant_statistic() and quant_statistic_sampp()
-simulation_run <- function(data, B = 99, trim = 0.15,
-    T_stats = NULL, ...) {
-  N <- data$samples[, .N]
-  L <- data$db[, .N]
-  p.matrix <- matrix(nrow = N, ncol = L)
-  rownames(p.matrix) <- data$samples$sample
-  colnames(p.matrix) <- loci(data)
-  qmmats <- list()
-  xecs <- list()
-  for(loc in colnames(p.matrix)) {
-    message("Simulating distribution for ", loc)
-    qm_loop <- make_quantiles_matrix(data, loc, read_count_quant = 1, 
-      method = "quantile7", min.n = 3)
-    T_stat_loc <- T_stats[locus == loc, ]
-    T_stat <- T_stat_loc[, tsum]
-    names(T_stat) <- T_stat_loc[, sample]
-    xec <- simulate_ecdf_quant_statistic(qm_loop, B, 
-      T_stat = T_stat, ...)
-    p.matrix[names(xec$p), loc] <- xec$p
-    qmmats[[loc]] <- qm_loop
-    xecs[[loc]] <- xec
-  }
-  
-  list(p.matrix = p.matrix, qmmats = qmmats, xecs = xecs)
-}
-
 # parallel replicate, from:
 #https://stackoverflow.com/questions/19281010/simplest-way-to-do-parallel-replicate
 # usage: 
