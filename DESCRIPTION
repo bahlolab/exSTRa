@@ -61,3 +61,4 @@ Collate:
     'tsum_test.R'
     'zzz.R'
 VignetteBuilder: knitr
+Config/testthat/edition: 3
