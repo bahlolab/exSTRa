@@ -1,9 +1,9 @@
 read_exstra_db_xlsx <- function(file, ...) {
   if (!is.character(file)) stop("file must be character")
   data <- xlsx::read.xlsx(file, 1, stringsAsFactors = FALSE, ...)
-  testit::assert("xlsx requires Disease or locus column", ! is.null(data$Disease) || ! is.null(data$locus))
+  assert("xlsx requires Disease or locus column", ! is.null(data$Disease) || ! is.null(data$locus))
   if(is.null(data$Disease)) {
-    testit::assert("xlsx requires Disease or locus column", ! is.null(data$locus))
+    assert("xlsx requires Disease or locus column", ! is.null(data$locus))
     data$Disease <- data$locus
   }
   data <- replace(data, data == "NA", NA)
