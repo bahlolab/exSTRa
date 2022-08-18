@@ -14,7 +14,7 @@
 #' @export
 is.exstra_score <- function(x) inherits(x, "exstra_score")
 
-# 
+#' @importFrom utils read.delim
 strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NULL, this.class = NULL) {
   # Load the STR data, and give it the right class
   testit::assert("read.strs requires database to be class exstra_db", is.exstra_db(database))
@@ -210,6 +210,8 @@ plot_names.exstra_score <- function(x, names = NULL) {
 #' # X-linked disorder, show male samples only:
 #' plot(exstra_wgs_pcr_2, "SBMA", xlinked = "male")
 #' 
+#' @importFrom stats ecdf
+#' @importFrom graphics abline grid text
 #' @export
 plot.exstra_score <- function(x, loci = NULL, sample_col = NULL, 
   refline = TRUE, ylab="Fn(x)", verticals = TRUE,

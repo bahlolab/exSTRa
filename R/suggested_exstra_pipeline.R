@@ -11,6 +11,7 @@
 #' }
 #' @seealso \pkg{DiagrammeR}
 #' @seealso \pkg{DiagrammeRsvg}
+#' @importFrom methods show
 #' @export
 suggested_exstra_pipeline <- function(file = NULL, show.with.file = FALSE) {
   gv <- DiagrammeR::grViz(system.file("extdata", "exSTRa_pipeline_graph.gv", package = "exSTRa"))

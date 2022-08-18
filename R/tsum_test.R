@@ -262,6 +262,7 @@ tsum_test <- function(strscore,
 # @import stringr
 # @import testit
 # @import parallel
+#' @importFrom stats mad median qnorm rnorm
 tsum_statistic_1locus <- function(
   strscore_loc,
   case_control = FALSE,
@@ -276,7 +277,6 @@ tsum_statistic_1locus <- function(
   min_stop = 50,
   verbose = TRUE)
 {
-  
   qm <- make_quantiles_matrix(strscore_loc, sample = NULL, 
     method = "quantile7")
   
@@ -297,7 +297,6 @@ tsum_statistic_1locus <- function(
     }
     qmt <- qmt[, seq(ncol(qmt) - qs + 1, ncol(qmt))]
   }
-  
   
   if(case_control) {
     qmtest <- qmt[strscore_loc$samples[group == "case" & ! sample %in% qm$low.count, sample], ]
@@ -559,6 +558,7 @@ p_value_sd_ <- function(p, B, N) {
 
 
 # Trim a matrix, without preserving sample order
+#' @keywords internal
 trim_matrix_ <- function(qm, trim = 0) {
   ti <- trim_index_(nrow(qm), trim)
   apply(qm, 2, sort.int, partial = ti)[trim_vector(nrow(qm), trim), ]

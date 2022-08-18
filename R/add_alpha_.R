@@ -6,6 +6,7 @@
 #' 
 #' @param col Input color string.
 #' @param alpha Transparency level, a numeric from 0 to 1 inclusive.
+#' @importFrom grDevices col2rgb rgb
 #' @export
 add_alpha_ <- function(col, alpha = 1){
   if(missing(col))
