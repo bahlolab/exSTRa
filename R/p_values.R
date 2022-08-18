@@ -19,7 +19,7 @@
 #'         simulation.
 #' 
 #' @import magrittr
-#' @import testit
+#' @importFrom testit assert
 #' @export
 p_values <- function(
   tsum, 
