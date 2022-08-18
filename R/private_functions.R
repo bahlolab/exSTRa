@@ -121,7 +121,7 @@ make_quantiles_matrix <- function(strscore, loc = TRUE, sample = NULL, read_coun
   if(is.null(sample)) {
     sample <- strscore$samples$sample
   }
-  testit::assert("Cannot set both probs and n.quantiles", is.null(probs) || is.null(n.quantiles))
+  assert("Cannot set both probs and n.quantiles", is.null(probs) || is.null(n.quantiles))
   if(is.null(probs) && is.null(n.quantiles)) {
     n.quantiles <- round(loc_data[, .N, by = sample][, quantile(N, read_count_quant, names = FALSE)])
   }
@@ -139,7 +139,7 @@ make_quantiles_matrix <- function(strscore, loc = TRUE, sample = NULL, read_coun
     quantile_type <- as.numeric(sub("quantile", "", method))
     method <- "quantile"
   }
-  testit::assert("samples is not the key of strscore$samples", key(strscore$samples)[1] == "sample")
+  assert("samples is not the key of strscore$samples", key(strscore$samples)[1] == "sample")
   quant.matrix <- matrix(numeric(), length(sample), length(probs))
   for(sampi in seq_along(sample)) {
     # note this "sample" is the one within the object

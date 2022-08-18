@@ -29,7 +29,7 @@ exstra_tsum_new_ <- function(strscore, tsum, p.values = NULL,
   correction = c("bf", "locus", "uncorrected"),
   alpha = 0.05,
   only.signif = FALSE) {
-  testit::assert("strscore should be from class exstra_score", is.exstra_score(strscore))
+  assert("strscore should be from class exstra_score", is.exstra_score(strscore))
   
   setkey(tsum, locus, sample)
   if(is.null(p.values)) {
@@ -151,16 +151,16 @@ plot.exstra_tsum <- function(x, loci = NULL, sample_col = NULL,
   alpha_nonsignif = 0.25, 
   ...) {
   # check input
-  testit::assert("x should be an exstra_tsum object.", is.exstra_tsum(x))
+  assert("x should be an exstra_tsum object.", is.exstra_tsum(x))
   if(!is.null(loci)) {
-    testit::assert("loci should be a character vector", is.vector(loci), is.character(loci))
+    assert("loci should be a character vector", is.vector(loci), is.character(loci))
     # only work on loci we want to plot
     x <- x[loci]
   }
   if(!is.null(sample_col)) {
-    testit::assert("sample_col should be a character vector", is.vector(sample_col), 
+    assert("sample_col should be a character vector", is.vector(sample_col), 
       is.character(sample_col))
-    testit::assert("sample_col should be named", !is.null(names(sample_col)))
+    assert("sample_col should be named", !is.null(names(sample_col)))
   }
   
   # construct colours
@@ -252,7 +252,7 @@ plot.exstra_tsum <- function(x, loci = NULL, sample_col = NULL,
 #' 
 #' @export
 `[.exstra_tsum` <- function(x, loc, samp) {
-  testit::assert("locus is not the key of x$db", key(x$db)[1] == "locus")
+  assert("locus is not the key of x$db", key(x$db)[1] == "locus")
   # recycle code for exstra_score:
   if(missing(loc)) {
     if(!missing(samp)) {
