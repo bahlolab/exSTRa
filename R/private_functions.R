@@ -176,50 +176,6 @@ trim_index_ <- function(dim1, trim) {
 }
 
 
-generate_T_stat_performance <- function(strscore, actual, main = NULL, pdfout = NULL,
-  quant = 0.5, trim = 0.2, plot = TRUE) {
-  # Generating performance for the T stat
-  # strscore the usual
-  # actual a data.table with columns sample and locus, consisting of conditional positives only
-  # main: title for the ROC curve
-  # pdfout, if specified, the plot is written to this path in PDF format
-  T_stats_list <- list()
-  for(loc in loci(strscore)) {
-    qm <- make_quantiles_matrix(strscore, loc = loc, sample = NULL, read_count_quant = 1, 
-      method = "quantile7", min.n = 3)
-    T_stats_loc <- quant_statistic_sampp(qm, quant = quant, trim = trim) # quant at default of 0.5
-    T_stats_list[[loc]] <- data.table(sample = names(T_stats_loc), T = T_stats_loc)
-  }
-  T_stats <- rbindlist(T_stats_list, idcol = "locus")
-  
-  # set expansion condition
-  T_stats$expansion_condition <- FALSE
-  setkey(T_stats, sample, locus)
-  setkey(actual, sample, locus)
-  T_stats[actual, expansion_condition := TRUE] 
-  
-  # ROC curve
-  preds <- with(T_stats, prediction( predictions = T, labels = expansion_condition ))
-  perf <- performance(preds, measure="tpr", x.measure="fpr")
-  
-  auc_value <- auc(expansion_condition ~ T, T_stats) %>% as.numeric()
-  
-  if(plot) {
-    if(!is.null(pdfout)) {
-      pdf(pdfout, useDingbats=FALSE)
-    }
-    plot(perf, colorize=T, lwd=2.5, main = main) #, main = paste0("ROC-", filebase))
-    text(0.8, .15, labels = paste("AUC =", round(auc_value, 4)))
-    if(!is.null(pdfout)) {
-      dev.off()
-    }
-  }
-  
-  list(auc = auc_value, T_stats = T_stats)
-}
-
-
-
 simulate_ecdf_quant_statistic <- function(qmmat, B = 9999, trim = 0.15, 
   subject_in_background = TRUE, 
   sort_sim_qm = TRUE, 
