@@ -817,51 +817,6 @@ simulate_ecdf_quant_statistic <- function(qmmat, B = 9999, trim = 0.15,
 }
 
 
-
-performance_from_stat_matrix <- function(stat_matrix, actual, main = NULL, pdfout = NULL,
-  plot = TRUE, transform = identity) {
-  # Generating performance from a statistics matrix, where
-  # the rows are over samples, and columns loci. 
-  # The known status of samples must also be provided
-  #
-  # stat_matrix: a matrix as specified above. 
-  # actual: a data.table with columns sample and locus, consisting of conditional positives only
-  # main: title for the ROC curve
-  # pdfout, if specified, the plot is written to this path in PDF format
-  # transform: a function to apply to the stat values
-  
-  # TODO: allow data.table() input, with sample and locus, as this will make this better
-  
-  # convert input matrix to a data.table()
-  stat_dt <- stat_matrix %<>% reshape2:::melt.matrix(value.name = "stat", varnames = c("sample", "locus")) %>% data.table()
-  
-  # set expansion condition
-  stat_dt$expansion_condition <- FALSE
-  setkey(stat_dt, sample, locus)
-  setkey(actual, sample, locus)
-  stat_dt[actual, expansion_condition := TRUE] 
-  
-  # ROC curve
-  preds <- with(stat_dt, prediction( predictions = transform(stat), labels = expansion_condition ))
-  perf <- performance(preds, measure="tpr", x.measure="fpr")
-  
-  auc_value <- auc(expansion_condition ~ stat, stat_dt) %>% as.numeric()
-  
-  if(plot) {
-    if(!is.null(pdfout)) {
-      pdf(pdfout, useDingbats=FALSE)
-    }
-    plot(perf, colorize=TRUE, lwd=2.5, main = main) #, main = paste0("ROC-", filebase))
-    text(0.8, .15, labels = paste("AUC =", round(auc_value, 4)))
-    if(!is.null(pdfout)) {
-      dev.off()
-    }
-  }
-  
-  list(auc = auc_value, stat_dt = stat_dt)
-}
-
-
 # parallel replicate, from:
 #https://stackoverflow.com/questions/19281010/simplest-way-to-do-parallel-replicate
 # usage: 
