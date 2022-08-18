@@ -1,10 +1,3 @@
-remove_below_quant <- function(loc_data, quant = 0.5) {
-  loc_data[, ord := order(prop), by = sample] [, keepme := ord > max(ord) * quant, by = sample]
-  loc_data <- loc_data[identity(keepme), ]
-  loc_data[, c("ord","keepme") := NULL]
-  loc_data
-}
-
 plot_many_str_score <- function(strscore, typename, plot_cols, loci = NULL, 
   color_only = NULL, plot_types = 1, dirbase = "images/", 
   alpha_control = 0.5, alpha_case = NULL,
