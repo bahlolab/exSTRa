@@ -874,63 +874,6 @@ sen_spec_all <- function(ps_list, truelist) {
   sen_spec
 }
 
-# 
-midpoint_removal_imputing <- function(strscore, method, sort.in.original = TRUE, boxplot = FALSE) {
-  #
-  # sort.in.original: if TRUE, put the imputed values together with the orignal and sort
-  # before calculating differences
-  testit::assert("Not strdata", is.strdata(strscore))
-  quantile_diff <- data.table()
-  for(loc in loci(strscore)) {
-    for(samp in strscore$samples$sample) {
-      loc_data <- strscore[loc, samp]
-      if(loc_data$data[, .N] < 5) {
-        # Since we need at least 3 points remaining for make_quantiles_matrix() to give an answer
-        # 5 - 2 = 3 
-        next
-      }
-      if(mod(loc_data$data[, .N], 2) == 0) {
-        # even number of rows so remove lowest one
-        loc_data$data <- loc_data$data[2:.N]
-        #TODO: if 0 rows, this is bad
-      }
-      prune_data <- loc_data
-      prune_data$data <- prune_data$data[order(rep)][seq(1, .N, 2)]
-      n_out <- prune_data$data[, .N] - 1
-        probs <- seq(1, 2 * n_out, 2) / (2 * n_out)
-        #seq(3 / (n_out * 4), (n_out * 4 - 3) / (n_out * 4), length.out = n_out)
-        qm_mid <- make_quantiles_matrix(prune_data, method = method, probs = probs)
-      
-      # Consider that the sorting order may need to be different
-      if(length(qm_mid$low.count) != 0) {
-        diffs <- c()
-      } else if(sort.in.original){
-        newy <- sort(c(qm_mid$y.mat, prune_data$data$rep))
-        diffs <- as.vector(newy - loc_data$data[order(rep)]$rep)
-        diffs <- diffs[seq(2, length(diffs), 2)]
-      } else {
-        diffs <- as.vector(qm_mid$y.mat - loc_data$data[order(rep)][seq(2, .N, 2)]$rep)               
-      }
-      
-      if(length(diffs) > 0) {
-        if(length(loc_data$data[order(rep)][seq(2, .N, 2)]$rep) != length(qm_mid$y.mat)) {
-          show(loc)
-          show(samp)
-          stop("About to insert things that are a different length")
-        }
-        quantile_diff <- rbind(quantile_diff, data.table(locus = loc, sample = samp, diff = diffs, qmid = as.vector(qm_mid$y.mat), probs = qm_mid$x))
-      }
-    }
-    if(boxplot){
-      boxplot(diff ~ sample, quantile_diff[locus == loc], main = strloci_text_info(strscore, loc))
-      abline(h = 0, col = rgb(216, 98, 18, 150, maxColorValue = 255), lty = 4)
-    }
-  }
-  
-  quantile_diff$locus <- ordered(quantile_diff$locus, unique(quantile_diff$locus))
-  quantile_diff
-}
-
 
 # parallel replicate, from:
 #https://stackoverflow.com/questions/19281010/simplest-way-to-do-parallel-replicate
