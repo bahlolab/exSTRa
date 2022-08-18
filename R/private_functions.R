@@ -1,3 +1,4 @@
+#' @importFrom grDevices dev.off pdf
 plot_many_str_score <- function(strscore, typename, plot_cols, loci = NULL, 
   color_only = NULL, plot_types = 1, dirbase = "images/", 
   alpha_control = 0.5, alpha_case = NULL,
@@ -84,6 +85,7 @@ sample_safe <- function(x, size, replace = FALSE, ...) {
   sample(x, size, replace = replace, ...)
 }
 
+#' @importFrom stats quantile
 make_quantiles_matrix <- function(strscore, loc = TRUE, sample = NULL, read_count_quant = 1, 
   probs = NULL, quant = NULL, method = "midquantile", n.quantiles = NULL, min.n = 3) {
   # Create the matrix of quantiles
