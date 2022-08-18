@@ -1,25 +1,3 @@
-qq.unif <- function(ps, threshold = NULL, fudge = 2e-16, ...) {
-  ps_in <- ps
-  ps <- -log10(as.vector(ps) + fudge)
-  p_null <-  -log10(ppoints(length(ps)) + fudge)
-  threshold_log <- -log10(threshold + fudge)
-  qqplot(p_null, ps, 
-    xlab = expression(Expected~~-log[10](italic(p) + e)), 
-    ylab = expression(Observed~~-log[10](italic(p) + e)),
-    #ylim = range(0, ps),
-    ylim = range(0, -log10(fudge)), # not quite what it should be
-    ...)
-  ps.order <- order(ps)
-  abline(a = 0, b = 1, col = "red")
-  if(!is.null(threshold)) {
-    abline(h = threshold_log , col = "blue")
-  }
-  if(!is.null(names(ps_in))) {
-    text(p_null %>% rev, ps[ps.order], labels = ifelse(threshold_log <= ps[ps.order], names(ps_in[ps.order]), ""), 
-      pos = 2.5)
-  }
-}
-
 remove_below_quant <- function(loc_data, quant = 0.5) {
   loc_data[, ord := order(prop), by = sample] [, keepme := ord > max(ord) * quant, by = sample]
   loc_data <- loc_data[identity(keepme), ]
