@@ -52,7 +52,7 @@ plot(str_score["HD"])
 
 # Defining cases by sample name directly:
 str_score_HD_cases <- read_score (
-    file = system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa"), 
+    file = system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt.gz", package = "exSTRa"), 
     database = system.file("extdata", "repeat_expansion_disorders_hg19.txt", package = "exSTRa"),
     groups.samples = list(case = c("WGSrpt_10", "WGSrpt_12")),
     filter.low.counts = TRUE
@@ -67,7 +67,7 @@ str_db <- read_exstra_db(
             system.file("extdata", "repeat_expansion_disorders_hg19.txt", package = "exSTRa")
           )
 str_score <- read_score (
-    file = system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt", package = "exSTRa"), 
+    file = system.file("extdata", "HiSeqXTen_WGS_PCR_2.txt.gz", package = "exSTRa"), 
     database = str_db, 
     groups.regex = c(control = "^WGSrpt_0[24]$", case = ""), 
     filter.low.counts = TRUE
