@@ -30,3 +30,5 @@ wgs_pcr_2_sex <- c(
 exstra_wgs_pcr_2$samples[names(wgs_pcr_2_sex), sex := wgs_pcr_2_sex]
 
 exstra_wgs_pcr_2$samples[, plotname := sub("WGSrpt_", "", sample)]
+
+usethis::use_data(exstra_wgs_pcr_2)
