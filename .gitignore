@@ -10,3 +10,4 @@ example_images/
 Rplots.pdf
 #inst/doc # may ignore in the future if this package in included in CRAN
 #doc # may ignore in the future if this package in included in CRAN
+/Meta/
