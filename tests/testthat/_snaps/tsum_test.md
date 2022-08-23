@@ -3,10 +3,10 @@
     Code
       print(tsum_test(exstra_wgs_pcr_2[c("HD", "SCA6", "SCA1", "FRDA")]))
     Message <simpleMessage>
+      Working on locus FRDA
       Working on locus HD
       Working on locus SCA1
       Working on locus SCA6
-      Working on locus FRDA
     Output
       exstra_tsum object with 72 T sum statistics ($stats),
         with p-values calculated ($stats),
