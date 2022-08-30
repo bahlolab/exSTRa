@@ -10,9 +10,9 @@ name: R
 
 on:
   push:
-    branches: [master, devel_tankard, devel_tankard_notes, beta]
+    branches: [master, devel_tankard, devel_tankard_notes, beta, devel_score_bam]
   pull_request:
-    branches: [master, devel_tankard, devel_tankard_notes, beta]
+    branches: [master, devel_tankard, devel_tankard_notes, beta, devel_score_bam]
 
 permissions:
   contents: read

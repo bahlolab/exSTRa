@@ -2,9 +2,9 @@
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
-    branches: [master, devel_tankard, devel_tankard_notes, beta]
+    branches: [master, devel_tankard, devel_tankard_notes, beta, devel_score_bam]
   pull_request:
-    branches: [master, devel_tankard, devel_tankard_notes, beta]
+    branches: [master, devel_tankard, devel_tankard_notes, beta, devel_score_bam]
 
 name: R-CMD-check
 
