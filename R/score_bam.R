@@ -11,25 +11,27 @@
 score_bam <- function(paths, database, sample_names = NULL, 
                       groups.regex = NULL, groups.samples = NULL, 
                       filter.low.counts = TRUE,
-                      scan_bam_flag = NULL, qname = FALSE) {
+                      scan_bam_flag = scanBamFlag(
+                        isUnmappedQuery = FALSE, isSecondaryAlignment = FALSE,
+                        isNotPassingQualityControls = FALSE, isDuplicate = FALSE
+                      ), 
+                      qname = FALSE) {
   if (!require("Rsamtools", quietly = TRUE))
     stop("The package 'Rsamtools' from Bioconductor is required to run this function.")
   checkmate::assert_flag(qname)
   checkmate::assert_flag(filter.low.counts)
   if(!is.null(groups.regex)) checkmate::assert_character(groups.regex)
   
+  if(is.character(database)) {
+    checkmate::assert_character(database, len = 1)
+    # as database is presumbly a file, try to read from it
+    database <- read_exstra_db(database)
+  }
+  
   if(!is.null(sample_names) && length(paths) != length(sample_names)) {
     stop("Length of 'sample_names' does not match length of 'paths'.")
   }
   
-  if(is.null(scan_bam_flag)) {
-    scan_bam_flag <- scanBamFlag(
-      isUnmappedQuery = FALSE, 
-      isSecondaryAlignment = FALSE,
-      isNotPassingQualityControls = FALSE,
-      isDuplicate = FALSE
-    )
-  }
   out_list <- list()
   out_headers <- list()
   i <- 1
@@ -91,7 +93,7 @@ score_bam_1 <- function(path, database, sample_names = NULL,
     for(mc in motif_cycles(motif)) {
       lscore <- lscore + str_count(bam_dt_list[[i]]$seq, mc)
     }
-    bam_dt_list[[i]][, score := lscore]
+    bam_dt_list[[i]][, rep := lscore]
   }
    
   output_table <- rbindlist(bam_dt_list, idcol = "locus")
