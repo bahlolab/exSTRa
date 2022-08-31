@@ -58,17 +58,17 @@ bamfiles <- dir_ls("/stornext/Bioinf/data/Bioinformatics/SNPchipdata/MPS_samples
 names(bamfiles) <- str_extract(bamfiles, "(?<=bam_recal/).+(?=_bowtie2_recal)")
 
 x_overlap <- score_bam(bamfiles, exstra_known, sample_names = names(bamfiles), groups.regex = c(case = "^WGSrpt", control = ""), 
-               verbosity = 2, filter.low.counts = FALSE)
+               verbosity = 2, filter.low.counts = TRUE)
 x_count <- score_bam(bamfiles, exstra_known, sample_names = names(bamfiles), groups.regex = c(case = "^WGSrpt", control = ""), 
-                       verbosity = 2, filter.low.counts = FALSE, method = "count")
+                       verbosity = 2, filter.low.counts = TRUE, method = "count")
 
 tsxo <- tsum_test(x_overlap)
 tsxc <- tsum_test(x_count)
-
 tswgs2 <- tsum_test(exstra_wgs_pcr_2)
 
-par(mfrow = c(2, 1))
-plot(tsx["HD"])
+par(mfrow = c(3, 1))
+plot(tsxc["HD"])
+plot(tsxo["HD"])
 plot(tswgs2["HD"])
 
 p_values(tsxo, only.signif = TRUE)
