@@ -57,18 +57,26 @@ bamfiles <- dir_ls("/stornext/Bioinf/data/Bioinformatics/SNPchipdata/MPS_samples
        glob = "*.bam")
 names(bamfiles) <- str_extract(bamfiles, "(?<=bam_recal/).+(?=_bowtie2_recal)")
 
-x <- score_bam(bamfiles, exstra_known, sample_names = names(bamfiles), groups.regex = c(case = "^WGSrpt", control = ""), 
+x_overlap <- score_bam(bamfiles, exstra_known, sample_names = names(bamfiles), groups.regex = c(case = "^WGSrpt", control = ""), 
                verbosity = 2, filter.low.counts = FALSE)
+x_count <- score_bam(bamfiles, exstra_known, sample_names = names(bamfiles), groups.regex = c(case = "^WGSrpt", control = ""), 
+                       verbosity = 2, filter.low.counts = FALSE, method = "count")
 
-tsx <- tsum_test(x)
+tsxo <- tsum_test(x_overlap)
+tsxc <- tsum_test(x_count)
 
+tswgs2 <- tsum_test(exstra_wgs_pcr_2)
 
-tswgs2 <- tsum_test(exstra_wgs_pcr_2[c("HD", "SCA1")])
-
-par(mfrow = c(1, 2))
+par(mfrow = c(2, 1))
 plot(tsx["HD"])
 plot(tswgs2["HD"])
 
+p_values(tsxo, only.signif = TRUE)
+p_values(tsxc, only.signif = TRUE)
+p_values(tswgs2, only.signif = TRUE)
+
+par(mfrow = c(1, 1))
+plot(tsx)
 
 sbf <- scanBamFlag(
   isUnmappedQuery = FALSE, isSecondaryAlignment = FALSE,
