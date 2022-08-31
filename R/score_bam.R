@@ -17,9 +17,12 @@ score_bam <- function(paths, database, sample_names = NULL,
                         isUnmappedQuery = FALSE, isSecondaryAlignment = FALSE,
                         isNotPassingQualityControls = FALSE, isDuplicate = FALSE
                       ), 
-                      qname = FALSE, verbosity = 1) {
+                      qname = FALSE, method = c("overlap", "count"), 
+                      verbosity = 1
+              ) {
   if (!require("Rsamtools", quietly = TRUE))
     stop("The package 'Rsamtools' from Bioconductor is required to run this function.")
+  method <- match.arg(method)
   checkmate::assert_flag(qname)
   checkmate::assert_flag(filter.low.counts)
   if(!is.null(groups.regex)) checkmate::assert_character(groups.regex)
@@ -51,12 +54,11 @@ score_bam <- function(paths, database, sample_names = NULL,
     if(verbosity >= 1) message("Reading sample ", sn)
     out_list[[sn]] <- score_bam_1(bam_file, database, 
                                  scan_bam_flag = scan_bam_flag, qname = qname,
-                                 verbosity = verbosity)
+                                 method = method, verbosity = verbosity)
     i <- i + 1
   }
   counts <- rbindlist(out_list, idcol = "sample")
   # Make like a standard strscore object
-  counts[, seq := NULL]
   setnames(counts, "qwidth", "mlength")
   counts[, prop := rep / mlength]
   
@@ -77,49 +79,70 @@ score_bam <- function(paths, database, sample_names = NULL,
 # Score a single BAM file
 score_bam_1 <- function(path, database, sample_names = NULL,
                         scan_bam_flag, qname = FALSE,
+                        method = "overlap",
                         verbosity = 1) {
-  #which <- GRanges(seqnames = database$db$chrom, IRanges(database$db$chromStart, database$db$chromEnd))
-  #which <- GRangesList(which)
-  irlist <- list()
-  for(i in seq_len(nrow(database$db))) {
-    irlist[[database$db[i,chrom]]] <- IRanges(database$db[i, chromStart], database$db[i, chromEnd])
-  }
-  which <- do.call(IRangesList, irlist)
-  
   if(qname) {
     qname_what <- "qname"
   } else {
     qname_what <- character()
   }
   what <- c("rname", "strand", "pos", "qwidth", "seq", "flag", "mapq", qname_what)
-  param <- ScanBamParam(flag = scan_bam_flag, which = which, what = what)
   
   bam_head <- scanBamHeader(path)
-  bam <- scanBam(path, param = param)
   
-  bamlist <- list(bam)
-
-  # Store names of BAM fields
-  bam_field <- names(bamlist[[1]])
-  # Go through each BAM field and unlist
-  list_loci <- lapply(bam_field, function(y) .unlist(lapply(bamlist, "[[", y))) 
-  # Store as data.table 
-  bam_dt_list <- purrr::map(list_loci, ~ as.data.table(do.call("DataFrame", .x)))
-  names(bam_dt_list) <- database$db$locus
-  
-  for(i in seq_along(bam_dt_list)) {
-    motif <- database$db[i, motif]
-    if(database$db[i, strand == "-"]) {
+  list_bam_dt <- list()
+  for(loc in database$db$locus) {
+    if(verbosity >= 2) message("  On locus ", loc)
+    whichlist <- list()
+    whichlist[[database$db[loc, chrom]]] <- IRanges(database$db[loc, chromStart], database$db[loc, chromEnd])
+    which <- do.call(IRangesList, whichlist)
+    param <- ScanBamParam(flag = scan_bam_flag, which = which, what = what)
+    bam <- scanBam(path, param = param)
+    
+    bamlist <- list(bam)
+    
+    # Store names of BAM fields
+    bam_field <- names(bamlist[[1]])
+    # Go through each BAM field and unlist
+    list_loci <- lapply(bam_field, function(y) .unlist(lapply(bamlist, "[[", y))) 
+    # Store as data.table 
+    bam_dt_list <- purrr::map(list_loci, ~ as.data.table(do.call("DataFrame", .x)))
+    bam_dt <- bam_dt_list[[1]]
+    # names(bam_dt) <- database$db$locus
+    
+    motif <- database$db[loc, motif]
+    if(database$db[loc, strand == "-"]) {
       motif <- reverseComplement(DNAString(motif)) %>% as.character() # Way to do without conversion that's faster?
     }
-    lscore <- 0
-    for(mc in motif_cycles(motif)) {
-      lscore <- lscore + str_count(bam_dt_list[[i]]$seq, mc)
+    if(method == "overlap") {
+      seqmask <- matrix("", nrow = length(bam_dt$seq), ncol = nchar(motif))
+      mask <- str_replace_all(motif, ".", ".")
+      mcv <- motif_cycles(motif)
+      for(jj in seq_along(mcv)) {
+        seqmask[, jj] <- str_replace_all(bam_dt$seq, mcv[jj], mask)
+      }
+      lscore <- rep(0, nrow(seqmask))
+      for(ii in seq_len(nrow(seqmask))) {
+        # merge the masks
+        mask_mat <- str_split(seqmask[ii, ], "", simplify = TRUE)
+        mask_seq <- apply(mask_mat, 2, function(x) { ifelse("." %in% x, ".", x[1]) })
+        lscore[ii] <- sum(mask_seq == ".")
+      }
+    } else if(method == "count") {
+      lscore <- 0
+      for(mc in motif_cycles(motif)) {
+        lscore <- lscore + str_count(bam_dt$seq, mc)
+      }
+    } else {
+      stop("Unknown method. (bug)")
     }
-    bam_dt_list[[i]][, rep := lscore]
+    bam_dt[, rep := lscore]
+    
+    list_bam_dt[[loc]] <- bam_dt
   }
    
-  output_table <- rbindlist(bam_dt_list, idcol = "locus")
+  output_table <- rbindlist(list_bam_dt, idcol = "locus")
+  output_table[, seq := NULL]
   
   output_table
 }
