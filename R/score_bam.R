@@ -60,7 +60,6 @@ score_bam <- function(paths, database, sample_names = NULL,
   counts <- rbindlist(out_list, idcol = "sample")
   # Make like a standard strscore object
   setnames(counts, "qwidth", "mlength")
-  counts[, prop := rep / mlength]
   
   counts$group <- strs_read_groups_(counts, groups.regex, groups.samples)
   
@@ -128,15 +127,18 @@ score_bam_1 <- function(path, database, sample_names = NULL,
         mask_seq <- apply(mask_mat, 2, function(x) { ifelse("." %in% x, ".", x[1]) })
         lscore[ii] <- sum(mask_seq == ".")
       }
+      bam_dt[, rep := lscore]
+      bam_dt[, prop := rep / qwidth]
     } else if(method == "count") {
       lscore <- 0
       for(mc in motif_cycles(motif)) {
         lscore <- lscore + str_count(bam_dt$seq, mc)
       }
+      bam_dt[, rep := lscore]
+      bam_dt[, prop := rep / (qwidth - nchar(motif) + 1)]
     } else {
       stop("Unknown method. (bug)")
     }
-    bam_dt[, rep := lscore]
     
     list_bam_dt[[loc]] <- bam_dt
   }
