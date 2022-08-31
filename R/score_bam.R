@@ -4,6 +4,7 @@
 #' (May not work on M1 Macs)
 #' 
 #' @param paths Paths to BAM files
+#' @param sample_names Sample names in the same order as paths.
 #' @param scan_bam_flag Sets read filters based on SAM flags. If not NULL, an object returned by Rsamtools::scanBamFlag().
 #' @param qname If TRUE, the query name of reads is given in output. 
 #' @param verbosity Control amount of messages, an interger up to 2. 
@@ -49,7 +50,6 @@ score_bam <- function(paths, database, sample_names = NULL,
     }
     if(verbosity >= 1) message("Reading sample ", sn)
     out_list[[sn]] <- score_bam_1(bam_file, database, 
-                                 filter.low.counts = filter.low.counts, 
                                  scan_bam_flag = scan_bam_flag, qname = qname,
                                  verbosity = verbosity)
     i <- i + 1
@@ -76,7 +76,6 @@ score_bam <- function(paths, database, sample_names = NULL,
 
 # Score a single BAM file
 score_bam_1 <- function(path, database, sample_names = NULL,
-                        filter.low.counts = TRUE,
                         scan_bam_flag, qname = FALSE,
                         verbosity = 1) {
   which <- GRanges(seqnames = database$db$chrom, IRanges(database$db$chromStart, database$db$chromEnd))
@@ -102,7 +101,6 @@ score_bam_1 <- function(path, database, sample_names = NULL,
   bam_dt_list <- purrr::map(list_loci, ~ as.data.table(do.call("DataFrame", .x)))
   names(bam_dt_list) <- database$db$locus
   
-
   for(i in seq_along(bam_dt_list)) {
     motif <- database$db[i, motif]
     if(database$db[i, strand == "-"]) {
@@ -117,11 +115,6 @@ score_bam_1 <- function(path, database, sample_names = NULL,
    
   output_table <- rbindlist(bam_dt_list, idcol = "locus")
   
-  # output_table <- NULL
-  
-  if(filter.low.counts) {
-    # filter_low_scores(str_score)
-  }
   output_table
 }
 
