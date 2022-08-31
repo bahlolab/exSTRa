@@ -52,4 +52,33 @@ unlist(count_list)
 
 
 # Our test
-x <- score_bam(bam_file)
+bamfiles <- c("/stornext/Bioinf/data/Bioinformatics/SNPchipdata/MPS_samples/MCRI/AGIP/kinghorn_2017_01_17/repexp_kinghorn_2017_01_17/devel/repexp_2017_01_17_pipeline/bam_recal/WGSrpt_12_bowtie2_recal.bam")
+x <- score_bam(bamfiles, exstra_known[c("HD", "SCA1")])
+
+bam <- x$scores[[1]]
+
+#function for collapsing the list of lists into a single list
+#as per the Rsamtools vignette
+.unlist <- function (x){
+  ## do.call(c, ...) coerces factor to integer, which is undesired
+  x1 <- x[[1L]]
+  if (is.factor(x1)){
+    structure(unlist(x), class = "factor", levels = levels(x1))
+  } else {
+    do.call(c, x)
+  }
+}
+
+#store names of BAM fields
+bam_field <- names(bam[[1]])
+
+#go through each BAM field and unlist
+list_loci <- lapply(bam_field, function(y) .unlist(lapply(bam, "[[", y)))
+
+#store as data frame
+bam_dt <- purrr::map(list_loci, ~ as.data.table(do.call("DataFrame", .x)))
+names(bam_dt) <- exstra_known[c("HD", "SCA1")]$db$locus
+
+rbindlist(bam_dt, idcol = "locus")
+
+dim(bam_df)
