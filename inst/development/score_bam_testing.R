@@ -52,8 +52,10 @@ unlist(count_list)
 
 
 # Our test
-bamfiles <- c("/stornext/Bioinf/data/Bioinformatics/SNPchipdata/MPS_samples/MCRI/AGIP/kinghorn_2017_01_17/repexp_kinghorn_2017_01_17/devel/repexp_2017_01_17_pipeline/bam_recal/WGSrpt_12_bowtie2_recal.bam")
-x <- score_bam(bamfiles, exstra_known[c("HD", "SCA1")])
+bamfiles <- c(WGSrpt_12 = "/stornext/Bioinf/data/Bioinformatics/SNPchipdata/MPS_samples/MCRI/AGIP/kinghorn_2017_01_17/repexp_kinghorn_2017_01_17/devel/repexp_2017_01_17_pipeline/bam_recal/WGSrpt_12_bowtie2_recal.bam",
+              WGSrpt_18 = "/stornext/Bioinf/data/Bioinformatics/SNPchipdata/MPS_samples/MCRI/AGIP/kinghorn_2017_01_17/repexp_kinghorn_2017_01_17/devel/repexp_2017_01_17_pipeline/bam_recal/WGSrpt_18_bowtie2_recal.bam"
+)
+x <- score_bam(bamfiles, exstra_known[c("HD", "SCA1")], sample_names = names(bamfiles))
 
 bam <- x$scores[[1]]
 

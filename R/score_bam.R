@@ -18,6 +18,10 @@ score_bam <- function(paths, database, sample_names = NULL,
   checkmate::assert_flag(filter.low.counts)
   if(!is.null(groups.regex)) checkmate::assert_character(groups.regex)
   
+  if(!is.null(sample_names) && length(paths) != length(sample_names)) {
+    stop("Length of 'sample_names' does not match length of 'paths'.")
+  }
+  
   if(is.null(scan_bam_flag)) {
     scan_bam_flag <- scanBamFlag(
       isUnmappedQuery = FALSE, 
@@ -30,13 +34,21 @@ score_bam <- function(paths, database, sample_names = NULL,
   out_headers <- list()
   i <- 1
   for(bam_file in paths) {
-    out_headers[[i]] <- scanBamHeader(bam_file)
-    out_list[[i]] <- score_bam_1(bam_file, database, 
+    if(is.null(sample_names)) {
+      out_headers[[i]] <- scanBamHeader(bam_file)
+      sn <- "placeholder"
+    } else {
+      sn <- sample_names[i]
+    }
+    out_list[[sn]] <- score_bam_1(bam_file, database, 
                                  filter.low.counts = filter.low.counts, 
                                  scan_bam_flag = scan_bam_flag, qname = qname)
     i <- i + 1
   }
-  list(headers = out_headers, scores = out_list)
+  scores <- rbindlist(out_list, idcol = "sample")
+  # Make like a standard strscore object
+  scores[, seq := NULL]
+  scores
 }
 
 # Score a single BAM file
@@ -61,27 +73,39 @@ score_bam_1 <- function(path, database, sample_names = NULL,
   
   bamlist <- list(bam)
 
-  #store names of BAM fields
+  # Store names of BAM fields
   bam_field <- names(bamlist[[1]])
-  #go through each BAM field and unlist
+  # Go through each BAM field and unlist
   list_loci <- lapply(bam_field, function(y) .unlist(lapply(bamlist, "[[", y))) 
-  #store as data.table 
-  bam_dt <- purrr::map(list_loci, ~ as.data.table(do.call("DataFrame", .x)))
-  names(bam_dt) <- exstra_known[c("HD", "SCA1")]$db$locus
-  # 
-  output_table <- rbindlist(bam_dt, idcol = "locus")
+  # Store as data.table 
+  bam_dt_list <- purrr::map(list_loci, ~ as.data.table(do.call("DataFrame", .x)))
+  names(bam_dt_list) <- exstra_known[c("HD", "SCA1")]$db$locus
+  
+
+  for(i in seq_along(bam_dt_list)) {
+    motif <- database$db[i, motif]
+    if(database$db[i, strand == "-"]) {
+      motif <- reverseComplement(DNAString(motif)) %>% as.character() # Way to do without conversion that's faster?
+    }
+    lscore <- 0
+    for(mc in motif_cycles(motif)) {
+      lscore <- lscore + str_count(bam_dt_list[[i]]$seq, mc)
+    }
+    bam_dt_list[[i]][, score := lscore]
+  }
+   
+  output_table <- rbindlist(bam_dt_list, idcol = "locus")
   
   # output_table <- NULL
   
   if(filter.low.counts) {
     # filter_low_scores(str_score)
   }
-  list(bam = bam, output_table = output_table)
   output_table
 }
 
-#function for collapsing the list of lists into a single list
-#as per the Rsamtools vignette
+# Function for collapsing the list of lists into a single list
+# As per the Rsamtools vignette
 .unlist <- function (x){
   ## do.call(c, ...) coerces factor to integer, which is undesired
   x1 <- x[[1L]]
@@ -90,4 +114,13 @@ score_bam_1 <- function(path, database, sample_names = NULL,
   } else {
     do.call(c, x)
   }
+}
+
+# Give all the starting cycles of the motif
+motif_cycles <- function(motif) {
+  cycles <- character(nchar(motif))
+  for(i in seq_along(cycles)) {
+    cycles[i] <- paste0(substring(motif, i), substring(motif, 1, i - 1))
+  }
+  cycles
 }
