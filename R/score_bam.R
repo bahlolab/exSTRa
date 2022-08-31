@@ -78,7 +78,13 @@ score_bam <- function(paths, database, sample_names = NULL,
 score_bam_1 <- function(path, database, sample_names = NULL,
                         scan_bam_flag, qname = FALSE,
                         verbosity = 1) {
-  which <- GRanges(seqnames = database$db$chrom, IRanges(database$db$chromStart, database$db$chromEnd))
+  #which <- GRanges(seqnames = database$db$chrom, IRanges(database$db$chromStart, database$db$chromEnd))
+  #which <- GRangesList(which)
+  irlist <- list()
+  for(i in seq_len(nrow(database$db))) {
+    irlist[[database$db[i,chrom]]] <- IRanges(database$db[i, chromStart], database$db[i, chromEnd])
+  }
+  which <- do.call(IRangesList, irlist)
   
   if(qname) {
     qname_what <- "qname"
