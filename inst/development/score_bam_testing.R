@@ -57,7 +57,8 @@ bamfiles <- dir_ls("/stornext/Bioinf/data/Bioinformatics/SNPchipdata/MPS_samples
        glob = "*.bam")
 names(bamfiles) <- str_extract(bamfiles, "(?<=bam_recal/).+(?=_bowtie2_recal)")
 
-x <- score_bam(bamfiles, exstra_known, sample_names = names(bamfiles), groups.regex = c(case = "^WGSrpt", control = ""), verbosity = 2)
+x <- score_bam(bamfiles, exstra_known, sample_names = names(bamfiles), groups.regex = c(case = "^WGSrpt", control = ""), 
+               verbosity = 2, filter.low.counts = FALSE)
 
 tsx <- tsum_test(x)
 
@@ -67,3 +68,11 @@ tswgs2 <- tsum_test(exstra_wgs_pcr_2[c("HD", "SCA1")])
 par(mfrow = c(1, 2))
 plot(tsx["HD"])
 plot(tswgs2["HD"])
+
+
+sbf <- scanBamFlag(
+  isUnmappedQuery = FALSE, isSecondaryAlignment = FALSE,
+  isNotPassingQualityControls = FALSE, isDuplicate = FALSE
+)
+
+Y <- score_bam_1(bamfiles[1], exstra_known, sample_names = names(bamfiles)[1], scan_bam_flag = sbf)
