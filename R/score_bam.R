@@ -6,6 +6,7 @@
 #' @param paths Paths to BAM files
 #' @param scan_bam_flag Sets read filters based on SAM flags. If not NULL, an object returned by Rsamtools::scanBamFlag().
 #' @param qname If TRUE, the query name of reads is given in output. 
+#' @param verbosity Control amount of messages, an interger up to 2. 
 #' @inheritParams read_score
 #' @export
 score_bam <- function(paths, database, sample_names = NULL, 
@@ -15,17 +16,21 @@ score_bam <- function(paths, database, sample_names = NULL,
                         isUnmappedQuery = FALSE, isSecondaryAlignment = FALSE,
                         isNotPassingQualityControls = FALSE, isDuplicate = FALSE
                       ), 
-                      qname = FALSE) {
+                      qname = FALSE, verbosity = 1) {
   if (!require("Rsamtools", quietly = TRUE))
     stop("The package 'Rsamtools' from Bioconductor is required to run this function.")
   checkmate::assert_flag(qname)
   checkmate::assert_flag(filter.low.counts)
   if(!is.null(groups.regex)) checkmate::assert_character(groups.regex)
+  #assert("Need groups.samples or groups.regex to be defined", !is.null(groups.samples) || !is.null(groups.regex))
+  #assert("Require exactly one of groups.samples or groups.regex to be defined", xor(is.null(groups.samples), is.null(groups.regex)))
   
   if(is.character(database)) {
     checkmate::assert_character(database, len = 1)
-    # as database is presumbly a file, try to read from it
+    # as database is presumably a file, try to read from it
     database <- read_exstra_db(database)
+  } else if(!is.exstra_db(database)) {
+    stop("Database is not of a recognised type.")
   }
   
   if(!is.null(sample_names) && length(paths) != length(sample_names)) {
@@ -42,24 +47,38 @@ score_bam <- function(paths, database, sample_names = NULL,
     } else {
       sn <- sample_names[i]
     }
+    if(verbosity >= 1) message("Reading sample ", sn)
     out_list[[sn]] <- score_bam_1(bam_file, database, 
                                  filter.low.counts = filter.low.counts, 
-                                 scan_bam_flag = scan_bam_flag, qname = qname)
+                                 scan_bam_flag = scan_bam_flag, qname = qname,
+                                 verbosity = verbosity)
     i <- i + 1
   }
-  scores <- rbindlist(out_list, idcol = "sample")
+  counts <- rbindlist(out_list, idcol = "sample")
   # Make like a standard strscore object
-  scores[, seq := NULL]
-  scores
+  counts[, seq := NULL]
+  setnames(counts, "qwidth", "mlength")
+  counts[, prop := rep / mlength]
+  
+  counts$group <- strs_read_groups_(counts, groups.regex, groups.samples)
+  
+  strscore <- exstra_score_new_(counts, database)
+  
+  if(filter.low.counts) {
+    # Filter low counts, assumed wanted by default
+    strscore <- filter_low_scores(strscore)
+  }
+  # Remove any loci without data:
+  strscore$db <- strscore$db[locus %in% strscore$data$locus]
+  
+  strscore
 }
 
 # Score a single BAM file
 score_bam_1 <- function(path, database, sample_names = NULL,
                         filter.low.counts = TRUE,
-                        scan_bam_flag, qname = FALSE) {
-  
-  which <- IRangesList(chr22=IRanges(c(894), c(910)))
-  
+                        scan_bam_flag, qname = FALSE,
+                        verbosity = 1) {
   which <- GRanges(seqnames = database$db$chrom, IRanges(database$db$chromStart, database$db$chromEnd))
   
   if(qname) {
@@ -81,7 +100,7 @@ score_bam_1 <- function(path, database, sample_names = NULL,
   list_loci <- lapply(bam_field, function(y) .unlist(lapply(bamlist, "[[", y))) 
   # Store as data.table 
   bam_dt_list <- purrr::map(list_loci, ~ as.data.table(do.call("DataFrame", .x)))
-  names(bam_dt_list) <- exstra_known[c("HD", "SCA1")]$db$locus
+  names(bam_dt_list) <- database$db$locus
   
 
   for(i in seq_along(bam_dt_list)) {
