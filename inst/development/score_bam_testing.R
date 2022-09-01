@@ -63,7 +63,7 @@ x_count <- score_bam(bamfiles, exstra_known, sample_names = names(bamfiles), gro
                        verbosity = 2, filter.low.counts = TRUE, method = "count")
 
 tsxo <- tsum_test(x_overlap)
-tsxc <- tsum_test(x_count)
+tsxc <- tsum_test(x_count, B = 999, correction = "samples")
 tswgs2 <- tsum_test(exstra_wgs_pcr_2)
 
 par(mfrow = c(3, 1))
@@ -76,7 +76,7 @@ p_values(tsxc, only.signif = TRUE)
 p_values(tswgs2, only.signif = TRUE)
 
 par(mfrow = c(1, 1))
-plot(tsx)
+plot(tsxc)
 
 sbf <- scanBamFlag(
   isUnmappedQuery = FALSE, isSecondaryAlignment = FALSE,
@@ -84,3 +84,11 @@ sbf <- scanBamFlag(
 )
 
 Y <- score_bam_1(bamfiles[1], exstra_known, sample_names = names(bamfiles)[1], scan_bam_flag = sbf)
+
+
+bamheader <- scanBamHeader(bamfiles[[1]])
+
+x_count1 <- score_bam(bamfiles, exstra_known["SCA1"], sample_name_origin = "basename", 
+                      sample_name_remove = "_bowtie2_recal.bam$",
+                      groups.regex = c(case = "^WGSrpt", control = ""), 
+                     verbosity = 2, filter.low.counts = TRUE, method = "count")
