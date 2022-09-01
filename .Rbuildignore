@@ -6,4 +6,5 @@
 ^\.Rproj\.user$
 ^data-raw$
 ^\.github$
-^\examples$
+^examples$
+^LICENSE$

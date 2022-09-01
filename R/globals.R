@@ -1,0 +1,19 @@
+utils::globalVariables(c(
+  "group",
+  "exstra_wgs_pcr_2",
+  "chrom",
+  "chromStart",
+  "chromEnd",
+  "locus",
+  "unit_length",
+  "motif",
+  "min_score",
+  "prop",
+  "input_order",
+  "N",
+  "p.value",
+  "plotname",
+  "ord",
+  "keepme",
+  "bf"
+))

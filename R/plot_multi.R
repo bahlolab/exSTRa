@@ -30,6 +30,7 @@
 #' par(mfrow = c(2, 2))
 #' plot_multi(exstra_wgs_pcr_2[c("HD", "SCA6", "FRDA", "SCA1")], alpha_case = 0.2)
 #' 
+#' @importFrom graphics par
 #' @export
 plot_multi <- function(strscore,
   prefix = "exSTRa_plot",
