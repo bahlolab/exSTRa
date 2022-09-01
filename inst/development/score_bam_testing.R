@@ -90,7 +90,7 @@ bamheader <- scanBamHeader(bamfiles[[1]])
 
 
 x_count1 <- score_bam(bamfiles, exstra_known["SCA1"], sample_name_origin = "basename", 
-                      sample_name_remove = "_bowtie2_recal.bam$",
+                      sample_name_remove = "_bowtie2_recal",
                       groups.regex = c(case = "^WGSrpt", control = ""), 
                      verbosity = 2, filter.low.counts = TRUE, method = "count")
 
@@ -98,7 +98,7 @@ x_count1 <- score_bam(bamfiles, exstra_known["SCA1"], sample_name_origin = "base
 # Timing parallel implementation
 start.time <- Sys.time()
 x_count_single <- score_bam(bamfiles, exstra_known, sample_name_origin = "basename", 
-                      sample_name_remove = "_bowtie2_recal.bam$",
+                      sample_name_remove = "_bowtie2_recal",
                       groups.regex = c(case = "^WGSrpt", control = ""), 
                       verbosity = 2, filter.low.counts = TRUE, method = "count")
 end.time <- Sys.time()
@@ -106,8 +106,34 @@ end.time <- Sys.time()
 
 start.time <- Sys.time()
 x_count_parallel <- score_bam(bamfiles, exstra_known, sample_name_origin = "basename", 
-                      sample_name_remove = "_bowtie2_recal.bam$",
+                      sample_name_remove = "_bowtie2_recal",
                       groups.regex = c(case = "^WGSrpt", control = ""), 
                       verbosity = 2, filter.low.counts = TRUE, method = "count", parallel = TRUE)
 end.time <- Sys.time()
 (time.taken_parallel <- end.time - start.time)
+
+cluster25 <- snow::makeCluster(25)
+start.time <- Sys.time()
+x_count_parallel <- score_bam(bamfiles, exstra_known, sample_name_origin = "basename", 
+                              sample_name_remove = "_bowtie2_recal.bam$",
+                              groups.regex = c(case = "^WGSrpt", control = ""), 
+                              verbosity = 2, filter.low.counts = TRUE, method = "count", 
+                              parallel = TRUE, cluster = cluster25)
+end.time <- Sys.time()
+(time.taken_parallel_premade_cluster <- end.time - start.time)
+
+
+start.time <- Sys.time()
+tst_count_single <- tsum_test(x_count_parallel, B = 9999, correction = "samples")
+end.time <- Sys.time()
+(time.taken_tst_count_single <- end.time - start.time)
+
+start.time <- Sys.time()
+tst_count_parallel <- tsum_test(x_count_parallel, B = 9999, cluster = cluster25, correction = "samples")
+end.time <- Sys.time()
+(time.taken_tst_count_parallel_premade_cluster <- end.time - start.time)
+
+start.time <- Sys.time()
+tst_count_snow <- tsum_test_snow(x_count_parallel, B = 9999, cluster = cluster25, correction = "samples")
+end.time <- Sys.time()
+(time.taken_tst_count_snow_premade_cluster <- end.time - start.time)
