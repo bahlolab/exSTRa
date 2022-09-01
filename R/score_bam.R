@@ -22,21 +22,30 @@
 #'        We are still evaluating which method is superior. 
 #' @param verbosity Control amount of messages, an interger up to 2. 
 #' @inheritParams read_score
+#' @inheritParams tsum_test
 #' @export
-score_bam <- function(paths, database, sample_names = NULL, 
+score_bam <- function(paths, 
+                      database, 
+                      sample_names = NULL, 
                       sample_name_origin = c("RG", "basename"),
                       sample_name_remove = "",
                       sample_name_extract = ".+",
-                      groups.regex = NULL, groups.samples = NULL, 
+                      groups.regex = NULL, 
+                      groups.samples = NULL, 
                       filter.low.counts = TRUE,
                       scan_bam_flag = scanBamFlag(
                         isUnmappedQuery = FALSE, isSecondaryAlignment = FALSE,
                         isNotPassingQualityControls = FALSE, isDuplicate = FALSE
                       ), 
-                      qname = FALSE, method = c("overlap", "count"), 
+                      qname = FALSE, 
+                      method = c("overlap", "count"), 
+                      parallel = FALSE, # TRUE for cluster
+                      cluster_n = NULL, # Cluster size if cluster == NULL. When NULL, #threads / 2 (but always at least 1)
+                      cluster = NULL, # As created by the parallel package. If cluster == NULL and parallel == TRUE, then a
+                      # PSOCK cluster is automatically created with the parallel package.
                       verbosity = 1
               ) {
-  if (!require("Rsamtools", quietly = TRUE))
+  if (!requireNamespace("Rsamtools", quietly = TRUE))
     stop("The package 'Rsamtools' from Bioconductor is required to run this function.")
   method <- match.arg(method)
   sample_name_origin <- match.arg(sample_name_origin)
@@ -58,10 +67,51 @@ score_bam <- function(paths, database, sample_names = NULL,
     stop("Length of 'sample_names' does not match length of 'paths'.")
   }
   
-  out_list <- list()
-  i <- 1
-  for(bam_file in paths) {
-    if(is.null(sample_names)) {
+  # Set or check the number of cores in parallel, when no cluster is specified
+  if(inherits(cluster, "cluster")) {
+    # as a cluster has been given, assume we actually do want to use the parallel package
+    parallel <- TRUE
+  } else {
+    if(parallel) {
+      n_cores <- detectCores(all.tests = FALSE, logical = TRUE)
+      if(is.null(cluster_n)) {
+        # Set the number of cores, max threads / 2 (but at least 1)
+        cluster_n <- max(1, n_cores / 2)
+      } else {
+        if(cluster_n > n_cores) {
+          warn.message <- paste0("More threads have been requested by cluster_n (", cluster_n, 
+                                 ") than appears to be available (", 
+                                 n_cores, ").")
+          message(warn.message)
+        }
+      }
+    }
+  }
+  cluster_stop <- FALSE
+  if(parallel) {
+    # Create a new PSOCKcluster if required
+    if(is.null(cluster)) {
+      # create the cluster, just once
+      cluster <- makePSOCKcluster(cluster_n)
+      cluster_stop <- TRUE
+      on.exit(stopCluster(cluster))
+    }
+    
+    # Load required functions onto cluster nodes
+    clusterEvalQ(cluster, { 
+      library(magrittr);
+      library(exSTRa); 
+      library(Rsamtools); 
+      library(stringr);
+    })
+    clusterExport(cluster, c(".unlist", "motif_cycles"))
+  }
+  
+  
+  if(is.null(sample_names)) {
+    sample_names <- character(length(paths))
+    i <- 1
+    for(bam_file in paths) {
       if(sample_name_origin == "RG") {
         file_header <- scanBamHeader(bam_file)
         rg <- file_header[[1]]$text[["@RG"]]
@@ -71,15 +121,27 @@ score_bam <- function(paths, database, sample_names = NULL,
       }
       sn <- str_remove(sn, sample_name_remove)
       sn <- str_extract(sn, sample_name_extract)
-    } else {
-      sn <- sample_names[i]
+      sample_names[i] <- sn
+      i <- i + 1
     }
-    if(verbosity >= 1) message("Reading sample ", sn)
-    out_list[[sn]] <- score_bam_1(bam_file, database, 
-                                 scan_bam_flag = scan_bam_flag, qname = qname,
-                                 method = method, verbosity = verbosity)
-    i <- i + 1
   }
+  
+  if(parallel) {
+    names(paths) <- sample_names
+    out_list <- parLapply(cluster, paths, score_bam_1, database, 
+                          scan_bam_flag = scan_bam_flag, qname = qname,
+                          method = method, verbosity = verbosity)
+  } else {
+    out_list <- list()
+    for(sn in sample_names) {
+      if(verbosity >= 1) message("Reading sample ", sn)
+      out_list[[sn]] <- score_bam_1(bam_file, database, 
+                                    scan_bam_flag = scan_bam_flag, qname = qname,
+                                    method = method, verbosity = verbosity)
+    }
+  }
+  
+  
   counts <- rbindlist(out_list, idcol = "sample")
   # Make like a standard strscore object
   setnames(counts, "qwidth", "mlength")
