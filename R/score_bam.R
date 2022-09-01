@@ -20,6 +20,7 @@
 #'        though some differences from Bio::STR::exSTRa is expected to occur. 
 #'        The "count" method is simplier and therefore probably faster, and may possibly be better. 
 #'        We are still evaluating which method is superior. 
+#' @param cluster A snow cluster created by snow::makeCluster(). Optional for parallel processing. 
 #' @param verbosity Control amount of messages, an interger up to 2. 
 #' @inheritParams read_score
 #' @inheritParams tsum_test
@@ -92,19 +93,19 @@ score_bam <- function(paths,
     # Create a new PSOCKcluster if required
     if(is.null(cluster)) {
       # create the cluster, just once
-      cluster <- makePSOCKcluster(cluster_n)
+      cluster <- snow::makeCluster(cluster_n)
       cluster_stop <- TRUE
-      on.exit(stopCluster(cluster))
+      on.exit(snow::stopCluster(cluster))
     }
     
     # Load required functions onto cluster nodes
-    clusterEvalQ(cluster, { 
+    snow::clusterEvalQ(cluster, { 
       library(magrittr);
       library(exSTRa); 
       library(Rsamtools); 
       library(stringr);
     })
-    clusterExport(cluster, c(".unlist", "motif_cycles"))
+    snow::clusterExport(cluster, c(".unlist", "motif_cycles"))
   }
   
   
@@ -128,7 +129,7 @@ score_bam <- function(paths,
   
   if(parallel) {
     names(paths) <- sample_names
-    out_list <- parLapply(cluster, paths, score_bam_1, database, 
+    out_list <- snow::parLapply(cluster, paths, score_bam_1, database, 
                           scan_bam_flag = scan_bam_flag, qname = qname,
                           method = method, verbosity = verbosity)
   } else {
