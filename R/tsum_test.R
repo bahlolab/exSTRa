@@ -157,10 +157,10 @@ tsum_test <- function(strscore,
     
     # Load required functions onto cluster nodes
     clusterEvalQ(cluster, { 
-      library(testit); 
-      library(magrittr);
-      library(data.table);
-      library(exSTRa) 
+      requireNamespace(testit); 
+      requireNamespace(magrittr);
+      requireNamespace(data.table);
+      requireNamespace(exSTRa) 
     })
   }
   
