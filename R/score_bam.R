@@ -87,14 +87,12 @@ score_bam <- function(paths,
       }
     }
   }
-  cluster_stop <- FALSE
   if(parallel) {
     # Create a new PSOCKcluster if required
     if(is.null(cluster)) {
       # create the cluster, just once
       cluster <- snow::makeCluster(cluster_n)
-      cluster_stop <- TRUE
-      on.exit(snow::stopCluster(cluster))
+      on.exit(snow::stopCluster(cluster), add = TRUE)
     }
     
     # Load required functions onto cluster nodes

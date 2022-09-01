@@ -151,7 +151,7 @@ tsum_test <- function(strscore,
     if(is.null(cluster)) {
       # create the cluster, just once
       cluster <- snow::makeCluster(cluster_n)
-      on.exit(stopCluster(cluster))
+      on.exit(stopCluster(cluster), add = TRUE)
     }
     
     # Load required functions onto cluster nodes
