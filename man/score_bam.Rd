@@ -8,6 +8,9 @@ score_bam(
   paths,
   database,
   sample_names = NULL,
+  sample_name_origin = c("RG", "basename"),
+  sample_name_remove = "",
+  sample_name_extract = ".+",
   groups.regex = NULL,
   groups.samples = NULL,
   filter.low.counts = TRUE,
@@ -23,7 +26,16 @@ score_bam(
 
 \item{database}{Path of database file (character) or exstra database (exstra_db object).}
 
-\item{sample_names}{Sample names in the same order as paths.}
+\item{sample_names}{Sample names in the same order as paths. May be set to NULL, 
+in which case sample names are found bound sample_name_origin.}
+
+\item{sample_name_origin}{Option to determine sample names from, either the BAM read group (RG) tag, or path basename. Ignored if sample_names is not NULL.}
+
+\item{sample_name_remove}{If sample_names == NULL, regular expression passed to stringr::str_remove to 
+remove parts of sample names. 
+".bam" extensions are automatically removed.}
+
+\item{sample_name_extract}{If sample_names == NULL, regular expression passed to stringr::str_extract to only use part of sample names.}
 
 \item{groups.regex}{Sets the sample groups with a regular expression. 
 This is a named character vector of R regular expressions,

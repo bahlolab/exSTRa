@@ -4,13 +4,22 @@
 #' (May not work on M1 Macs)
 #' 
 #' @param paths Paths to BAM files
-#' @param sample_names Sample names in the same order as paths.
+#' @param sample_names Sample names in the same order as paths. May be set to NULL, 
+#'        in which case sample names are found bound sample_name_origin.
+#' @param sample_name_origin Option to determine sample names from, either the BAM read group (RG) tag, or path basename. Ignored if sample_names is not NULL.
+#' @param sample_name_remove If sample_names == NULL, regular expression passed to stringr::str_remove to 
+#'         remove parts of sample names. 
+#'         ".bam" extensions are automatically removed. 
+#' @param sample_name_extract If sample_names == NULL, regular expression passed to stringr::str_extract to only use part of sample names. 
 #' @param scan_bam_flag Sets read filters based on SAM flags. If not NULL, an object returned by Rsamtools::scanBamFlag().
 #' @param qname If TRUE, the query name of reads is given in output. 
 #' @param verbosity Control amount of messages, an interger up to 2. 
 #' @inheritParams read_score
 #' @export
 score_bam <- function(paths, database, sample_names = NULL, 
+                      sample_name_origin = c("RG", "basename"),
+                      sample_name_remove = "",
+                      sample_name_extract = ".+",
                       groups.regex = NULL, groups.samples = NULL, 
                       filter.low.counts = TRUE,
                       scan_bam_flag = scanBamFlag(
@@ -23,6 +32,7 @@ score_bam <- function(paths, database, sample_names = NULL,
   if (!require("Rsamtools", quietly = TRUE))
     stop("The package 'Rsamtools' from Bioconductor is required to run this function.")
   method <- match.arg(method)
+  sample_name_origin <- match.arg(sample_name_origin)
   checkmate::assert_flag(qname)
   checkmate::assert_flag(filter.low.counts)
   if(!is.null(groups.regex)) checkmate::assert_character(groups.regex)
@@ -42,12 +52,18 @@ score_bam <- function(paths, database, sample_names = NULL,
   }
   
   out_list <- list()
-  out_headers <- list()
   i <- 1
   for(bam_file in paths) {
     if(is.null(sample_names)) {
-      out_headers[[i]] <- scanBamHeader(bam_file)
-      sn <- "placeholder"
+      if(sample_name_origin == "RG") {
+        file_header <- scanBamHeader(bam_file)
+        rg <- file_header[[1]]$text[["@RG"]]
+        sn <- str_remove(rg[str_detect(rg, "^SM:")], "^SM:")
+      } else if(sample_name_origin == "basename") {
+        sn <- str_remove(basename(bam_file), "\\.bam$")
+      }
+      sn <- str_remove(sn, sample_name_remove)
+      sn <- str_extract(sn, sample_name_extract)
     } else {
       sn <- sample_names[i]
     }
