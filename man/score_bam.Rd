@@ -57,6 +57,14 @@ expected by chance (assuming independent and uniform DNA base distribution).}
 
 \item{qname}{If TRUE, the query name of reads is given in output.}
 
+\item{method}{Read score method. 
+"overlap" tags bases that form part of a repeat motif (starting on any base), then counts the bases that are tagged with any starting base of the motif. 
+"count" simply counts the number of matches of the motif, cycled on its starting bases. 
+The original method of the original exSTRa publication closely resembles "overlap", 
+though some differences from Bio::STR::exSTRa is expected to occur. 
+The "count" method is simplier and therefore probably faster, and may possibly be better. 
+We are still evaluating which method is superior.}
+
 \item{verbosity}{Control amount of messages, an interger up to 2.}
 }
 \description{
