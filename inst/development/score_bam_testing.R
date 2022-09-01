@@ -88,7 +88,26 @@ Y <- score_bam_1(bamfiles[1], exstra_known, sample_names = names(bamfiles)[1], s
 
 bamheader <- scanBamHeader(bamfiles[[1]])
 
+
 x_count1 <- score_bam(bamfiles, exstra_known["SCA1"], sample_name_origin = "basename", 
                       sample_name_remove = "_bowtie2_recal.bam$",
                       groups.regex = c(case = "^WGSrpt", control = ""), 
                      verbosity = 2, filter.low.counts = TRUE, method = "count")
+
+
+# Timing parallel implementation
+start.time <- Sys.time()
+x_count_single <- score_bam(bamfiles, exstra_known, sample_name_origin = "basename", 
+                      sample_name_remove = "_bowtie2_recal.bam$",
+                      groups.regex = c(case = "^WGSrpt", control = ""), 
+                      verbosity = 2, filter.low.counts = TRUE, method = "count")
+end.time <- Sys.time()
+(time.taken_single <- end.time - start.time)
+
+start.time <- Sys.time()
+x_count_parallel <- score_bam(bamfiles, exstra_known, sample_name_origin = "basename", 
+                      sample_name_remove = "_bowtie2_recal.bam$",
+                      groups.regex = c(case = "^WGSrpt", control = ""), 
+                      verbosity = 2, filter.low.counts = TRUE, method = "count", parallel = TRUE)
+end.time <- Sys.time()
+(time.taken_parallel <- end.time - start.time)
