@@ -99,10 +99,10 @@ score_bam <- function(paths,
     
     # Load required functions onto cluster nodes
     snow::clusterEvalQ(cluster, { 
-      library(magrittr);
-      library(exSTRa); 
-      library(Rsamtools); 
-      library(stringr);
+      requireNamespace(magrittr);
+      requireNamespace(exSTRa); 
+      requireNamespace(Rsamtools); 
+      requireNamespace(stringr);
     })
     snow::clusterExport(cluster, c(".unlist", "motif_cycles"))
   }
