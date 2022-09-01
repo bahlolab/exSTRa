@@ -19,6 +19,7 @@ Imports:
     magrittr (>= 1.5), 
     RColorBrewer (>= 1.1-2),
     ggplot2 (>= 3.3.6),
+    dplyr,
     purrr,
     parallel,
     snow,
