@@ -18,6 +18,9 @@ score_bam(
     isNotPassingQualityControls = FALSE, isDuplicate = FALSE),
   qname = FALSE,
   method = c("overlap", "count"),
+  parallel = FALSE,
+  cluster_n = NULL,
+  cluster = NULL,
   verbosity = 1
 )
 }
@@ -64,6 +67,20 @@ The original method of the original exSTRa publication closely resembles "overla
 though some differences from Bio::STR::exSTRa is expected to occur. 
 The "count" method is simplier and therefore probably faster, and may possibly be better. 
 We are still evaluating which method is superior.}
+
+\item{parallel}{Use the parallel package when simulating the distribution, creating the
+required cluster. 
+If cluster is specified then this option makes no difference.}
+
+\item{cluster_n}{If parallel is TRUE, then the number of nodes in the cluster is 
+ automatically set as half of those available on your machine 
+ (but never less than 1). This option allows manual setting of the 
+ number of nodes, either less to free up other resources, or to 
+ maximize available resources. 
+If cluster is specified then this option makes no difference.}
+
+\item{cluster}{A snow cluster created by snow::makeCluster(). Use if you wish to set up 
+the cluster yourself or reuse an existing cluster.}
 
 \item{verbosity}{Control amount of messages, an interger up to 2.}
 }

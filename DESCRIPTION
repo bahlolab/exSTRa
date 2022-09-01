@@ -21,6 +21,7 @@ Imports:
     ggplot2 (>= 3.3.6),
     purrr,
     parallel,
+    snow,
     methods,
     graphics,
     stats,
