@@ -20,7 +20,6 @@
 #'        though some differences from Bio::STR::exSTRa is expected to occur. 
 #'        The "count" method is simplier and therefore probably faster, and may possibly be better. 
 #'        We are still evaluating which method is superior. 
-#' @param cluster A snow cluster created by snow::makeCluster(). Optional for parallel processing. 
 #' @param verbosity Control amount of messages, an interger up to 2. 
 #' @inheritParams read_score
 #' @inheritParams tsum_test
@@ -74,7 +73,7 @@ score_bam <- function(paths,
     parallel <- TRUE
   } else {
     if(parallel) {
-      n_cores <- detectCores(all.tests = FALSE, logical = TRUE)
+      n_cores <- parallel::detectCores(all.tests = FALSE, logical = TRUE)
       if(is.null(cluster_n)) {
         # Set the number of cores, max threads / 2 (but at least 1)
         cluster_n <- max(1, n_cores / 2)
