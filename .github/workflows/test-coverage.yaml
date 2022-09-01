@@ -25,6 +25,12 @@ jobs:
         with:
           extra-packages: any::covr
           needs: coverage
+          
+      - name: Install Bioconductor packages
+        run: |
+          install.packages("BiocManager")
+          BiocManager::install("Rsamtools")
+        shell: Rscript {0}
 
       - name: Test coverage
         run: covr::codecov(quiet = FALSE)
