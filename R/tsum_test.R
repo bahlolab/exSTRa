@@ -146,13 +146,12 @@ tsum_test <- function(strscore,
     }
   }
   
-  cluster_stop <- FALSE
   if(give.pvalue && parallel) {
     # Create a new PSOCKcluster if required
     if(is.null(cluster)) {
       # create the cluster, just once
       cluster <- snow::makeCluster(cluster_n)
-      cluster_stop <- TRUE
+      on.exit(stopCluster(cluster))
     }
     
     # Load required functions onto cluster nodes
@@ -202,11 +201,6 @@ tsum_test <- function(strscore,
     }
   }
   T_stats <- rbindlist(T_stats_list, idcol = "locus")
-  
-  if(parallel && cluster_stop) {
-    # stop the cluster that we created
-    stopCluster(cluster)
-  }
   
   # Prepare output
   outtsum <- exstra_tsum_new_(strscore, tsum = T_stats,
