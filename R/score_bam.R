@@ -178,7 +178,7 @@ score_bam_1 <- function(path, database, sample_names = NULL,
   for(loc in database$db$locus) {
     if(verbosity >= 2) message("  On locus ", loc)
     whichlist <- list()
-    whichlist[[database$db[loc, chrom]]] <- IRanges(database$db[loc, chromStart], database$db[loc, chromEnd])
+    whichlist[[database$db[loc, chrom]]] <- IRanges(database$db[loc, chromStart] - 10, database$db[loc, chromEnd] + 10)
     which <- do.call(IRangesList, whichlist)
     param <- ScanBamParam(flag = scan_bam_flag, which = which, what = what)
     bam <- scanBam(path, param = param)
