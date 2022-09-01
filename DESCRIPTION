@@ -20,6 +20,7 @@ Imports:
     RColorBrewer (>= 1.1-2),
     ggplot2 (>= 3.3.6),
     purrr,
+    parallel,
     methods,
     graphics,
     stats,
