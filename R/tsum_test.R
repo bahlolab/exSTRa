@@ -33,7 +33,7 @@
 #'                  number of nodes, either less to free up other resources, or to 
 #'                  maximize available resources. 
 #'                 If cluster is specified then this option makes no difference.
-#' @param cluster  A cluster object from the parallel package. Use if you wish to set up 
+#' @param cluster A snow cluster created by snow::makeCluster(). Use if you wish to set up 
 #'                 the cluster yourself or reuse an existing cluster. 
 #' @param keep.sim.tsum For inspection of simulations. 
 #'                      If TRUE, keep all simulation Tsum statistics in output$xecs (default FALSE).
@@ -63,46 +63,46 @@
 #' @import data.table
 #' @import stringr
 #' @import testit
-#' @import parallel
+#' @import snow
 #' @export
 tsum_test <- function(strscore, 
-  trim = ifelse(case_control, trim.cc, trim.all),
-  trim.all = 0.15,
-  trim.cc = 0,
-  min.quant = 0.5,
-  give.pvalue = TRUE, 
-  B = 999, 
-  correction = c("bf", "loci", "samples", "uncorrected"),
-  alpha = 0.05,
-  case_control = FALSE,
-  early_stop = TRUE,
-  early_A = 0.25,
-  early_stop_min = 50,
-  parallel = FALSE, # TRUE for cluster
-  cluster_n = NULL, # Cluster size if cluster == NULL. When NULL, #threads / 2 (but always at least 1)
-  cluster = NULL, # As created by the parallel package. If cluster == NULL and parallel == TRUE, then a
-                  # PSOCK cluster is automatically created with the parallel package.
-  keep.sim.tsum = FALSE
-  ) 
+                           trim = ifelse(case_control, trim.cc, trim.all),
+                           trim.all = 0.15,
+                           trim.cc = 0,
+                           min.quant = 0.5,
+                           give.pvalue = TRUE, 
+                           B = 999, 
+                           correction = c("bf", "loci", "samples", "uncorrected"),
+                           alpha = 0.05,
+                           case_control = FALSE,
+                           early_stop = TRUE,
+                           early_A = 0.25,
+                           early_stop_min = 50,
+                           parallel = FALSE, # TRUE for cluster
+                           cluster_n = NULL, # Cluster size if cluster == NULL. When NULL, #threads / 2 (but always at least 1)
+                           cluster = NULL, # As created by the parallel package. If cluster == NULL and parallel == TRUE, then a
+                           # PSOCK cluster is automatically created with the parallel package.
+                           keep.sim.tsum = FALSE
+) 
 {
   # Check inputs
   assert("strscore should be from class exstra_score.", is.exstra_score(strscore))
   assert("trim should be a number that is at least 0 and less than 0.5.", is.numeric(trim),
-    trim >= 0, trim < 0.5)
+         trim >= 0, trim < 0.5)
   assert("min.quant should be a number from 0 to less than 1.", is.numeric(min.quant), min.quant >= 0, min.quant < 1)
   assert("give.pvalue should be logical", is.logical(give.pvalue), !is.na(give.pvalue))
   assert("B should be at least 1 and a whole-number.", B >= 1)
   assert("parallel should be logical.", is.logical(parallel), !is.na(parallel))
   assert("When specified, cluster should be a cluster object from the parallel package.", 
-    is.null(cluster) || inherits(cluster, "cluster"))
+         is.null(cluster) || inherits(cluster, "cluster"))
   assert("cluster_n should be at least 1 and a whole-number.", is.null(cluster_n) || cluster_n >= 1)
   
   # Warning for parallel usage
   if(parallel) {
     warning("Use of tsum_test(parallel = TRUE) may not be beneficial.\n",
-      "  Optimizations in serial code have reduced the benefits of parallization.\n",
-      "  Additionally, often R jobs tend to be idle which has not been resolved.",
-      immediate. = TRUE)
+            "  Optimizations in serial code have reduced the benefits of parallization.\n",
+            "  Additionally, often R jobs tend to be idle which has not been resolved.",
+            immediate. = TRUE)
   }
   
   # trim too high?
@@ -122,7 +122,7 @@ tsum_test <- function(strscore,
   # Check samples after cases are removed in case_control
   if(case_control && strscore$samples[group != "case", .N] < 5) {
     warning("May have too few control samples (n = ", strscore$samples[group != "case", .N], ").\n",
-      "Same tsum statistics may be NaN.")
+            "Same tsum statistics may be NaN.")
   }
   
   # Set or check the number of cores in parallel, when no cluster is specified
@@ -131,36 +131,35 @@ tsum_test <- function(strscore,
     parallel <- TRUE
   } else {
     if(parallel) {
-      n_cores <- detectCores(all.tests = FALSE, logical = TRUE)
+      n_cores <- parallel::detectCores(all.tests = FALSE, logical = TRUE)
       if(is.null(cluster_n)) {
         # Set the number of cores, max threads / 2 (but at least 1)
         cluster_n <- max(1, n_cores / 2)
       } else {
         if(cluster_n > n_cores) {
           warn.message <- paste0("More threads have been requested by cluster_n (", cluster_n, 
-            ") than appears to be available (", 
-            n_cores, ").")
+                                 ") than appears to be available (", 
+                                 n_cores, ").")
           message(warn.message)
         }
       }
     }
   }
   
-  cluster_stop <- FALSE
   if(give.pvalue && parallel) {
     # Create a new PSOCKcluster if required
     if(is.null(cluster)) {
       # create the cluster, just once
-      cluster <- makePSOCKcluster(cluster_n)
-      cluster_stop <- TRUE
+      cluster <- snow::makeCluster(cluster_n)
+      on.exit(stopCluster(cluster), add = TRUE)
     }
     
     # Load required functions onto cluster nodes
     clusterEvalQ(cluster, { 
-      library(testit); 
-      library(magrittr);
-      library(data.table);
-      library(exSTRa) 
+      requireNamespace(testit); 
+      requireNamespace(magrittr);
+      requireNamespace(data.table);
+      requireNamespace(exSTRa) 
     })
   }
   
@@ -171,17 +170,17 @@ tsum_test <- function(strscore,
     # Save copying the whole object each time
     strscore_loc_list <- lapply(all_loci, function(loc) { strscore[loc]} )
     tsum_statistic_1locus_failsafe <- function(...) {
-        tryCatch(tsum_statistic_1locus(...), error = function(e) { NULL })
+      tryCatch(tsum_statistic_1locus(...), error = function(e) { NULL })
     }
-    T_stats_list <- parLapplyLB(cl = cluster,
-             strscore_loc_list, 
-             tsum_statistic_1locus_failsafe,
-             min.quant = min.quant,
-             case_control = case_control, trim = trim,
-             give.pvalue = give.pvalue, B = B,
-             early_stop = early_stop, early_A = early_A, min_stop = early_stop_min,
-             verbose = FALSE)
-
+    T_stats_list <- snow::parLapply(cl = cluster,
+                                    strscore_loc_list, 
+                                    tsum_statistic_1locus_failsafe,
+                                    min.quant = min.quant,
+                                    case_control = case_control, trim = trim,
+                                    give.pvalue = give.pvalue, B = B,
+                                    early_stop = early_stop, early_A = early_A, min_stop = early_stop_min,
+                                    verbose = FALSE)
+    
     # Remove errored runs
     T_stats_list <- T_stats_list[!sapply(T_stats_list, is.null)]
     
@@ -191,11 +190,11 @@ tsum_test <- function(strscore,
     for(loc in loci(strscore)) {
       message("Working on locus ", loc)
       T_stats_loc <- tsum_statistic_1locus(
-                                           strscore_loc = strscore[loc],
-                                           min.quant = min.quant,
-                                           case_control = case_control, trim = trim,
-                                           give.pvalue = give.pvalue, B = B,
-                                           early_stop = early_stop, early_A = early_A, min_stop = early_stop_min
+        strscore_loc = strscore[loc],
+        min.quant = min.quant,
+        case_control = case_control, trim = trim,
+        give.pvalue = give.pvalue, B = B,
+        early_stop = early_stop, early_A = early_A, min_stop = early_stop_min
       )
       
       T_stats_list[[loc]] <- T_stats_loc
@@ -203,16 +202,11 @@ tsum_test <- function(strscore,
   }
   T_stats <- rbindlist(T_stats_list, idcol = "locus")
   
-  if(parallel && cluster_stop) {
-    # stop the cluster that we created
-    stopCluster(cluster)
-  }
-  
   # Prepare output
   outtsum <- exstra_tsum_new_(strscore, tsum = T_stats,
-    correction = correction,
-    alpha = alpha, 
-    args = list(trim = trim, min.quant = min.quant, B = B))
+                              correction = correction,
+                              alpha = alpha, 
+                              args = list(trim = trim, min.quant = min.quant, B = B))
   
   # TODO: remove following lines, maybe
   if(! keep.sim.tsum) {
