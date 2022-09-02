@@ -19,6 +19,14 @@ For easy installation, run from within R:
   # install.packages("devtools") # if devtools is not already installed
   devtools::install_github("bahlolab/exSTRa")
 ```
+
+If requiring scoring of BAM files, also install Rsamtools from Bioconductor:
+```
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("Rsamtools")
+```
   
 
 # Using exSTRa
