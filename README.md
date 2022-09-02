@@ -17,7 +17,7 @@ for processing of BAM files.
 For easy installation, run from within R:
 ```
   # install.packages("devtools") # if devtools is not already installed
-  devtools::install_github("bahlolab/exSTRa")
+  devtools::install_github("bahlolab/exSTRa", build_vignettes = TRUE)
 ```
 
 If requiring scoring of BAM files, also install Rsamtools from Bioconductor:
