@@ -3,10 +3,12 @@ Type: Package
 Title: Expanded STR algorithm: detecting expansions in Illumina sequencing data
 Version: 0.91.0.9000
 Date: 2022-09-01
-Author: Rick Tankard
+Author: Rick M Tankard
 Maintainer: Rick Tankard <tankard.r@wehi.edu.au>
 Description: Detecting expansions with paired-end Illumina sequencing data.
 License: GPL-2
+BugReports: https://github.com/bahlolab/exSTRa/issues
+URL: https://github.com/bahlolab/exSTRa
 Encoding: UTF-8
 Depends:
     R (>= 3.6),
@@ -21,12 +23,13 @@ Imports:
     ggplot2 (>= 3.3.6),
     dplyr,
     purrr,
-    parallel,
-    snow,
     methods,
     graphics,
     stats,
     grDevices
+Enhances:
+    parallel,
+    snow
 Suggests: 
     testthat (>= 2.0.0),
     DiagrammeR (>= 0.9.2),
