@@ -15,6 +15,7 @@ ggplot.exstra_score <- function(data = NULL, ...) {
   verify.exstra_score(data)
   # Merge sample data into main data
   data <- merge(data$data, data$samples, by = "sample")
+  data <- dplyr::arrange(data, rep)
   ggplot(data, ...)
 }
 
