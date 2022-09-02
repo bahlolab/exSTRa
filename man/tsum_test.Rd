@@ -69,7 +69,7 @@ If cluster is specified then this option makes no difference.}
  maximize available resources. 
 If cluster is specified then this option makes no difference.}
 
-\item{cluster}{A cluster object from the parallel package. Use if you wish to set up 
+\item{cluster}{A snow cluster created by snow::makeCluster(). Use if you wish to set up 
 the cluster yourself or reuse an existing cluster.}
 
 \item{keep.sim.tsum}{For inspection of simulations. 

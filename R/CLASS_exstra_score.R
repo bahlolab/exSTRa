@@ -18,12 +18,18 @@ is.exstra_score <- function(x) inherits(x, "exstra_score")
 strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NULL, this.class = NULL) {
   # Load the STR data, and give it the right class
   assert("read.strs requires database to be class exstra_db", is.exstra_db(database))
-  assert("Need groups.samples or groups.regex to be defined", !is.null(groups.samples) || !is.null(groups.regex))
-  assert("Require exactly one of groups.samples or groups.regex to be defined", xor(is.null(groups.samples), is.null(groups.regex)))
   assert("This function must have a class to return", !is.null(this.class))
   # Read in data
   counts <- read.delim(file)
   # Add some info to the data
+  counts$group <- strs_read_groups_(counts, groups.regex, groups.samples)
+  return(list(data = counts, db = database))
+}
+
+# Find groups
+strs_read_groups_ <- function(counts, groups.regex = NULL, groups.samples = NULL) {
+  assert("Need groups.samples or groups.regex to be defined", !is.null(groups.samples) || !is.null(groups.regex))
+  assert("Require exactly one of groups.samples or groups.regex to be defined", xor(is.null(groups.samples), is.null(groups.regex)))
   if(!is.null(groups.regex)) {
     # using regex for groups
     groups.regex <- rev(groups.regex) # we want the first argument of groups.regex to take priority, this behaviour replaces the old behaviour
@@ -39,13 +45,13 @@ strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NUL
   if(!is.null(groups.samples)) {
     # Specify the group of samples directly via groups.samples
     assert("groups.samples must be a list if used, with vectors with names of at least one of 'case', 'control' or 'null'.", 
-      is.list(groups.samples), 
-      length(groups.samples) > 0,
-      !is.null(names(groups.samples)),
-      is.element(names(groups.samples), c("case", "control", "null"))
+           is.list(groups.samples), 
+           length(groups.samples) > 0,
+           !is.null(names(groups.samples)),
+           is.element(names(groups.samples), c("case", "control", "null"))
     )
     assert("groups.samples does not currently accept multiple of the same names for groups, please put all sample names in the one vector under that name", 
-      length(unique(names(groups.samples))) == length(names(groups.samples)) )
+           length(unique(names(groups.samples))) == length(names(groups.samples)) )
     if(length(groups.samples) == 1 && names(groups.samples) == "case") {
       # only cases described, so make other samples controls
       groups_all <- factor(rep("control", dim(counts)[1]), levels = c("case", "control"))
@@ -61,9 +67,7 @@ strs_read_ <- function(file, database, groups.regex = NULL, groups.samples = NUL
       }     
     }
   }
-  
-  counts$group <- as.factor(groups_all)
-  return(list(data = counts, db = database))
+  return(as.factor(groups_all))
 }
 
 

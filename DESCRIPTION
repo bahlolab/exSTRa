@@ -19,6 +19,10 @@ Imports:
     magrittr (>= 1.5), 
     RColorBrewer (>= 1.1-2),
     ggplot2 (>= 3.3.6),
+    dplyr,
+    purrr,
+    parallel,
+    snow,
     methods,
     graphics,
     stats,
@@ -27,6 +31,7 @@ Suggests:
     testthat (>= 2.0.0),
     DiagrammeR (>= 0.9.2),
     DiagrammeRsvg (>= 0.1),
+    Rsamtools,
     xlsx (>= 0.5.7),
     knitr (>= 1.20),
     rmarkdown (>= 1.11),
@@ -57,6 +62,7 @@ Collate:
     'read_exstra_db_xlsx.R'
     'read_exstra_db.R'
     'read_score.R'
+    'score_bam.R'
     'suggested_exstra_pipeline.R'
     'tsum_p_value_summary.R'
     'tsum_test.R'
