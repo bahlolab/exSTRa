@@ -3,7 +3,14 @@ Type: Package
 Title: Expanded STR algorithm: detecting expansions in Illumina sequencing data
 Version: 0.91.0.9000
 Date: 2022-09-01
-Author: Rick M Tankard
+Authors@R: c(
+  person("Rick M", "Tankard", email = "tankard.r@wehi.edu.au", role = c("cre", "aut"),
+    comment = c(ORCID = "0000-0002-8847-9401")),
+  person("Mark", "Bennett", role = "aut", 
+    comment = c(ORCID = "0000-0002-3561-6804")),
+  person("Melanie", "Bahlo", email = "bahlo@wehi.edu.au",
+    comment = c(ORCID = "0000-0001-5132-0774"))
+)
 Maintainer: Rick Tankard <tankard.r@wehi.edu.au>
 Description: Detecting expansions with paired-end Illumina sequencing data.
 License: GPL-2
