@@ -10,7 +10,7 @@ Authors@R: c(
     comment = c(ORCID = "0000-0002-3561-6804")),
   person("Melanie", "Bahlo", email = "bahlo@wehi.edu.au",
     comment = c(ORCID = "0000-0001-5132-0774"))
-)
+  )
 Description: Detecting expansions with paired-end Illumina sequencing data.
 License: GPL-2
 BugReports: https://github.com/bahlolab/exSTRa/issues
