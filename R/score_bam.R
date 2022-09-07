@@ -208,7 +208,7 @@ score_overlap_method <- function(seqs, motif) {
 score_count_method <- function(seqs, motif) {
   lscore <- 0
   for(mc in motif_cycles(motif)) {
-    lscore <- lscore + str_count(bam_dt$seq, mc)
+    lscore <- lscore + str_count(seqs, mc)
   }
   lscore
 }
