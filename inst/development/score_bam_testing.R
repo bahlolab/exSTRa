@@ -56,7 +56,7 @@ cluster25 <- snow::makeCluster(25)
 library(fs)
 bamfiles <- dir_ls("/stornext/Bioinf/data/Bioinformatics/SNPchipdata/MPS_samples/MCRI/AGIP/kinghorn_2017_01_17/repexp_kinghorn_2017_01_17/devel/repexp_2017_01_17_pipeline/bam_recal/",
        glob = "*.bam")
-names(bamfiles) <- str_extract(bamfiles, "(?<=bam_recal/).+(?=_bowtie2_recal)")
+names(bamfiles) <- stringr::str_extract(bamfiles, "(?<=bam_recal/).+(?=_bowtie2_recal)")
 
 x_overlap <- score_bam(bamfiles, exstra_known, sample_names = names(bamfiles), groups.regex = c(case = "^WGSrpt", control = ""), 
                verbosity = 2, filter.low.counts = TRUE, cluster = cluster25)
@@ -170,3 +170,9 @@ par(mfrow = c(3, 1))
 plot(tsxc["HD"], main = "HD, scoring by count")
 plot(tsxo["HD"], main = "HD, scoring by overlap (R)")
 plot(ts_wgs_pcr_2["HD"], main = "HD, scoring by overlap (Perl)")
+
+
+# experiment data
+library("NGScopyData")
+x_count_tps_27 <- score_bam(tps_27.chr6()$bamFpath, exstra_known, groups.regex = c(case = ""), 
+                     verbosity = 2, filter.low.counts = TRUE, method = "count")

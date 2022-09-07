@@ -33,7 +33,7 @@ score_bam <- function(paths,
                       groups.regex = NULL, 
                       groups.samples = NULL, 
                       filter.low.counts = TRUE,
-                      scan_bam_flag = scanBamFlag(
+                      scan_bam_flag = Rsamtools::scanBamFlag(
                         isUnmappedQuery = FALSE, isSecondaryAlignment = FALSE,
                         isNotPassingQualityControls = FALSE, isDuplicate = FALSE
                       ), 
@@ -100,6 +100,7 @@ score_bam <- function(paths,
       requireNamespace("magrittr");
       requireNamespace("exSTRa"); 
       requireNamespace("Rsamtools"); 
+      requireNamespace("IRanges");
       requireNamespace("stringr");
     })
     snow::clusterExport(cluster, 
@@ -107,7 +108,9 @@ score_bam <- function(paths,
         "score_bam_1_locus"))
   }
   
-  sample_names <- set_sample_names_score_bam(sample_names, paths)
+  sample_names <- set_sample_names_score_bam(sample_names, paths, 
+                    sample_name_origin, sample_name_remove, sample_name_extract)
+  names(paths) <- sample_names
   
   # Run the scoring
   if(parallel) {
@@ -119,7 +122,7 @@ score_bam <- function(paths,
     out_list <- list()
     for(sn in sample_names) {
       if(verbosity >= 1) message("Reading sample ", sn)
-      out_list[[sn]] <- score_bam_1(bam_file, database, 
+      out_list[[sn]] <- score_bam_1(paths[sn], database, 
                                     scan_bam_flag = scan_bam_flag, qname = qname,
                                     method = method, verbosity = verbosity)
     }
@@ -216,11 +219,13 @@ score_count_method <- function(seqs, motif) {
 
 # score_bam_1_locus()
 score_bam_1_locus <- function(database, loc, path, scan_bam_flag, which, what, method) {
+  requireNamespace("Rsamtools")
+  requireNamespace("IRanges")
   whichlist <- list()
   whichlist[[database$db[loc, chrom]]] <- IRanges(database$db[loc, chromStart] - 10, database$db[loc, chromEnd] + 10)
   which <- do.call(IRangesList, whichlist)
-  param <- ScanBamParam(flag = scan_bam_flag, which = which, what = what)
-  bam <- scanBam(path, param = param)
+  param <- Rsamtools::ScanBamParam(flag = scan_bam_flag, which = which, what = what)
+  bam <- Rsamtools::scanBam(path, param = param)
   bamlist <- list(bam)
   
   # Store names of BAM fields
@@ -247,7 +252,8 @@ score_bam_1_locus <- function(database, loc, path, scan_bam_flag, which, what, m
   bam_dt
 }
 
-set_sample_names_score_bam <- function(sample_names, paths){
+set_sample_names_score_bam <- function(sample_names, paths, sample_name_origin,
+                                       sample_name_remove, sample_name_extract){
   if(is.null(sample_names)) {
     sample_names <- character(length(paths))
     i <- 1
@@ -255,11 +261,17 @@ set_sample_names_score_bam <- function(sample_names, paths){
       if(sample_name_origin == "RG") {
         file_header <- scanBamHeader(bam_file)
         rg <- file_header[[1]]$text[["@RG"]]
-        sn <- str_remove(rg[str_detect(rg, "^SM:")], "^SM:")
+        if(is.null(rg)) {
+          stop("RG line not found in bam: ", bam_file, "\nTry using sample_name_origin = \"basename\"")
+        } else {
+          sn <- str_remove(rg[str_detect(rg, "^SM:")], "^SM:")
+        }
       } else if(sample_name_origin == "basename") {
-        sn <- str_remove(basename(bam_file), "\\.bam$")
+          sn <- str_remove(basename(bam_file), "\\.bam$")
       }
-      sn <- str_remove(sn, sample_name_remove)
+      if(sample_name_remove != "") {
+        sn <- str_remove(sn, sample_name_remove)
+      }
       sn <- str_extract(sn, sample_name_extract)
       sample_names[i] <- sn
       i <- i + 1
