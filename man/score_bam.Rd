@@ -14,8 +14,8 @@ score_bam(
   groups.regex = NULL,
   groups.samples = NULL,
   filter.low.counts = TRUE,
-  scan_bam_flag = scanBamFlag(isUnmappedQuery = FALSE, isSecondaryAlignment = FALSE,
-    isNotPassingQualityControls = FALSE, isDuplicate = FALSE),
+  scan_bam_flag = Rsamtools::scanBamFlag(isUnmappedQuery = FALSE, isSecondaryAlignment =
+    FALSE, isNotPassingQualityControls = FALSE, isDuplicate = FALSE),
   qname = FALSE,
   method = c("overlap", "count"),
   parallel = FALSE,
