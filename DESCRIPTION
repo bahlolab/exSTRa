@@ -32,8 +32,7 @@ Imports:
     methods,
     graphics,
     stats,
-    grDevices
-Enhances:
+    grDevices,
     parallel,
     snow
 Suggests: 
