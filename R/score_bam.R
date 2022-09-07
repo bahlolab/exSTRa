@@ -47,13 +47,13 @@ score_bam <- function(paths,
               ) {
   if (!requireNamespace("Rsamtools", quietly = TRUE))
     stop("The package 'Rsamtools' from Bioconductor is required to run this function.")
-  method <- match.arg(method)
   sample_name_origin <- match.arg(sample_name_origin)
   checkmate::assert_flag(qname)
   checkmate::assert_flag(filter.low.counts)
   if(!is.null(groups.regex)) checkmate::assert_character(groups.regex)
   #assert("Need groups.samples or groups.regex to be defined", !is.null(groups.samples) || !is.null(groups.regex))
   #assert("Require exactly one of groups.samples or groups.regex to be defined", xor(is.null(groups.samples), is.null(groups.regex)))
+  method <- match.arg(method)
   
   if(is.character(database)) {
     checkmate::assert_character(database, len = 1)
@@ -97,11 +97,11 @@ score_bam <- function(paths,
     
     # Load required functions onto cluster nodes
     snow::clusterEvalQ(cluster, { 
-      requireNamespace("magrittr");
-      requireNamespace("exSTRa"); 
-      requireNamespace("Rsamtools"); 
-      requireNamespace("IRanges");
-      requireNamespace("stringr");
+      require("magrittr");
+      require("exSTRa"); 
+      require("Rsamtools"); 
+      require("IRanges");
+      require("stringr");
     })
     snow::clusterExport(cluster, 
       c(".unlist", "motif_cycles", "score_overlap_method", "score_count_method",
@@ -219,11 +219,9 @@ score_count_method <- function(seqs, motif) {
 
 # score_bam_1_locus()
 score_bam_1_locus <- function(database, loc, path, scan_bam_flag, which, what, method) {
-  requireNamespace("Rsamtools")
-  requireNamespace("IRanges")
   whichlist <- list()
-  whichlist[[database$db[loc, chrom]]] <- IRanges(database$db[loc, chromStart] - 10, database$db[loc, chromEnd] + 10)
-  which <- do.call(IRangesList, whichlist)
+  whichlist[[database$db[loc, chrom]]] <- IRanges::IRanges(database$db[loc, chromStart] - 10, database$db[loc, chromEnd] + 10)
+  which <- do.call(IRanges::IRangesList, whichlist)
   param <- Rsamtools::ScanBamParam(flag = scan_bam_flag, which = which, what = what)
   bam <- Rsamtools::scanBam(path, param = param)
   bamlist <- list(bam)
