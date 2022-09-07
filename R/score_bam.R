@@ -23,6 +23,7 @@
 #' @param verbosity Control amount of messages, an interger up to 2. 
 #' @inheritParams read_score
 #' @inheritParams tsum_test
+#' @import snow
 #' @export
 score_bam <- function(paths, 
                       database, 
@@ -103,9 +104,16 @@ score_bam <- function(paths,
       require("IRanges");
       require("stringr");
     })
+    # Need to make the functions available to clusterExport
+    funcs <- new.env()
+    funcs$unlist_bam <- unlist_bam
+    funcs$motif_cycles <- motif_cycles
+    funcs$score_overlap_method <- score_overlap_method
+    funcs$score_count_method <- score_count_method
+    funcs$score_bam_1_locus <- score_bam_1_locus
     snow::clusterExport(cluster, 
-      c(".unlist", "motif_cycles", "score_overlap_method", "score_count_method",
-        "score_bam_1_locus"))
+      c("unlist_bam", "motif_cycles", "score_overlap_method", "score_count_method",
+        "score_bam_1_locus"), envir = funcs)
   }
   
   sample_names <- set_sample_names_score_bam(sample_names, paths, 
@@ -169,7 +177,7 @@ score_bam_1 <- function(path, database, sample_names = NULL,
 
 # Function for collapsing the list of lists into a single list
 # As per the Rsamtools vignette
-.unlist <- function (x){
+unlist_bam <- function (x){
   ## do.call(c, ...) coerces factor to integer, which is undesired
   x1 <- x[[1L]]
   if (is.factor(x1)){
@@ -229,14 +237,15 @@ score_bam_1_locus <- function(database, loc, path, scan_bam_flag, which, what, m
   # Store names of BAM fields
   bam_field <- names(bamlist[[1]])
   # Go through each BAM field and unlist
-  list_loci <- lapply(bam_field, function(y) .unlist(lapply(bamlist, "[[", y))) 
+  list_loci <- lapply(bam_field, function(y) unlist_bam(lapply(bamlist, "[[", y))) 
   # Store as data.table 
-  bam_dt_list <- purrr::map(list_loci, ~ as.data.table(do.call("DataFrame", .x)))
+  DataFrameX <- S4Vectors::DataFrame
+  bam_dt_list <- purrr::map(list_loci, ~ as.data.table(do.call("DataFrameX", .x)))
   bam_dt <- bam_dt_list[[1]]
   
   motif <- database$db[loc, motif]
   if(database$db[loc, strand == "-"]) {
-    motif <- reverseComplement(DNAString(motif)) %>% as.character() # Way to do without conversion that's faster?
+    motif <- Biostrings::reverseComplement(DNAString(motif)) %>% as.character() # Way to do without conversion that's faster?
   }
   if(method == "overlap") {
     bam_dt[, rep := score_overlap_method(bam_dt$seq, motif)]
