@@ -4,15 +4,18 @@ Title: Expanded STR algorithm: detecting expansions in Illumina sequencing data
 Version: 0.91.0.9000
 Date: 2022-09-01
 Authors@R: c(
-  person("Rick M", "Tankard", email = "tankard.r@wehi.edu.au", role = c("cre", "aut"),
+  person("Rick M", "Tankard", role = c("cre", "aut")
+    email = "tankard.r@wehi.edu.au",
     comment = c(ORCID = "0000-0002-8847-9401")),
-  person("Mark", "Bennett", role = "aut", 
+  person("Mark", "Bennett", role = "aut",
+    email = "bennett.ma@wehi.edu.au", 
     comment = c(ORCID = "0000-0002-3561-6804")),
-  person("Melanie", "Bahlo", email = "bahlo@wehi.edu.au",
+  person("Melanie", "Bahlo", role = "aut",
+    email = "bahlo@wehi.edu.au",
     comment = c(ORCID = "0000-0001-5132-0774"))
   )
 Description: Detecting expansions with paired-end Illumina sequencing data.
-License: GPL-2
+License: GPL (>= 3)
 BugReports: https://github.com/bahlolab/exSTRa/issues
 URL: https://github.com/bahlolab/exSTRa
 Encoding: UTF-8
