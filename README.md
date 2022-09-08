@@ -50,6 +50,11 @@ or can be downloaded in the repository from [doc/exSTRa.html](https://bahlolab.g
 Other datasets in BAM/CRAM format can be analysed in a similar way after processing with the Perl 
 [Bio::STR::exSTRa](https://github.com/bahlolab/Bio-STR-exSTRa) package. 
 
+# Help
+
+Please visit our [Discussions](https://github.com/bahlolab/exSTRa/discussions) for help with using exSTRa. 
+For bugs, please open a [Github issue](https://github.com/bahlolab/exSTRa/issues).
+
 # Citation
 
 Rick M. Tankard,
