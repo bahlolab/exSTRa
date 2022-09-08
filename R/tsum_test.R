@@ -157,10 +157,10 @@ tsum_test <- function(strscore,
     # Load required functions onto cluster nodes 
     # TODO: is this useless, since this doesn't bring functions into namespace?
     clusterEvalQ(cluster, { 
-      requireNamespace(testit); 
-      requireNamespace(magrittr);
-      requireNamespace(data.table);
-      requireNamespace(exSTRa) 
+      requireNamespace("testit"); 
+      requireNamespace("magrittr");
+      requireNamespace("data.table");
+      requireNamespace("exSTRa");
     })
   }
   
