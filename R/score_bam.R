@@ -104,16 +104,9 @@ score_bam <- function(paths,
       require("IRanges");
       require("stringr");
     })
-    # Need to make the functions available to clusterExport
-    funcs <- new.env()
-    funcs$unlist_bam <- unlist_bam
-    funcs$motif_cycles <- motif_cycles
-    funcs$score_overlap_method <- score_overlap_method
-    funcs$score_count_method <- score_count_method
-    funcs$score_bam_1_locus <- score_bam_1_locus
     snow::clusterExport(cluster, 
       c("unlist_bam", "motif_cycles", "score_overlap_method", "score_count_method",
-        "score_bam_1_locus"), envir = funcs)
+        "score_bam_1_locus"), envir = environment())
   }
   
   sample_names <- set_sample_names_score_bam(sample_names, paths, 
