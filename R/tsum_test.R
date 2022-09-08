@@ -154,7 +154,8 @@ tsum_test <- function(strscore,
       on.exit(stopCluster(cluster), add = TRUE)
     }
     
-    # Load required functions onto cluster nodes
+    # Load required functions onto cluster nodes 
+    # TODO: is this useless, since this doesn't bring functions into namespace?
     clusterEvalQ(cluster, { 
       requireNamespace(testit); 
       requireNamespace(magrittr);
@@ -255,7 +256,6 @@ tsum_test <- function(strscore,
 # @import data.table
 # @import stringr
 # @import testit
-# @import parallel
 #' @importFrom stats mad median qnorm rnorm
 tsum_statistic_1locus <- function(
   strscore_loc,
@@ -273,10 +273,6 @@ tsum_statistic_1locus <- function(
 {
   qm <- make_quantiles_matrix(strscore_loc, sample = NULL, 
     method = "quantile7")
-  
-  # tsum <- quant_statistic_sampp(qm, min.quant = min.quant, trim = trim,
-  #   case_control = case_control)
-  # return(tsum)
   
   # trim, min.quant, case_control not default
   # subject is in background by default
@@ -403,18 +399,6 @@ tsum_statistic_1locus <- function(
       sim_tsum_stat <- sim_tsum_stat_backg 
     }
     
-    if(parallel) { 
-      clusterExport(cluster,
-        c(
-          "N", "M",
-          "mu_vec", "se_vec",
-          "simulate_quantile_matrix",
-          "sim_tsum_stat"
-        ),
-        envir = environment()
-      )
-    }
-    
     # The simulation
     if(early_stop) {
       if(B <= min_stop) {
@@ -430,20 +414,8 @@ tsum_statistic_1locus <- function(
     sim_T <- rep(NA_real_, B*N) # Don't let p-value get to zero
     B_prev <- 0L
     for(B_used in B_part) {
-      if(parallel) {
-        if(early_stop) {
-          sim_T[(B_prev*N + 1L) : (B_used*N) ] <- as.vector(
-            parReplicate(cluster, B_used - B_prev, sim_tsum_stat())
-          )
-        } else {
-          sim_T <- as.vector(
-            parReplicate(cluster, B_used, sim_tsum_stat())
-          )
-        }
-      } else {
-        for(i in seq(B_prev + 1L, B_used, 1L)) {
-          sim_T[((i-1)*N + 1) : (i*N) ] <- sim_tsum_stat()
-        }
+      for(i in seq(B_prev + 1L, B_used, 1L)) {
+        sim_T[((i-1)*N + 1) : (i*N) ] <- sim_tsum_stat()
       }
       N_tss <- B_used * N # number tsums in simulation
       if(early_stop & B_used != B) {
@@ -455,7 +427,6 @@ tsum_statistic_1locus <- function(
           break
         }
       }
-      
       B_prev <- B_used # prepare for next block
     }
     
