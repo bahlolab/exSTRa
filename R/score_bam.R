@@ -97,12 +97,13 @@ score_bam <- function(paths,
     }
     
     # Load required functions onto cluster nodes
+    # Might be unnecessary?
     snow::clusterEvalQ(cluster, { 
-      require("magrittr");
-      require("exSTRa"); 
-      require("Rsamtools"); 
-      require("IRanges");
-      require("stringr");
+      requireNamespace("magrittr");
+      requireNamespace("exSTRa"); 
+      requireNamespace("Rsamtools"); 
+      requireNamespace("IRanges");
+      requireNamespace("stringr");
     })
     snow::clusterExport(cluster, 
       c("unlist_bam", "motif_cycles", "score_overlap_method", "score_count_method",
