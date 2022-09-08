@@ -327,118 +327,12 @@ tsum_statistic_1locus <- function(
   
   #--# P-value generation by simulation #--#
   if(give.pvalue) {
-    tsum_max <- max(tsums, na.rm = TRUE)
-    
-    # Calculate the mean and se from the median and MAD of the untruncated
-    # data instead
-    mu_vec <- apply(qmt_bac_untrim, 2, median)
-    # NOTE: should the qnorm(3/4) be on the next line? Works better with.
-    se_vec <- apply(qmt_bac_untrim, 2, mad) / qnorm(3/4)
-    
-    N <- nrow(qmt_bac_untrim) # number of samples
-    M <- ncol(qmt_bac_untrim) # number of quantiles
-    
-    # required functions for simulation
-    simulate_quantile_matrix <- function() {
-      sqm <- t (replicate(N, rnorm(M, mu_vec, se_vec)))
-      # as this means the quantiles of a sample are no longer ordered, we sort
-      for(i in seq_len(N)) {
-        sqm[i, ] <- sort.int(sqm[i,  ], method = "shell")
-      }
-      sqm
-    }
-    
-    # simulation function for sample in sample in background testing
-    sim_tsum_stat_backg <- function() {
-      simu <- simulate_quantile_matrix()
-      
-      # Use same names to make copy-pasta easier
-      qmt_bac <- simu 
-      
-      # trim if required
-      if(trim != 0) {
-        qmt_bac <- trim_matrix_(qmt_bac, trim)
-      }
-      
-      # calculate mean, var
-      bac_mu <- colMeans(qmt_bac)
-      bac_var <- colMeans(qmt_bac ^ 2) - bac_mu ^ 2
-      # Made to match R's t.test() functionality:
-      bac_stderr <- sqrt(bac_var * (nrow(qmt_bac) + 1) / (nrow(qmt_bac) - 1))
-      
-      tsums <- qm_tsum_stat_bare_(simu, bac_mu, bac_stderr)
-      
-      tsums
-    }
-    
-    # simulation function for sample in case-control testing
-    sim_tsum_stat_cc <- function() {
-      qmt_bac <- simulate_quantile_matrix()
-      simu_case <- simulate_quantile_matrix()
-      
-      # trim if required
-      if(trim != 0) {
-        qmt_bac <- trim_matrix_(qmt_bac, trim)
-      }
-      
-      # calculate mean, var
-      bac_mu <- colMeans(qmt_bac)
-      bac_var <- colMeans(qmt_bac ^ 2) - bac_mu ^ 2
-      # Made to match R's t.test() functionality:
-      bac_stderr <- sqrt(bac_var * (nrow(qmt_bac) + 1) / (nrow(qmt_bac) - 1))
-      
-      tsums <- qm_tsum_stat_bare_(simu_case, bac_mu, bac_stderr)
-      
-      tsums
-    }
-    
-    # Use the correct simulation function
-    if(case_control) {
-      sim_tsum_stat <- sim_tsum_stat_cc
-    } else {
-      sim_tsum_stat <- sim_tsum_stat_backg 
-    }
-    
-    # The simulation
-    if(early_stop) {
-      if(B <= min_stop) {
-        B_part <- B # Otherwise we will have an empty set 
-      } else {
-        B_part <- floor(B / (2 ^ (seq(ceiling(log2(B/min_stop/2)), 0, -1))) + 2 * .Machine$double.eps)
-      }
-    } else {
-      B_part <- B
-    }
-    # TODO: explore ways that use far less memory (don't keep raw tsum results)
-    #       Is it even worth it? Only for very large B (B*N >> 1e7)
-    sim_T <- rep(NA_real_, B*N) # Don't let p-value get to zero
-    B_prev <- 0L
-    for(B_used in B_part) {
-      for(i in seq(B_prev + 1L, B_used, 1L)) {
-        sim_T[((i-1)*N + 1) : (i*N) ] <- sim_tsum_stat()
-      }
-      N_tss <- B_used * N # number tsums in simulation
-      if(early_stop & B_used != B) {
-        p_smallest <- (sum(sim_T[1L:N_tss] > tsum_max) + 1) / (N_tss + 1)
-        p.value.sd <- p_value_sd_(p_smallest, B_used, N)
-        # if(p_smallest - p.value.sd * 2 > 0.01) {
-        if(verbose && p.value.sd < early_A * p_smallest) {
-          message("    Reduced replicates to ", B_used, ".")
-          break
-        }
-      }
-      B_prev <- B_used # prepare for next block
-    }
-    
-    
-    # p-values
-    N_out <- length(tsums)
-    p.value <- rep(NA_real_, N_out)
-    # calculate p-values
-    for(i in seq_len(N_out)) {
-      p.value[i] <- (sum(sim_T[1L:N_tss] > tsums[i]) + 1) / (N_tss + 1)
-    }
-    p.value.sd <- p_value_sd_(p.value, B_used, N)
+    pvs <- p_value_simulation(tsums = tsums, qmt_bac_untrim = qmt_bac_untrim, 
+        case_control = case_control, early_stop = early_stop, min_stop = min_stop,
+        B = B, trim = trim, verbose = verbose, early_A = early_A)
+    p.value = pvs$p.value
+    p.value.sd = pvs$p.value.sd
+    B_used = pvs$B_used
   } else {
     p.value = NA_real_ 
     p.value.sd = NA_real_
@@ -448,6 +342,122 @@ tsum_statistic_1locus <- function(
   
   # output data.table directly, so that we can include p-values
   data.table(sample = names(tsums), tsum = tsums, p.value = p.value, p.value.sd = p.value.sd, B = B_used)
+}
+
+p_value_simulation <- function(tsums, qmt_bac_untrim, case_control, early_stop, early_A, B, min_stop, trim, verbose){
+  tsum_max <- max(tsums, na.rm = TRUE)
+  
+  # Calculate the mean and se from the median and MAD of the untruncated
+  # data instead
+  mu_vec <- apply(qmt_bac_untrim, 2, median)
+  # NOTE: should the qnorm(3/4) be on the next line? Works better with.
+  se_vec <- apply(qmt_bac_untrim, 2, mad) / qnorm(3/4)
+  
+  N <- nrow(qmt_bac_untrim) # number of samples
+  M <- ncol(qmt_bac_untrim) # number of quantiles
+  
+  # required functions for simulation
+  simulate_quantile_matrix <- function() {
+    sqm <- t (replicate(N, rnorm(M, mu_vec, se_vec)))
+    # as this means the quantiles of a sample are no longer ordered, we sort
+    for(i in seq_len(N)) {
+      sqm[i, ] <- sort.int(sqm[i,  ], method = "shell")
+    }
+    sqm
+  }
+  
+  # simulation function for sample in sample in background testing
+  sim_tsum_stat_backg <- function() {
+    simu <- simulate_quantile_matrix()
+    
+    # Use same names to make copy-pasta easier
+    qmt_bac <- simu 
+    
+    # trim if required
+    if(trim != 0) {
+      qmt_bac <- trim_matrix_(qmt_bac, trim)
+    }
+    
+    # calculate mean, var
+    bac_mu <- colMeans(qmt_bac)
+    bac_var <- colMeans(qmt_bac ^ 2) - bac_mu ^ 2
+    # Made to match R's t.test() functionality:
+    bac_stderr <- sqrt(bac_var * (nrow(qmt_bac) + 1) / (nrow(qmt_bac) - 1))
+    
+    tsums <- qm_tsum_stat_bare_(simu, bac_mu, bac_stderr)
+    
+    tsums
+  }
+  
+  # simulation function for sample in case-control testing
+  sim_tsum_stat_cc <- function() {
+    qmt_bac <- simulate_quantile_matrix()
+    simu_case <- simulate_quantile_matrix()
+    
+    # trim if required
+    if(trim != 0) {
+      qmt_bac <- trim_matrix_(qmt_bac, trim)
+    }
+    
+    # calculate mean, var
+    bac_mu <- colMeans(qmt_bac)
+    bac_var <- colMeans(qmt_bac ^ 2) - bac_mu ^ 2
+    # Made to match R's t.test() functionality:
+    bac_stderr <- sqrt(bac_var * (nrow(qmt_bac) + 1) / (nrow(qmt_bac) - 1))
+    
+    tsums <- qm_tsum_stat_bare_(simu_case, bac_mu, bac_stderr)
+    
+    tsums
+  }
+  
+  # Use the correct simulation function
+  if(case_control) {
+    sim_tsum_stat <- sim_tsum_stat_cc
+  } else {
+    sim_tsum_stat <- sim_tsum_stat_backg 
+  }
+  
+  # The simulation
+  if(early_stop) {
+    if(B <= min_stop) {
+      B_part <- B # Otherwise we will have an empty set 
+    } else {
+      B_part <- floor(B / (2 ^ (seq(ceiling(log2(B/min_stop/2)), 0, -1))) + 2 * .Machine$double.eps)
+    }
+  } else {
+    B_part <- B
+  }
+  # TODO: explore ways that use far less memory (don't keep raw tsum results)
+  #       Is it even worth it? Only for very large B (B*N >> 1e7)
+  sim_T <- rep(NA_real_, B*N) # Don't let p-value get to zero
+  B_prev <- 0L
+  for(B_used in B_part) {
+    for(i in seq(B_prev + 1L, B_used, 1L)) {
+      sim_T[((i-1)*N + 1) : (i*N) ] <- sim_tsum_stat()
+    }
+    N_tss <- B_used * N # number tsums in simulation
+    if(early_stop & B_used != B) {
+      p_smallest <- (sum(sim_T[1L:N_tss] > tsum_max) + 1) / (N_tss + 1)
+      p.value.sd <- p_value_sd_(p_smallest, B_used, N)
+      # if(p_smallest - p.value.sd * 2 > 0.01) {
+      if(verbose && p.value.sd < early_A * p_smallest) {
+        message("    Reduced replicates to ", B_used, ".")
+        break
+      }
+    }
+    B_prev <- B_used # prepare for next block
+  }
+
+  # p-values
+  N_out <- length(tsums)
+  p.value <- rep(NA_real_, N_out)
+  # calculate p-values
+  for(i in seq_len(N_out)) {
+    p.value[i] <- (sum(sim_T[1L:N_tss] > tsums[i]) + 1) / (N_tss + 1)
+  }
+  p.value.sd <- p_value_sd_(p.value, B_used, N)
+  
+  list(p.value = p.value, p.value.sd = p.value.sd, B_used = B_used)
 }
 
 
