@@ -15,5 +15,11 @@ add_alpha(col, alpha = 1)
 A character vector.
 }
 \description{
-Add transparency to a color value
+Adapted from 
+Markus Gesmann (Apr 30, 2013) How to change the alpha value of colours in R. 
+Retrieved from 
+https://magesblog.com/post/2013-04-30-how-to-change-alpha-value-of-colours-in/
+}
+\details{
+Used in exSTRa with permission.
 }

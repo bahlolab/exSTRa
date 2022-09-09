@@ -1,8 +1,14 @@
 # this function is taken from
 # http://www.magesblog.com/2013/04/how-to-change-alpha-value-of-colours-in.html
 # old name: add.alpha
-# TODO: ask Markus if he is ok for this function to be included in this package.
 #' Add transparency to a color value
+#'
+#' Adapted from 
+#' Markus Gesmann (Apr 30, 2013) How to change the alpha value of colours in R. 
+#' Retrieved from 
+#' https://magesblog.com/post/2013-04-30-how-to-change-alpha-value-of-colours-in/
+#' 
+#' Used in exSTRa with permission.
 #' 
 #' @param col Input color character.
 #' @param alpha Transparency level, a numeric from 0 to 1 inclusive.
