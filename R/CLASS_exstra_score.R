@@ -169,7 +169,7 @@ plot_names.exstra_score <- function(x, names = NULL) {
     setkey(x$db, locus)
   }
   if(!missing(samp)) {
-    x$samples <- x$samples[eval(substitute(samp)), nomatch=0]
+    x$samples <- x$samples[eval(substitute(samp)), nomatch = 0]
     setkey(x$samples, sample)
   }
   x$data <- x$data[x$db$locus][sample %in% x$samples$sample]
@@ -219,7 +219,7 @@ plot_names.exstra_score <- function(x, names = NULL) {
 #' @importFrom graphics abline grid text
 #' @export
 plot.exstra_score <- function(x, loci = NULL, sample_col = NULL, 
-  refline = TRUE, ylab="Fn(x)", verticals = TRUE,
+  refline = TRUE, ylab = "Fn(x)", verticals = TRUE,
   pch = 19, xlim, ylim = c(0,1), alpha_control = 0.5, alpha_case = NULL, 
   xlinked = "all", xlinked.safe = TRUE, x_upper_missing = 150, 
   main = NULL, ...) {
@@ -265,14 +265,8 @@ plot.exstra_score <- function(x, loci = NULL, sample_col = NULL,
           xlim_1 <- c(0, x_upper_missing)
         }
       }
-      plot(NA,
-        xlim = xlim_1,
-        ylim = ylim,
-        main = main.title,
-        xlab = "Repeated bases (x)",
-        ylab = ylab,
-        cex.main = 1,
-        ...)
+      plot(NA, xlim = xlim_1, ylim = ylim, main = main.title,
+        xlab = "Repeated bases (x)", ylab = ylab, cex.main = 1, ...)
       grid(col = "grey80")
       if(refline) {
         abline(v = loci_normal_exp(rsc, locus.name), col = c("blue", "red"), lty = 3:4)
