@@ -24,7 +24,6 @@ BugReports: https://github.com/bahlolab/exSTRa/issues
 URL: https://github.com/bahlolab/exSTRa
 Encoding: UTF-8
 Depends:
-    R (>= 4.2.0),
     data.table (>= 1.10.4-3)
 Imports: 
     testit (>= 0.7), 
@@ -63,7 +62,7 @@ Collate:
     'CLASS_exstra_score.R'
     'CLASS_exstra_tsum.R'
     'GENERICS.R'
-    'add_alpha_.R'
+    'add_alpha.R'
     'exstra_known.R'
     'exstra_wgs_pcr_2.R'
     'filter_low_scores.R'
