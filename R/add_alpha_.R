@@ -1,5 +1,5 @@
-# TODO:
-# this function is from http://www.magesblog.com/2013/04/how-to-change-alpha-value-of-colours-in.html
+# this function is from 
+# http://www.magesblog.com/2013/04/how-to-change-alpha-value-of-colours-in.html
 # so may need a rewrite
 # old name: add.alpha
 #' Add transparency to a color value
