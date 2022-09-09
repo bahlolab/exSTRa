@@ -52,7 +52,7 @@ simpleRepeat_avinput$alt <- "0"
 write.table(simpleRepeat_avinput, file="simpleRepeat.avinput", sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE)
 
 # Run ANNOVAR
-system(paste0("perl ", table_annovar_script, " simpleRepeat.avinput ", humandb_annovar_dir, " -buildver hg19 -out simpleRepeat_annovar -remove -protocol refGene -operation g -nastring ."))
+system2("perl", paste0(table_annovar_script, " simpleRepeat.avinput ", humandb_annovar_dir, " -buildver hg19 -out simpleRepeat_annovar -remove -protocol refGene -operation g -nastring ."))
 
 # Load ANNOVAR input
 simpleRepeat_annovar <- read.delim("simpleRepeat_annovar.hg19_multianno.txt", sep="\t", header=TRUE, stringsAsFactors=FALSE)
@@ -76,28 +76,28 @@ simpleRepeat_exSTRa <- simpleRepeat[, exSTRa_colnames]
 
 write.table(simpleRepeat_exSTRa, file="simpleRepeat_repeat_database.txt", sep="\t", quote=FALSE, row.names=FALSE, col.names=TRUE)
 
-system("echo '### exSTRa UCSC simpleRepeat Tandem Repeat Finder track database ###' > simpleRepeat_header.txt")
-system(paste0("echo '# Last updated ", Sys.Date(), "' >> simpleRepeat_header.txt"))
-system("echo '# Requires: exSTRa 0.8' >> simpleRepeat_header.txt")
+system2("echo", "'### exSTRa UCSC simpleRepeat Tandem Repeat Finder track database ###' > simpleRepeat_header.txt")
+system2("echo", paste0("'# Last updated ", Sys.Date(), "' >> simpleRepeat_header.txt"))
+system2("echo", "'# Requires: exSTRa 0.8' >> simpleRepeat_header.txt")
 
-system("cat simpleRepeat_header.txt simpleRepeat_repeat_database.txt > exSTRa_simpleRepeat.txt")
+system2("cat", "simpleRepeat_header.txt simpleRepeat_repeat_database.txt > exSTRa_simpleRepeat.txt")
 
 # Filter genes expressed in brain
 simpleRepeat_exSTRa_brain <- simpleRepeat_exSTRa[simpleRepeat_exSTRa$gene %in% brain_expressed_genes, ]
 
 write.table(simpleRepeat_exSTRa_brain, file="simpleRepeat_repeat_database_brain_expressed.txt", sep="\t", quote=FALSE, row.names=FALSE, col.names=TRUE)
 
-system("echo '### exSTRa UCSC simpleRepeat Tandem Repeat Finder track database ###' > simpleRepeat_brain_expressed_header.txt")
-system("echo '# Filtered to genes expressed in brain (GTEx median tpm > 1 in at least one brain tissue)' >> simpleRepeat_brain_expressed_header.txt")
-system(paste0("echo '# Last updated ", Sys.Date(), "' >> simpleRepeat_brain_expressed_header.txt"))
-system("echo '# Requires: exSTRa 0.8' >> simpleRepeat_brain_expressed_header.txt")
+system2("echo", "'### exSTRa UCSC simpleRepeat Tandem Repeat Finder track database ###' > simpleRepeat_brain_expressed_header.txt")
+system2("echo", "'# Filtered to genes expressed in brain (GTEx median tpm > 1 in at least one brain tissue)' >> simpleRepeat_brain_expressed_header.txt")
+system2("echo", paste0("'# Last updated ", Sys.Date(), "' >> simpleRepeat_brain_expressed_header.txt"))
+system2("echo", "'# Requires: exSTRa 0.8' >> simpleRepeat_brain_expressed_header.txt")
 
-system("cat simpleRepeat_brain_expressed_header.txt simpleRepeat_repeat_database_brain_expressed.txt > exSTRa_simpleRepeat_brain_expressed.txt")
-
-system("rm simpleRepeat_annovar.hg19_multianno.txt")
-system("rm simpleRepeat.avinput")
-system("rm simpleRepeat_repeat_database_brain_expressed.txt")
-system("rm simpleRepeat_repeat_database.txt")
-system("rm simpleRepeat_header.txt")
-system("rm simpleRepeat_brain_expressed_header.txt")
+system2("cat", "simpleRepeat_brain_expressed_header.txt simpleRepeat_repeat_database_brain_expressed.txt > exSTRa_simpleRepeat_brain_expressed.txt")
+2
+system2("rm", "simpleRepeat_annovar.hg19_multianno.txt")
+system2("rm", "simpleRepeat.avinput")
+system2("rm", "simpleRepeat_repeat_database_brain_expressed.txt")
+system2("rm", "simpleRepeat_repeat_database.txt")
+system2("rm", "simpleRepeat_header.txt")
+system2("rm", "simpleRepeat_brain_expressed_header.txt")
 

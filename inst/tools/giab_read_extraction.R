@@ -8,7 +8,7 @@ readr::write_tsv(known_extraction_bed, path = "inst/extdata/known_bam_extract.be
 
 # Extract reads using external tool samtools
 bamfile <- "ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio/HG002_NA24385_son/NIST_HiSeq_HG002_Homogeneity-10953946/NHGRI_Illumina300X_AJtrio_novoalign_bams/HG002.hs37d5.300x.bam"
-system(glue("bash samtools view -L inst/extdata/known_bam_extract.bed {bamfile}"))
+system2("samtools",  glue("view -L inst/extdata/known_bam_extract.bed {bamfile}"))
 
 # Also do this with:
 # ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio/HG003_NA24149_father/NIST_HiSeq_HG003_Homogeneity-12389378/NHGRI_Illumina300X_AJtrio_novoalign_bams/HG003.hs37d5.300x.bam
