@@ -14,13 +14,17 @@ Authors@R: c(
     email = "bahlo@wehi.edu.au",
     comment = c(ORCID = "0000-0001-5132-0774"))
   )
-Description: Detecting expansions with paired-end Illumina sequencing data.
+Description: 
+    Detecting repeat expansions with paired-end Illumina sequencing data using
+    visualizations and simulated p-values.
+    Repeat expansions diseases include Huntington's, many spinocerebellar 
+    ataxias, fragile-X and Friedreich's ataxia.
 License: GPL (>= 3)
 BugReports: https://github.com/bahlolab/exSTRa/issues
 URL: https://github.com/bahlolab/exSTRa
 Encoding: UTF-8
 Depends:
-    R (>= 3.6),
+    R (>= 4.2.0),
     data.table (>= 1.10.4-3)
 Imports: 
     testit (>= 0.7), 
@@ -35,6 +39,7 @@ Imports:
     methods,
     graphics,
     stats,
+    utils,
     grDevices,
     parallel,
     snow
@@ -52,7 +57,7 @@ Suggests:
     vdiffr (>= 1.0.4),
     covr (>= 3.5.1)
 RoxygenNote: 7.2.1
-LazyData: true
+LazyData: false
 Collate:
     'CLASS_exstra_db.R'
     'CLASS_exstra_score.R'
@@ -83,3 +88,13 @@ Collate:
     'zzz.R'
 VignetteBuilder: knitr
 Config/testthat/edition: 3
+biocViews: 
+    Genetics,
+    GenomicVariation,
+    VariantDetection,
+    Classification,
+    DNAseq,
+    Exomeseq,
+    WholeGenome,
+    Visualization,
+    Annotation
