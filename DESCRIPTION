@@ -19,6 +19,9 @@ Description:
     visualizations and simulated p-values.
     Repeat expansions diseases include Huntington's, many spinocerebellar 
     ataxias, fragile-X and Friedreich's ataxia.
+biocViews: 
+    Classification, Genetics, VariantDetection, Exomeseq, WholeGenome, 
+    Visualization
 License: GPL (>= 3)
 BugReports: https://github.com/bahlolab/exSTRa/issues
 URL: https://github.com/bahlolab/exSTRa
@@ -88,13 +91,3 @@ Collate:
     'zzz.R'
 VignetteBuilder: knitr
 Config/testthat/edition: 3
-biocViews: 
-    Genetics,
-    GenomicVariation,
-    VariantDetection,
-    Classification,
-    DNAseq,
-    Exomeseq,
-    WholeGenome,
-    Visualization,
-    Annotation
