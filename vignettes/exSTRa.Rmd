@@ -251,6 +251,7 @@ This is performed by x[loci] or x[loci, samples].
 
 For a single locus:
 ```{r}
+data(exstra_wgs_pcr_2)
 exstra_wgs_pcr_2["HD"]
 ```
 
