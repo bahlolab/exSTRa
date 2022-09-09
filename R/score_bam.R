@@ -23,6 +23,7 @@
 #' @param verbosity Control amount of messages, an interger up to 2. 
 #' @inheritParams read_score
 #' @inheritParams tsum_test
+#' @import snow
 #' @export
 score_bam <- function(paths, 
                       database, 
@@ -33,7 +34,7 @@ score_bam <- function(paths,
                       groups.regex = NULL, 
                       groups.samples = NULL, 
                       filter.low.counts = TRUE,
-                      scan_bam_flag = scanBamFlag(
+                      scan_bam_flag = Rsamtools::scanBamFlag(
                         isUnmappedQuery = FALSE, isSecondaryAlignment = FALSE,
                         isNotPassingQualityControls = FALSE, isDuplicate = FALSE
                       ), 
@@ -47,13 +48,13 @@ score_bam <- function(paths,
               ) {
   if (!requireNamespace("Rsamtools", quietly = TRUE))
     stop("The package 'Rsamtools' from Bioconductor is required to run this function.")
-  method <- match.arg(method)
   sample_name_origin <- match.arg(sample_name_origin)
   checkmate::assert_flag(qname)
   checkmate::assert_flag(filter.low.counts)
   if(!is.null(groups.regex)) checkmate::assert_character(groups.regex)
   #assert("Need groups.samples or groups.regex to be defined", !is.null(groups.samples) || !is.null(groups.regex))
   #assert("Require exactly one of groups.samples or groups.regex to be defined", xor(is.null(groups.samples), is.null(groups.regex)))
+  method <- match.arg(method)
   
   if(is.character(database)) {
     checkmate::assert_character(database, len = 1)
@@ -96,34 +97,24 @@ score_bam <- function(paths,
     }
     
     # Load required functions onto cluster nodes
+    # Might be unnecessary?
     snow::clusterEvalQ(cluster, { 
-      requireNamespace(magrittr);
-      requireNamespace(exSTRa); 
-      requireNamespace(Rsamtools); 
-      requireNamespace(stringr);
+      requireNamespace("magrittr");
+      requireNamespace("exSTRa"); 
+      requireNamespace("Rsamtools"); 
+      requireNamespace("IRanges");
+      requireNamespace("stringr");
     })
-    snow::clusterExport(cluster, c(".unlist", "motif_cycles"))
+    snow::clusterExport(cluster, 
+      c("unlist_bam", "motif_cycles", "score_overlap_method", "score_count_method",
+        "score_bam_1_locus"), envir = environment())
   }
   
+  sample_names <- set_sample_names_score_bam(sample_names, paths, 
+                    sample_name_origin, sample_name_remove, sample_name_extract)
+  names(paths) <- sample_names
   
-  if(is.null(sample_names)) {
-    sample_names <- character(length(paths))
-    i <- 1
-    for(bam_file in paths) {
-      if(sample_name_origin == "RG") {
-        file_header <- scanBamHeader(bam_file)
-        rg <- file_header[[1]]$text[["@RG"]]
-        sn <- str_remove(rg[str_detect(rg, "^SM:")], "^SM:")
-      } else if(sample_name_origin == "basename") {
-        sn <- str_remove(basename(bam_file), "\\.bam$")
-      }
-      sn <- str_remove(sn, sample_name_remove)
-      sn <- str_extract(sn, sample_name_extract)
-      sample_names[i] <- sn
-      i <- i + 1
-    }
-  }
-  
+  # Run the scoring
   if(parallel) {
     names(paths) <- sample_names
     out_list <- snow::parLapply(cluster, paths, score_bam_1, database, 
@@ -133,21 +124,17 @@ score_bam <- function(paths,
     out_list <- list()
     for(sn in sample_names) {
       if(verbosity >= 1) message("Reading sample ", sn)
-      out_list[[sn]] <- score_bam_1(bam_file, database, 
+      out_list[[sn]] <- score_bam_1(paths[sn], database, 
                                     scan_bam_flag = scan_bam_flag, qname = qname,
                                     method = method, verbosity = verbosity)
     }
   }
   
-  
   counts <- rbindlist(out_list, idcol = "sample")
   # Make like a standard strscore object
   setnames(counts, "qwidth", "mlength")
-  
   counts$group <- strs_read_groups_(counts, groups.regex, groups.samples)
-  
   strscore <- exstra_score_new_(counts, database)
-  
   if(filter.low.counts) {
     # Filter low counts, assumed wanted by default
     strscore <- filter_low_scores(strscore)
@@ -170,60 +157,10 @@ score_bam_1 <- function(path, database, sample_names = NULL,
   }
   what <- c("rname", "strand", "pos", "qwidth", "seq", "flag", "mapq", qname_what)
   
-  bam_head <- scanBamHeader(path)
-  
   list_bam_dt <- list()
   for(loc in database$db$locus) {
     if(verbosity >= 2) message("  On locus ", loc)
-    whichlist <- list()
-    whichlist[[database$db[loc, chrom]]] <- IRanges(database$db[loc, chromStart] - 10, database$db[loc, chromEnd] + 10)
-    which <- do.call(IRangesList, whichlist)
-    param <- ScanBamParam(flag = scan_bam_flag, which = which, what = what)
-    bam <- scanBam(path, param = param)
-    
-    bamlist <- list(bam)
-    
-    # Store names of BAM fields
-    bam_field <- names(bamlist[[1]])
-    # Go through each BAM field and unlist
-    list_loci <- lapply(bam_field, function(y) .unlist(lapply(bamlist, "[[", y))) 
-    # Store as data.table 
-    bam_dt_list <- purrr::map(list_loci, ~ as.data.table(do.call("DataFrame", .x)))
-    bam_dt <- bam_dt_list[[1]]
-    # names(bam_dt) <- database$db$locus
-    
-    motif <- database$db[loc, motif]
-    if(database$db[loc, strand == "-"]) {
-      motif <- reverseComplement(DNAString(motif)) %>% as.character() # Way to do without conversion that's faster?
-    }
-    if(method == "overlap") {
-      seqmask <- matrix("", nrow = length(bam_dt$seq), ncol = nchar(motif))
-      mask <- str_replace_all(motif, ".", ".")
-      mcv <- motif_cycles(motif)
-      for(jj in seq_along(mcv)) {
-        seqmask[, jj] <- str_replace_all(bam_dt$seq, mcv[jj], mask)
-      }
-      lscore <- rep(0, nrow(seqmask))
-      for(ii in seq_len(nrow(seqmask))) {
-        # merge the masks
-        mask_mat <- str_split(seqmask[ii, ], "", simplify = TRUE)
-        mask_seq <- apply(mask_mat, 2, function(x) { ifelse("." %in% x, ".", x[1]) })
-        lscore[ii] <- sum(mask_seq == ".")
-      }
-      bam_dt[, rep := lscore]
-      bam_dt[, prop := rep / qwidth]
-    } else if(method == "count") {
-      lscore <- 0
-      for(mc in motif_cycles(motif)) {
-        lscore <- lscore + str_count(bam_dt$seq, mc)
-      }
-      bam_dt[, rep := lscore]
-      bam_dt[, prop := rep / (qwidth - nchar(motif) + 1)]
-    } else {
-      stop("Unknown method. (bug)")
-    }
-    
-    list_bam_dt[[loc]] <- bam_dt
+    list_bam_dt[[loc]] <- score_bam_1_locus(database, loc, path, scan_bam_flag, which, what, method) 
   }
    
   output_table <- rbindlist(list_bam_dt, idcol = "locus")
@@ -234,7 +171,7 @@ score_bam_1 <- function(path, database, sample_names = NULL,
 
 # Function for collapsing the list of lists into a single list
 # As per the Rsamtools vignette
-.unlist <- function (x){
+unlist_bam <- function (x){
   ## do.call(c, ...) coerces factor to integer, which is undesired
   x1 <- x[[1L]]
   if (is.factor(x1)){
@@ -251,4 +188,114 @@ motif_cycles <- function(motif) {
     cycles[i] <- paste0(substring(motif, i), substring(motif, 1, i - 1))
   }
   cycles
+}
+
+
+# score_overlap_method(bam_dt$seq, motif)
+#' Score DNA sequences using the overlap method
+#' 
+#' The overlap method tags all base pairs that match the motif or cycles of the 
+#' motif (starting on different bases).
+#' 
+#' @param seqs A vector of DNA sequences
+#' @param motif A single DNA repeat motif string
+#' @export
+score_overlap_method <- function(seqs, motif) { 
+  checkmate::assert_character(seqs)
+  checkmate::assertString(motif)
+  seqmask <- matrix("", nrow = length(seqs), ncol = nchar(motif))
+  mask <- str_replace_all(motif, ".", ".")
+  mcv <- motif_cycles(motif)
+  for(jj in seq_along(mcv)) {
+    seqmask[, jj] <- str_replace_all(seqs, mcv[jj], mask)
+  }
+  lscore <- rep(0, nrow(seqmask))
+  for(ii in seq_len(nrow(seqmask))) {
+    # merge the masks
+    mask_mat <- str_split(seqmask[ii, ], "", simplify = TRUE)
+    mask_seq <- apply(mask_mat, 2, function(x) { ifelse("." %in% x, ".", x[1]) })
+    lscore[ii] <- sum(mask_seq == ".")
+  }
+  lscore
+}
+  
+# score_count_method(bam_dt$seq, motif)
+#' Score DNA sequences using the count method
+#' 
+#' The count method counts each occurrence of the motif and its cycles
+#' (starting on different bases).
+#' 
+#' @inheritParams score_overlap_method
+#' @export
+score_count_method <- function(seqs, motif) {
+  checkmate::assert_character(seqs)
+  checkmate::assertString(motif)
+  lscore <- 0
+  for(mc in motif_cycles(motif)) {
+    lscore <- lscore + str_count(seqs, mc)
+  }
+  lscore
+}
+
+
+# score_bam_1_locus()
+score_bam_1_locus <- function(database, loc, path, scan_bam_flag, which, what, method) {
+  whichlist <- list()
+  whichlist[[database$db[loc, chrom]]] <- IRanges::IRanges(database$db[loc, chromStart] - 10, database$db[loc, chromEnd] + 10)
+  which <- do.call(IRanges::IRangesList, whichlist)
+  param <- Rsamtools::ScanBamParam(flag = scan_bam_flag, which = which, what = what)
+  bam <- Rsamtools::scanBam(path, param = param)
+  bamlist <- list(bam)
+  
+  # Store names of BAM fields
+  bam_field <- names(bamlist[[1]])
+  # Go through each BAM field and unlist
+  list_loci <- lapply(bam_field, function(y) unlist_bam(lapply(bamlist, "[[", y))) 
+  # Store as data.table 
+  DataFrameX <- S4Vectors::DataFrame
+  bam_dt_list <- purrr::map(list_loci, ~ as.data.table(do.call("DataFrameX", .x)))
+  bam_dt <- bam_dt_list[[1]]
+  
+  motif <- database$db[loc, motif]
+  if(database$db[loc, strand == "-"]) {
+    motif <- Biostrings::reverseComplement(Biostrings::DNAString(motif)) %>% as.character() # Way to do without conversion that's faster?
+  }
+  if(method == "overlap") {
+    bam_dt[, rep := score_overlap_method(bam_dt$seq, motif)]
+    bam_dt[, prop := rep / qwidth]
+  } else if(method == "count") {
+    bam_dt[, rep := score_count_method(bam_dt$seq, motif)]
+    bam_dt[, prop := rep / (qwidth - nchar(motif) + 1)]
+  } else {
+    stop("Unknown method. (bug)")
+  }
+  bam_dt
+}
+
+set_sample_names_score_bam <- function(sample_names, paths, sample_name_origin,
+                                       sample_name_remove, sample_name_extract){
+  if(is.null(sample_names)) {
+    sample_names <- character(length(paths))
+    i <- 1
+    for(bam_file in paths) {
+      if(sample_name_origin == "RG") {
+        file_header <- Rsamtools::scanBamHeader(bam_file)
+        rg <- file_header[[1]]$text[["@RG"]]
+        if(is.null(rg)) {
+          stop("RG line not found in bam: ", bam_file, "\nTry using sample_name_origin = \"basename\"")
+        } else {
+          sn <- str_remove(rg[str_detect(rg, "^SM:")], "^SM:")
+        }
+      } else if(sample_name_origin == "basename") {
+          sn <- str_remove(basename(bam_file), "\\.bam$")
+      }
+      if(sample_name_remove != "") {
+        sn <- str_remove(sn, sample_name_remove)
+      }
+      sn <- str_extract(sn, sample_name_extract)
+      sample_names[i] <- sn
+      i <- i + 1
+    }
+  }
+  sample_names
 }
