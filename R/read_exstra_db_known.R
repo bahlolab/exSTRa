@@ -9,7 +9,7 @@ read_exstra_db_known <- function(file, ...) {
     data$Disease <- data$locus
   }
   data <- replace(data, data == "NA", NA)
-  data$locus <- sub(".*\\((.*)\\).*", "\\1", data$Disease, perl = T)
+  data$locus <- sub(".*\\((.*)\\).*", "\\1", data$Disease, perl = TRUE)
   
   # Match the first suitable column
   names(data)[checkmate::assert_int(grep("chr(om)?$", names(data), TRUE))] <- "chrom"

@@ -330,13 +330,13 @@ tsum_statistic_1locus <- function(
     pvs <- p_value_simulation(tsums = tsums, qmt_bac_untrim = qmt_bac_untrim, 
         case_control = case_control, early_stop = early_stop, min_stop = min_stop,
         B = B, trim = trim, verbose = verbose, early_A = early_A)
-    p.value = pvs$p.value
-    p.value.sd = pvs$p.value.sd
-    B_used = pvs$B_used
+    p.value <- pvs$p.value
+    p.value.sd <- pvs$p.value.sd
+    B_used <- pvs$B_used
   } else {
-    p.value = NA_real_ 
-    p.value.sd = NA_real_
-    B_used = NA_integer_
+    p.value <- NA_real_ 
+    p.value.sd <- NA_real_
+    B_used <- NA_integer_
   }
   
   

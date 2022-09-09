@@ -112,7 +112,7 @@ make_quantiles_matrix <- function(strscore, loc = TRUE, sample = NULL, read_coun
     warning("More than one locus has been passed to make_quantiles_matrix with default loc value of TRUE")
   } 
   if(loc_data[, .N] == 0) {
-    stop(paste("No data left after filtering locus"))
+    stop("No data left after filtering locus")
   }
   if(!is.null(quant)) {
     loc_data <- remove_below_quant(loc_data, quant)

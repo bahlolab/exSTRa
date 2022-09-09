@@ -7,7 +7,7 @@ read_exstra_db_xlsx <- function(file, ...) {
     data$Disease <- data$locus
   }
   data <- replace(data, data == "NA", NA)
-  data$locus <- sub(".*\\((.*)\\).*", "\\1", data$Disease, perl = T)
+  data$locus <- sub(".*\\((.*)\\).*", "\\1", data$Disease, perl = TRUE)
   names(data)[which(names(data) == "hg19.chrom" | names(data) == "hg19_chr")] <- "chrom"
   names(data)[which(names(data) == "hg19.start.0" | names(data) == "repeat.start")] <- "chromStart"
   names(data)[which(names(data) == "hg19.end" | names(data) == "repeat.end")] <- "chromEnd"
@@ -18,12 +18,12 @@ read_exstra_db_xlsx <- function(file, ...) {
   data$rn.stab.hig <- as.numeric(NA)
   data$rn.unst.low <- as.numeric(NA) 
   data$rn.unst.hig <- as.numeric(NA) 
-  data$rn.unst.nonmax <- F
+  data$rn.unst.nonmax <- FALSE
   
   for(i in 1:dim(data)[1]) {
     data[i, c("rn.stab.low", "rn.stab.hig")] <- as.numeric(strsplit(as.character(data[i, "Stable.repeat.number"]), "-")[[1]])
     if(grepl("\\+", as.character(data[i, "Unstable.repeat.number"]))) {
-      data[i, "rn.unst.nonmax"] <- T
+      data[i, "rn.unst.nonmax"] <- TRUE
     }
     if(grepl("-", as.character(data[i, "Unstable.repeat.number"]))) {
       data[i, c("rn.unst.low", "rn.unst.hig")] <- as.numeric(strsplit(sub("\\+", "", as.character(data[i, "Unstable.repeat.number"])), "-")[[1]])

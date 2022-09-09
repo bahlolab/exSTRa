@@ -87,7 +87,7 @@ exstra_score_new_ <- function(data, db) {
     }
   }
   setkey(data, locus, sample) 
-  samples <- unique(data[, c("sample", "group"), with = F])
+  samples <- unique(data[, c("sample", "group"), with = FALSE])
   samples$sample <- as.character(samples$sample)
   samples$plotname <- NA_character_
   samples$sex <- factor(NA, c("male", "female"))
@@ -285,7 +285,7 @@ plot.exstra_score <- function(x, loci = NULL, sample_col = NULL,
         sample_col <- add_alpha_(sample_col, alpha_case)
       }
       for(samp in c(setdiff(unique(plot_data$sample), names(sample_col)), intersect(unique(plot_data$sample), names(sample_col)))) {
-        plot(ecdf(plot_data[sample == samp, rep]), add = T, col = replace(sample_col[samp], is.na(sample_col[samp]), black_trans), verticals = verticals,
+        plot(ecdf(plot_data[sample == samp, rep]), add = TRUE, col = replace(sample_col[samp], is.na(sample_col[samp]), black_trans), verticals = verticals,
           pch = pch, ...)
       }
       if(plot_data[, .N] == 0) {
