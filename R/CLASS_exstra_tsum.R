@@ -220,6 +220,7 @@ plot.exstra_tsum <- function(x, loci = NULL, sample_col = NULL,
 #' @return exstra_tsum object
 #' 
 #' @examples 
+#' data(exstra_wgs_pcr_2)
 #' # Run tsum_test()
 #' (tsum <- tsum_test(exstra_wgs_pcr_2[c("HD", "SCA2", "SCA6", "FRDA")], B = 100))
 #' 

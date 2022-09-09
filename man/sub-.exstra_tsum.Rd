@@ -21,6 +21,7 @@ Using \code{i} (select) syntax of data.table to extract loci and/or samples.
 The first index is the loci filter on x$db, and second sample filter on x$samples.
 }
 \examples{
+data(exstra_wgs_pcr_2)
 # Run tsum_test()
 (tsum <- tsum_test(exstra_wgs_pcr_2[c("HD", "SCA2", "SCA6", "FRDA")], B = 100))
 
