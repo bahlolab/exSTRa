@@ -192,7 +192,17 @@ motif_cycles <- function(motif) {
 
 
 # score_overlap_method(bam_dt$seq, motif)
+#' Score DNA sequences using the overlap method
+#' 
+#' The overlap method tags all base pairs that match the motif or cycles of the 
+#' motif (starting on different bases).
+#' 
+#' @param seqs A vector of DNA sequences
+#' @param motif A single DNA repeat motif string
+#' @export
 score_overlap_method <- function(seqs, motif) { 
+  checkmate::assert_character(seqs)
+  checkmate::assertString(motif)
   seqmask <- matrix("", nrow = length(seqs), ncol = nchar(motif))
   mask <- str_replace_all(motif, ".", ".")
   mcv <- motif_cycles(motif)
@@ -210,7 +220,16 @@ score_overlap_method <- function(seqs, motif) {
 }
   
 # score_count_method(bam_dt$seq, motif)
+#' Score DNA sequences using the count method
+#' 
+#' The count method counts each occurrence of the motif and its cycles
+#' (starting on different bases).
+#' 
+#' @inheritParams score_overlap_method
+#' @export
 score_count_method <- function(seqs, motif) {
+  checkmate::assert_character(seqs)
+  checkmate::assertString(motif)
   lscore <- 0
   for(mc in motif_cycles(motif)) {
     lscore <- lscore + str_count(seqs, mc)
@@ -239,7 +258,7 @@ score_bam_1_locus <- function(database, loc, path, scan_bam_flag, which, what, m
   
   motif <- database$db[loc, motif]
   if(database$db[loc, strand == "-"]) {
-    motif <- Biostrings::reverseComplement(DNAString(motif)) %>% as.character() # Way to do without conversion that's faster?
+    motif <- Biostrings::reverseComplement(Biostrings::DNAString(motif)) %>% as.character() # Way to do without conversion that's faster?
   }
   if(method == "overlap") {
     bam_dt[, rep := score_overlap_method(bam_dt$seq, motif)]
@@ -260,7 +279,7 @@ set_sample_names_score_bam <- function(sample_names, paths, sample_name_origin,
     i <- 1
     for(bam_file in paths) {
       if(sample_name_origin == "RG") {
-        file_header <- scanBamHeader(bam_file)
+        file_header <- Rsamtools::scanBamHeader(bam_file)
         rg <- file_header[[1]]$text[["@RG"]]
         if(is.null(rg)) {
           stop("RG line not found in bam: ", bam_file, "\nTry using sample_name_origin = \"basename\"")
