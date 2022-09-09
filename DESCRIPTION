@@ -24,6 +24,7 @@ BugReports: https://github.com/bahlolab/exSTRa/issues
 URL: https://github.com/bahlolab/exSTRa
 Encoding: UTF-8
 Depends:
+    R (>= 4.2.0),
     data.table (>= 1.10.4-3)
 Imports: 
     testit (>= 0.7), 
