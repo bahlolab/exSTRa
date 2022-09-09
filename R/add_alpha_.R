@@ -1,11 +1,12 @@
-# this function is from 
+# this function is taken from
 # http://www.magesblog.com/2013/04/how-to-change-alpha-value-of-colours-in.html
-# so may need a rewrite
 # old name: add.alpha
+# TODO: ask Markus if he is ok for this function to be included in this package.
 #' Add transparency to a color value
 #' 
-#' @param col Input color string.
+#' @param col Input color character.
 #' @param alpha Transparency level, a numeric from 0 to 1 inclusive.
+#' @return A character vector.
 #' @importFrom grDevices col2rgb rgb
 #' @export
 add_alpha_ <- function(col, alpha = 1){
