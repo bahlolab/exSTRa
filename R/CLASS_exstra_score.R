@@ -135,7 +135,7 @@ plot_names.exstra_score <- function(x, names = NULL) {
 #' @return exstra_score object
 #' 
 #' @examples 
-#' 
+#' data(exstra_wgs_pcr_2)
 #' # All data:
 #' exstra_wgs_pcr_2
 #' 
@@ -207,6 +207,7 @@ plot_names.exstra_score <- function(x, names = NULL) {
 #' @param ... Further arguments to the \code{plot.ecdf} function.
 #' 
 #' @examples 
+#' data(exstra_wgs_pcr_2)
 #' plot(exstra_wgs_pcr_2["HD"])
 #' 
 #' plot(exstra_wgs_pcr_2, "HD", sample_col = c("WGSrpt_10" = "red", "WGSrpt_12" = "blue"))

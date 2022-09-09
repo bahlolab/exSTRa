@@ -84,10 +84,11 @@ in Tankard et al.
 May also be applied on a pre-existing exstra_tsum that will regenerate the values.
 }
 \examples{
+data(exstra_wgs_pcr_2)
 exp_test <- tsum_test(exstra_wgs_pcr_2[c("HD", "SCA6")], B = 50)
 exp_test
 
-\dontrun{
+\donttest{
 exp_test_parallel <- tsum_test(exstra_wgs_pcr_2[c("HD", "SCA6")], parallel = TRUE, B = 999)
 exp_test_parallel
 }

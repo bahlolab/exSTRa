@@ -1,3 +1,6 @@
+data(exstra_wgs_pcr_2)
+data(exstra_known)
+
 test_that("is.exstra_db() works", {
   expect_true(is.exstra_db(exstra_known))
   expect_true(is.exstra_db(exstra_wgs_pcr_2))

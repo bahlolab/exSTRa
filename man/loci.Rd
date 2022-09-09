@@ -18,6 +18,8 @@ The loci of \code{x}.
 Return the loci of the selected object
 }
 \examples{
+data(exstra_known)
+data(exstra_wgs_pcr_2)
 loci(exstra_known)
 loci(exstra_wgs_pcr_2)
 }

@@ -6,6 +6,8 @@
 #' @param ... additional arguments to loci
 #' @return The loci of \code{x}.
 #' @examples 
+#' data(exstra_known)
+#' data(exstra_wgs_pcr_2)
 #' loci(exstra_known)
 #' loci(exstra_wgs_pcr_2)
 #' @export

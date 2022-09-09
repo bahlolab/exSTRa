@@ -42,6 +42,7 @@ as a list to \code{rbind_score_list} that is easier to use when the number of ob
 to combine is not known in advance.
 }
 \examples{
+data(exstra_wgs_pcr_2)
 # create a list of distinct samples
 score_list <- list(group1 = exstra_wgs_pcr_2[, "WGSrpt_20"], 
                    controls = exstra_wgs_pcr_2[, c("WGSrpt_02", "WGSrpt_04")],

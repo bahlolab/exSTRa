@@ -16,6 +16,7 @@ Default ggplot method for exstra_score
 }
 \examples{
 library(ggplot2)
+data(exstra_wgs_pcr_2)
 ggplot(exstra_wgs_pcr_2, aes(x = rep, colour = sample)) +
   stat_ecdf() +
   facet_wrap("locus")

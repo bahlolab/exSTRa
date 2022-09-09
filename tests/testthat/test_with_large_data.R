@@ -1,4 +1,6 @@
 ## After running exSTRa_score_analysis.R
+data(exstra_wgs_pcr_2)
+data(exstra_known)
 
 expected_text <- "SCA1 (coding CAG) norm: 30 (91bp) , exp: 39 (117bp)"
 

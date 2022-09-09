@@ -4,6 +4,7 @@
 #' @param ... Additional arguments to ggplot()
 #' @examples 
 #' library(ggplot2)
+#' data(exstra_wgs_pcr_2)
 #' ggplot(exstra_wgs_pcr_2, aes(x = rep, colour = sample)) +
 #'   stat_ecdf() +
 #'   facet_wrap("locus")
@@ -25,6 +26,7 @@ ggplot.exstra_score <- function(data = NULL, ...) {
 #' @param mapping Default list of aesthetic mappings to use for plot.
 #' @param ... Additional arguments to ggplot()
 #' @examples 
+#' data(exstra_wgs_pcr_2)
 #' ggexstra_ecdf(exstra_wgs_pcr_2["HD",])
 #' 
 #' library(ggplot2)

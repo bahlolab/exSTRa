@@ -26,11 +26,8 @@ Rick M. Tankard, Martin B. Delatycki, Paul J. Lockhart, Melanie Bahlo.
 bioRxiv 157792; June 2017. doi: \url{https://doi.org/10.1101/157792}
 }
 \keyword{ package }
-\seealso{
-Data must first be prepared from BAM/CRAM files with the Perl module 
-\url{https://github.com/bahlolab/Bio-STR-exSTRa}.
-}
 \examples{
+data(exstra_wgs_pcr_2)
 exstra_wgs_pcr_2["HD"]
 
 plot(exstra_wgs_pcr_2["HD"])

@@ -69,6 +69,7 @@ upper x-axis limit.}
 Plot ECDF curves from an exstra_score object
 }
 \examples{
+data(exstra_wgs_pcr_2)
 plot(exstra_wgs_pcr_2["HD"])
 
 plot(exstra_wgs_pcr_2, "HD", sample_col = c("WGSrpt_10" = "red", "WGSrpt_12" = "blue"))

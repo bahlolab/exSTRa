@@ -20,7 +20,7 @@ read_exstra_db_xlsx <- function(file, ...) {
   data$rn.unst.hig <- as.numeric(NA) 
   data$rn.unst.nonmax <- FALSE
   
-  for(i in 1:dim(data)[1]) {
+  for(i in seq_len(dim(data)[1])) {
     data[i, c("rn.stab.low", "rn.stab.hig")] <- as.numeric(strsplit(as.character(data[i, "Stable.repeat.number"]), "-")[[1]])
     if(grepl("\\+", as.character(data[i, "Unstable.repeat.number"]))) {
       data[i, "rn.unst.nonmax"] <- TRUE

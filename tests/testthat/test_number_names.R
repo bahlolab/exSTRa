@@ -1,4 +1,5 @@
 # setup
+data(exstra_wgs_pcr_2)
 str_score_num <- copy(exstra_wgs_pcr_2["HD"])
 str_score_num_0 <- copy(str_score_num)
 

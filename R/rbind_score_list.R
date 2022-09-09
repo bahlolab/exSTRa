@@ -22,6 +22,7 @@
 #' @seealso \code{\link[data.table]{rbindlist}}, \code{\link[base]{rbind}}
 #' 
 #' @examples
+#' data(exstra_wgs_pcr_2)
 #' # create a list of distinct samples
 #' score_list <- list(group1 = exstra_wgs_pcr_2[, "WGSrpt_20"], 
 #'                    controls = exstra_wgs_pcr_2[, c("WGSrpt_02", "WGSrpt_04")],

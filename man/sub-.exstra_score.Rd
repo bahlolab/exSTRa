@@ -21,7 +21,7 @@ Using \code{i} (select) syntax of data.table to extract loci and/or samples.
 The first index is the loci filter on x$db, and second sample filter on x$samples.
 }
 \examples{
-
+data(exstra_wgs_pcr_2)
 # All data:
 exstra_wgs_pcr_2
 

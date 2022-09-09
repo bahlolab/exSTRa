@@ -1,3 +1,4 @@
+data(exstra_wgs_pcr_2)
 # Make a small example matrix
 qm_small <- make_quantiles_matrix(exstra_wgs_pcr_2["HD", 1:4], 
   method = "quantile7")$y.mat[, c(49, 31, 99)]

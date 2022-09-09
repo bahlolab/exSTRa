@@ -1,3 +1,4 @@
+data(exstra_wgs_pcr_2)
 rbinding <- rbind_score_list(list(exstra_wgs_pcr_2[, 5], exstra_wgs_pcr_2[, 10]))
 
 obs_N <- exstra_wgs_pcr_2[, 5]$data[, .N] + exstra_wgs_pcr_2[, 10]$data[, .N]

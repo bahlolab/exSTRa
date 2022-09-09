@@ -1,3 +1,4 @@
+data(exstra_wgs_pcr_2)
 image_directory <- tempfile("example_images")
 test_that("plot_multi()", {
   expect_null(
