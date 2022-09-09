@@ -1,0 +1,36 @@
+# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+on:
+  push:
+    branches: [master, devel_tankard, devel_tankard_notes, beta, devel_score_bam, 
+      devel_score_bam_actions, BiocCheck_fixing]
+  pull_request:
+    branches: [master, devel_tankard, devel_tankard_notes, beta, devel_score_bam, 
+      devel_score_bam_actions, BiocCheck_fixing]
+  schedule:
+    # run every day at 3:17 AM UTC
+    - cron: '17 3 * * *'
+
+name: BiocCheck
+
+jobs:
+  bioccheck:
+    runs-on: ubuntu-latest
+    name: BiocCheck
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      - name: Setup Pandoc
+        uses: r-lib/actions/setup-pandoc@v2
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+          http-user-agent: release
+          use-public-rspm: true
+      - name: Install Deps
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          cache: true
+      - name: Run BiocCheck
+        uses: insightsengineering/bioc-check-action@v1
