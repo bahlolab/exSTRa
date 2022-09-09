@@ -291,3 +291,8 @@ data_13 <- str_score[, "WGSrpt_13"]
 ( combined_data <- rbind_score_list(list(data_08, data_13)) )
 ```
 
+# Session Info
+
+```{r}
+sessionInfo()
+```
