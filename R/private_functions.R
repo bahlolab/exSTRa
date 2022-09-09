@@ -53,7 +53,7 @@ plot_many_str_score <- function(strscore, typename, plot_cols, loci = NULL,
       leg_labels <- names(plot_cols_this)
       #if(length(plot_cols_this) != length(plot_cols)) {
       if(!is.null(alpha_case)) {
-        plot_cols_this <- add_alpha_(plot_cols_this, alpha_case)
+        plot_cols_this <- add_alpha(plot_cols_this, alpha_case)
       }
       if(legend_control && length(plot_cols_this) != strscore[loc]$samples[, .N]) {
         leg_labels <- c(leg_labels, controls_label)

@@ -9,7 +9,7 @@
 #' @return A character vector.
 #' @importFrom grDevices col2rgb rgb
 #' @export
-add_alpha_ <- function(col, alpha = 1){
+add_alpha <- function(col, alpha = 1){
   if(missing(col))
     stop("Please provide a vector of colours.")
   if(length(col) == 0) {

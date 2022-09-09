@@ -283,7 +283,7 @@ plot.exstra_score <- function(x, loci = NULL, sample_col = NULL,
         names(sample_col) <- rsc$samples$sample
       } 
       if(!is.null(alpha_case)) {
-        sample_col <- add_alpha_(sample_col, alpha_case)
+        sample_col <- add_alpha(sample_col, alpha_case)
       }
       for(samp in c(setdiff(unique(plot_data$sample), names(sample_col)), intersect(unique(plot_data$sample), names(sample_col)))) {
         plot(ecdf(plot_data[sample == samp, rep]), add = TRUE, col = replace(sample_col[samp], is.na(sample_col[samp]), black_trans), verticals = verticals,
