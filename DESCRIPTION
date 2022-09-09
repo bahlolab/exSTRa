@@ -5,7 +5,7 @@ Version: 0.91.0.9000
 Date: 2022-09-01
 Authors@R: c(
   person("Rick M", "Tankard", role = c("cre", "aut"),
-    email = "tankard.r@wehi.edu.au",
+    email = "rickmtankard@gmail.com",
     comment = c(ORCID = "0000-0002-8847-9401")),
   person("Mark", "Bennett", role = "aut",
     email = "bennett.ma@wehi.edu.au", 
