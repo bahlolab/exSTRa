@@ -15,5 +15,9 @@ utils::globalVariables(c(
   "plotname",
   "ord",
   "keepme",
+  "strand",
+  "DNAString",
+  "qwidth",
+  "scanBamHeader",
   "bf"
 ))
